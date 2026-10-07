@@ -1,0 +1,28 @@
+/**
+ * Tokens visuales de AGROTECH-T.
+ *
+ * Propósito: fijar la paleta verde y las sombras neomórficas.
+ * Contexto: una sola tonalidad, del negro verde al menta claro.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+:root {
+  --ink: #030706;
+  --forest: #142b1b;
+  --leaf: #2c4f31;
+  --moss: #49724a;
+  --sage: #819f7c;
+  --mist: #a4b99e;
+  --foam: #c0d9b8;
+  --mint: #c4e8c9;
+  --paper: #d2ddcd;
+  --surface: #d5e2d0;
+  --light: rgba(255, 255, 255, 0.78);
+  --shade: rgba(20, 43, 27, 0.16);
+  --raised: 10px 10px 22px var(--shade), -10px -10px 22px var(--light);
+  --inset: inset 7px 7px 14px var(--shade), inset -7px -7px 14px var(--light);
+  --font: "Manrope", "Segoe UI", sans-serif;
+  color: var(--ink);
+  font-family: var(--font);
+  background: var(--paper);
+}
