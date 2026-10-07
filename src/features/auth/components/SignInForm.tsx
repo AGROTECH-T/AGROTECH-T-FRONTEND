@@ -6,10 +6,12 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FieldIcon } from "../../../components/ui/FieldIcon.tsx";
+import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { fetchAccount, login } from "../services/account.ts";
+import { digitsMessage, loginPasswordMessage, reviewField } from "../services/fieldRules.ts";
 import { loginPayload } from "../services/payload.ts";
 import { saveToken } from "../services/session.ts";
 import type { Account } from "../types/index.ts";
@@ -28,19 +30,41 @@ type Props = {
 export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
   const [identification, setIdentification] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [gaps, setGaps] = useState<Record<string, string>>({});
   const [pending, setPending] = useState(false);
+  const notices = useNotices();
+
+  useEffect(() => {
+    if (notice) notices.push([notice], "ok");
+  }, [notice]);
+
+  const edit = (key: string, setValue: (value: string) => void) => (value: string) => {
+    setValue(value);
+    setGaps((current) => ({ ...current, [key]: "" }));
+  };
 
   const enter = async () => {
+    const next = {
+      identification: digitsMessage(identification, "1234567890", 5, 15),
+      password: loginPasswordMessage(password),
+    };
+    setGaps(next);
+    const failed = [
+      reviewField("identificación", next.identification),
+      reviewField("contraseña", next.password),
+    ].filter(Boolean);
+    if (failed.length) {
+      notices.push(failed, "warn");
+      return;
+    }
     setPending(true);
-    setError("");
     try {
       const body = loginPayload(identification, password);
       const session = await login(body.identification, body.password);
       saveToken(session.token);
       onSuccess(await fetchAccount(session.token));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "No se pudo ingresar");
+      notices.push([cause instanceof Error ? cause.message : "No se pudo ingresar"], "warn");
     } finally {
       setPending(false);
     }
@@ -49,6 +73,7 @@ export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
   return (
     <form
       className="form"
+      noValidate
       onSubmit={(event) => {
         event.preventDefault();
         void enter();
@@ -62,12 +87,11 @@ export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
         <h2 id="signin-title">Ingresar</h2>
         <p>Qué bueno verte de nuevo.</p>
       </header>
-      {notice ? <p className="notice">{notice}</p> : null}
-      <TextField id="login-id" label="Identificación" icon="user" value={identification} autoComplete="username" onChange={setIdentification} />
-      <TextField id="login-password" label="Contraseña" icon="lock" type="password" value={password} autoComplete="current-password" onChange={setPassword} />
+      <TextField id="login-id" label="N.º de identificación" icon="user" placeholder="1234567890" value={identification} autoComplete="username" message={gaps.identification} onChange={edit("identification", setIdentification)} />
+      <TextField id="login-password" label="Contraseña" icon="lock" type="password" value={password} autoComplete="current-password" message={gaps.password} onChange={edit("password", setPassword)} />
       <button type="button" className="text-link" onClick={onForgot}>Olvidé mi contraseña</button>
-      {error ? <p className="alert" role="alert">{error}</p> : null}
       <button type="submit" className="solid" disabled={pending}>{pending ? "Ingresando" : "Entrar a mi finca →"}</button>
+      <NoticeStack items={notices.items} onClose={notices.close} />
     </form>
   );
 }

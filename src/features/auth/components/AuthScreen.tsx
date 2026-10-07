@@ -10,8 +10,8 @@ import { useState } from "react";
 import { logout } from "../services/account.ts";
 import { clearToken, readToken } from "../services/session.ts";
 import type { Account, Mode } from "../types/index.ts";
+import { HomeScreen } from "../../home/components/HomeScreen.tsx";
 import { RecoverForm } from "./RecoverForm.tsx";
-import { SessionPanel } from "./SessionPanel.tsx";
 import { SignInForm } from "./SignInForm.tsx";
 import { SignUpForm } from "./SignUpForm.tsx";
 import { WelcomeSide } from "./WelcomeSide.tsx";
@@ -34,23 +34,21 @@ export function AuthScreen() {
     setMode("signin");
   };
 
+  if (account) {
+    return <HomeScreen onLogout={() => void leave()} />;
+  }
+
   let form = (
     <SignInForm notice={notice} onForgot={() => setMode("recover")} onSuccess={setAccount} />
   );
-  if (account) {
-    form = <SessionPanel account={account} onLogout={() => void leave()} />;
-  } else if (mode === "signup") {
+  if (mode === "signup") {
     form = (
-      <SignUpForm
-        onCreated={() => {
-          setNotice("Cuenta creada. Ya puedes ingresar.");
-          setMode("signin");
-        }}
-      />
+      <SignUpForm />
     );
   } else if (mode === "recover") {
     form = (
       <RecoverForm
+        onBack={() => setMode("signin")}
         onDone={() => {
           setNotice("Contraseña actualizada.");
           setMode("signin");
