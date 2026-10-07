@@ -1,0 +1,18 @@
+# Frontend local publicado para Docker Desktop.
+name: agrotech-t-frontend
+
+services:
+  frontend:
+    build:
+      context: .
+      target: production
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8090}
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
