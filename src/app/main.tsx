@@ -15,6 +15,10 @@ import App from "./App.tsx";
 import { AppProviders } from "./providers/AppProviders.tsx";
 import "../styles/tokens.css";
 import "../styles/auth.css";
+import "../styles/password.css";
+import "../styles/home.css";
+import "../styles/notices.css";
+import "../styles/otp.css";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("No existe el contenedor raíz");

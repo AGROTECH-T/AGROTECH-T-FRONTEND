@@ -7,6 +7,7 @@
  */
 
 import { apiRoot } from "./config.ts";
+import { limitNotice } from "./limitNotice.ts";
 
 /**
  * Envía JSON y devuelve el cuerpo si la respuesta es exitosa.
@@ -34,6 +35,8 @@ async function send<T>(path: string, init: RequestInit, token: string): Promise<
   if (token) headers.set("Authorization", `Bearer ${token}`);
   const response = await fetch(`${apiRoot()}${path}`, { ...init, headers });
   const data = (await response.json().catch(() => ({}))) as { error?: string };
-  if (!response.ok) throw new Error(data.error ?? "No se pudo completar la solicitud");
+  if (!response.ok) {
+    throw new Error(limitNotice(data.error ?? "No se pudo completar la solicitud"));
+  }
   return data as T;
 }
