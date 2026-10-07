@@ -63,15 +63,15 @@ export function SignUpForm({ onCreated }: Readonly<Props>) {
         <p>Unos datos y ya puedes entrar a tu finca.</p>
       </header>
       <div className="field-row">
-        <TextField id="first-name" label="Primer nombre" value={firstName} autoComplete="given-name" onChange={setFirstName} />
-        <TextField id="last-name" label="Primer apellido" value={lastName} autoComplete="family-name" onChange={setLastName} />
+        <TextField id="first-name" label="Primer nombre" icon="user" value={firstName} autoComplete="given-name" onChange={setFirstName} />
+        <TextField id="last-name" label="Primer apellido" icon="user" value={lastName} autoComplete="family-name" onChange={setLastName} />
       </div>
-      <TextField id="signup-id" label="N.º de identificación" value={identification} autoComplete="off" onChange={setIdentification} />
+      <TextField id="signup-id" label="N.º de identificación" icon="user" value={identification} autoComplete="off" onChange={setIdentification} />
       <div className="field-row">
-        <TextField id="phone" label="Celular" value={phone} autoComplete="tel" onChange={setPhone} />
-        <TextField id="correo" label="Correo" type="email" value={correo} autoComplete="email" onChange={setCorreo} />
+        <TextField id="phone" label="Celular" icon="phone" value={phone} autoComplete="tel" onChange={setPhone} />
+        <TextField id="correo" label="Correo" icon="mail" type="email" value={correo} autoComplete="email" onChange={setCorreo} />
       </div>
-      <TextField id="signup-password" label="Contraseña" type="password" value={password} autoComplete="new-password" onChange={setPassword} />
+      <TextField id="signup-password" label="Contraseña" icon="lock" type="password" value={password} autoComplete="new-password" onChange={setPassword} />
       <p className="hint">8 caracteres, con mayúscula, minúscula, número y un signo. Celular o correo, al menos uno.</p>
       {error ? <p className="alert" role="alert">{error}</p> : null}
       <button type="submit" className="solid" disabled={pending}>{pending ? "Creando" : "Crear cuenta"}</button>
