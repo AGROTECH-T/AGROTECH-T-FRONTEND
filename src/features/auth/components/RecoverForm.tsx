@@ -56,11 +56,11 @@ export function RecoverForm({ onDone }: Readonly<Props>) {
       aria-labelledby="recover-title"
     >
       <h2 id="recover-title">Recuperar acceso</h2>
-      <TextField id="recover-id" label="Identificación" value={identification} autoComplete="username" onChange={setIdentification} />
+      <TextField id="recover-id" label="Identificación" icon="user" value={identification} autoComplete="username" onChange={setIdentification} />
       {sent ? (
         <>
-          <TextField id="code" label="Código" value={code} autoComplete="one-time-code" onChange={setCode} />
-          <TextField id="new-password" label="Nueva contraseña" type="password" value={password} autoComplete="new-password" onChange={setPassword} />
+          <TextField id="code" label="Código" icon="lock" value={code} autoComplete="one-time-code" onChange={setCode} />
+          <TextField id="new-password" label="Nueva contraseña" icon="lock" type="password" value={password} autoComplete="new-password" onChange={setPassword} />
         </>
       ) : (
         <fieldset className="choices">
