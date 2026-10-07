@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import type { ChangeEvent } from "react";
+import { useState, type ChangeEvent } from "react";
 import { FieldIcon } from "./FieldIcon.tsx";
 
 type IconName = "user" | "mail" | "phone" | "lock";
@@ -18,6 +18,8 @@ type Props = {
   value: string;
   autoComplete: string;
   icon?: IconName;
+  placeholder?: string;
+  message?: string;
   onChange: (value: string) => void;
 };
 
@@ -33,23 +35,45 @@ export function TextField({
   value,
   autoComplete,
   icon,
+  placeholder,
+  message = "",
   onChange,
 }: Readonly<Props>) {
+  const [visible, setVisible] = useState(false);
+  const secret = type === "password";
+  const shown = secret && visible ? "text" : type;
   const update = (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value);
+  const classes = [icon ? "with-icon" : "", secret ? "with-reveal" : ""].filter(Boolean).join(" ");
+
   return (
-    <label className="field" htmlFor={id}>
-      <span>{label}</span>
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
       <span className="field-box">
         {icon ? <FieldIcon name={icon} /> : null}
         <input
           id={id}
-          className={icon ? "with-icon" : undefined}
-          type={type}
+          className={classes || undefined}
+          type={shown}
           value={value}
+          placeholder={placeholder}
           autoComplete={autoComplete}
+          aria-invalid={message ? true : undefined}
+          aria-describedby={message ? `${id}-error` : undefined}
           onChange={update}
         />
+        {secret ? (
+          <button
+            type="button"
+            className="reveal"
+            aria-pressed={visible}
+            aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"}
+            onClick={() => setVisible((current) => !current)}
+          >
+            <FieldIcon name={visible ? "eye-off" : "eye"} />
+          </button>
+        ) : null}
       </span>
-    </label>
+      {message ? <p className="field-error" id={`${id}-error`}>{message}</p> : null}
+    </div>
   );
 }
