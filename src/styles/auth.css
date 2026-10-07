@@ -68,8 +68,13 @@ p { margin: 0; line-height: 1.5; }
 .form .brand, .hint { color: var(--moss); text-align: center; }
 .hint { font-size: 0.85rem; }
 
+.form-intro { display: flex; flex-direction: column; gap: 4px; text-align: center; }
+.form-intro p { color: var(--moss); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.signup { gap: 18px; justify-content: flex-start; }
 .field { display: flex; flex-direction: column; gap: 6px; color: var(--leaf); font-size: 0.82rem; font-weight: 600; }
 .field input {
+  width: 100%;
   border: 0;
   border-radius: 16px;
   padding: 14px 16px;
@@ -105,4 +110,5 @@ button { font: inherit; cursor: pointer; }
 @media (max-width: 860px) {
   .shell { grid-template-columns: 1fr; padding: 18px; }
   .welcome { min-height: 320px; }
+  .field-row { grid-template-columns: 1fr; }
 }
