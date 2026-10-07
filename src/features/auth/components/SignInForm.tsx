@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useState, type SubmitEvent } from "react";
+import { useState } from "react";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { fetchAccount, login } from "../services/account.ts";
 import { loginPayload } from "../services/payload.ts";
@@ -30,8 +30,7 @@ export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
-  const submit = async (event: SubmitEvent) => {
-    event.preventDefault();
+  const enter = async () => {
     setPending(true);
     setError("");
     try {
@@ -47,7 +46,14 @@ export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
   };
 
   return (
-    <form className="form" onSubmit={submit} aria-labelledby="signin-title">
+    <form
+      className="form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void enter();
+      }}
+      aria-labelledby="signin-title"
+    >
       <h2 id="signin-title">Ingresar</h2>
       {notice ? <p className="notice">{notice}</p> : null}
       <TextField id="login-id" label="Identificación" value={identification} autoComplete="username" onChange={setIdentification} />

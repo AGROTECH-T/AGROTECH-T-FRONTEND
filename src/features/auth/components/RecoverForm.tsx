@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useState, type SubmitEvent } from "react";
+import { useState } from "react";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { postJson } from "../../../services/api/client.ts";
 
@@ -28,8 +28,7 @@ export function RecoverForm({ onDone }: Readonly<Props>) {
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
-  const submit = async (event: SubmitEvent) => {
-    event.preventDefault();
+  const recover = async () => {
     setPending(true);
     setError("");
     try {
@@ -48,7 +47,14 @@ export function RecoverForm({ onDone }: Readonly<Props>) {
   };
 
   return (
-    <form className="form" onSubmit={submit} aria-labelledby="recover-title">
+    <form
+      className="form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void recover();
+      }}
+      aria-labelledby="recover-title"
+    >
       <h2 id="recover-title">Recuperar acceso</h2>
       <TextField id="recover-id" label="Identificación" value={identification} autoComplete="username" onChange={setIdentification} />
       {sent ? (
