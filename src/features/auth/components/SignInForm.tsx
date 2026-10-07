@@ -7,6 +7,7 @@
  */
 
 import { useState } from "react";
+import { FieldIcon } from "../../../components/ui/FieldIcon.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { fetchAccount, login } from "../services/account.ts";
 import { loginPayload } from "../services/payload.ts";
@@ -54,13 +55,19 @@ export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
       }}
       aria-labelledby="signin-title"
     >
-      <h2 id="signin-title">Ingresar</h2>
+      <div className="form-mark" aria-hidden="true">
+        <FieldIcon name="lock" />
+      </div>
+      <header className="form-intro">
+        <h2 id="signin-title">Ingresar</h2>
+        <p>Qué bueno verte de nuevo.</p>
+      </header>
       {notice ? <p className="notice">{notice}</p> : null}
-      <TextField id="login-id" label="Identificación" value={identification} autoComplete="username" onChange={setIdentification} />
-      <TextField id="login-password" label="Contraseña" type="password" value={password} autoComplete="current-password" onChange={setPassword} />
+      <TextField id="login-id" label="Identificación" icon="user" value={identification} autoComplete="username" onChange={setIdentification} />
+      <TextField id="login-password" label="Contraseña" icon="lock" type="password" value={password} autoComplete="current-password" onChange={setPassword} />
       <button type="button" className="text-link" onClick={onForgot}>Olvidé mi contraseña</button>
       {error ? <p className="alert" role="alert">{error}</p> : null}
-      <button type="submit" className="solid" disabled={pending}>{pending ? "Ingresando" : "Ingresar"}</button>
+      <button type="submit" className="solid" disabled={pending}>{pending ? "Ingresando" : "Entrar a mi finca →"}</button>
     </form>
   );
 }
