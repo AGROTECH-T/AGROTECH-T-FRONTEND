@@ -26,3 +26,7 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# Guía de diseño local (skill agrotech-t; no versionar)
+.cursor/diseno-agrotech-t.md
+.cursor/skills/
