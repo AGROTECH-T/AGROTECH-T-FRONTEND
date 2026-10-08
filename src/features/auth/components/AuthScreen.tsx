@@ -24,7 +24,7 @@ export function AuthScreen() {
   const [mode, setMode] = useState<Mode>("signin");
   const [notice, setNotice] = useState("");
   const [account, setAccount] = useState<Account | null>(null);
-  const formFirst = mode !== "signup";
+  const formFirst = mode === "signup";
 
   const leave = async () => {
     const token = readToken();
