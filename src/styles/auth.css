@@ -144,7 +144,7 @@ button { font: inherit; cursor: pointer; }
 .blob-b { width: 280px; height: 280px; right: -90px; bottom: -100px; background: var(--foam); }
 @media (max-width: 860px) {
   .shell, .shell.signin { grid-template-columns: 1fr; padding: 18px; }
-  .form, .form.signup { width: 100%; }
-  .welcome { height: 280px; }
+  .form, .form.signup { width: 100%; order: 1; }
+  .welcome { height: 280px; order: 2; }
   .field-row { grid-template-columns: 1fr; }
 }
