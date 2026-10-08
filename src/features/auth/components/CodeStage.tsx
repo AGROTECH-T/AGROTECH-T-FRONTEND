@@ -25,13 +25,18 @@ type Props = {
   onConfirm: (code: string, password: string) => void;
 };
 
+/** @returns Seis casillas vacías para el OTP. */
+function emptyDigits(): string[] {
+  return new Array(LENGTH).fill("");
+}
+
 /**
  * Comprueba el código y, si es válido, abre la contraseña nueva.
  * @param props - Reenvío, validación, confirmación y vuelta atrás.
  * @returns Escena de validación.
  */
 export function CodeStage({ pending, onBack, onResend, onCheck, onConfirm }: Readonly<Props>) {
-  const [digits, setDigits] = useState<string[]>(() => Array(LENGTH).fill(""));
+  const [digits, setDigits] = useState<string[]>(emptyDigits);
   const [password, setPassword] = useState("");
   const [phase, setPhase] = useState<Phase>("code");
   const [resendIn, setResendIn] = useState(RESEND);
@@ -58,7 +63,7 @@ export function CodeStage({ pending, onBack, onResend, onCheck, onConfirm }: Rea
     if (pause > 0) await new Promise((resolve) => globalThis.setTimeout(resolve, pause));
     if (!alive.current) return;
     if (!ok) {
-      setDigits(Array(LENGTH).fill(""));
+      setDigits(emptyDigits());
       setPhase("code");
       return;
     }
@@ -77,7 +82,7 @@ export function CodeStage({ pending, onBack, onResend, onCheck, onConfirm }: Rea
     if (resendIn > 0 || pending || phase !== "code") return;
     const ok = await onResend();
     if (!ok) return;
-    setDigits(Array(LENGTH).fill(""));
+    setDigits(emptyDigits());
     setPhase("code");
     setResendIn(RESEND);
     setLeft(LIFE);
@@ -86,7 +91,7 @@ export function CodeStage({ pending, onBack, onResend, onCheck, onConfirm }: Rea
   const goBack = () => {
     if (phase === "password") {
       setPassword("");
-      setDigits(Array(LENGTH).fill(""));
+      setDigits(emptyDigits());
       setPhase("code");
       return;
     }
@@ -106,8 +111,12 @@ export function CodeStage({ pending, onBack, onResend, onCheck, onConfirm }: Rea
         <h2 id="otp-title">Valida tu código</h2>
         <p>{left > 0 ? `Caduca en ${clock}. Si pides otro, este deja de servir.` : "Este código caducó. Pide uno nuevo."}</p>
         {phase === "code" ? <CodeBoxes digits={digits} onChange={publish} /> : null}
-        {phase === "checking" ? <div className="otp-wait" role="status"><span className="otp-spin" /><p>Comprobando el código</p></div> : null}
-        {phase === "verified" || phase === "password" ? <div className="otp-success" role="status"><span className="otp-mark">✓</span><p>Código verificado</p></div> : null}
+        {phase === "checking" ? (
+          <output className="otp-wait"><span className="otp-spin" /><p>Comprobando el código</p></output>
+        ) : null}
+        {phase === "verified" || phase === "password" ? (
+          <output className="otp-success"><span className="otp-mark">✓</span><p>Código verificado</p></output>
+        ) : null}
         {phase === "code" ? (
           <button type="button" className="otp-resend" disabled={resendIn > 0 || pending} onClick={() => void resend()}>
             {resendIn > 0 ? `Reenviar en ${resendIn} s` : "¿No te llegó el código? Reenviar"}
