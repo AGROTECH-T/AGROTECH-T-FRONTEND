@@ -8,6 +8,8 @@
 
 import { useEffect, useRef } from "react";
 
+const BOX_IDS = ["otp-1", "otp-2", "otp-3", "otp-4", "otp-5", "otp-6"] as const;
+
 type Props = {
   digits: string[];
   onChange: (digits: string[]) => void;
@@ -42,15 +44,15 @@ export function CodeBoxes({ digits, onChange }: Readonly<Props>) {
 
   return (
     <div className="otp-boxes">
-      {digits.map((digit, index) => (
+      {BOX_IDS.map((id, index) => (
         <input
-          key={index}
+          key={id}
           ref={(node) => { boxes.current[index] = node; }}
-          className={digit ? "filled" : undefined}
+          className={digits[index] ? "filled" : undefined}
           inputMode="numeric"
           autoComplete={index === 0 ? "one-time-code" : "off"}
           aria-label={`Dígito ${index + 1} de ${digits.length}`}
-          value={digit}
+          value={digits[index] ?? ""}
           onChange={(event) => write(index, event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Backspace" && !digits[index] && index > 0) {
