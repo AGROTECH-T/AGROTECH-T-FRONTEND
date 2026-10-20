@@ -45,7 +45,7 @@ export function AuthScreen() {
   );
   if (mode === "signup") {
     form = (
-      <SignUpForm />
+      <SignUpForm onSuccess={setAccount} />
     );
   } else if (mode === "recover") {
     form = (
