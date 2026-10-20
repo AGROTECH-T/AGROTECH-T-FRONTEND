@@ -1,0 +1,129 @@
+/**
+ * Menú de perfil.
+ *
+ * Propósito: disparador y panel con los datos de la cuenta.
+ * Contexto: barra superior del shell autenticado.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.profile-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-menu__trigger {
+  display: flex;
+  align-items: center;
+  padding: 5px 12px 5px 5px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: var(--raised);
+  cursor: pointer;
+}
+
+.profile-menu__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 6;
+  width: 300px;
+  padding: 14px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.profile-menu__header {
+  margin-bottom: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  color: var(--forest);
+  background: linear-gradient(160deg, var(--mint), var(--foam));
+  text-align: center;
+}
+
+.profile-menu__avatar.is-large {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  color: var(--mint);
+  background: var(--forest);
+  font-weight: 700;
+}
+
+.profile-menu__title {
+  margin: 0 0 4px;
+  font-weight: 700;
+}
+
+.profile-menu__meta {
+  margin: 0;
+  color: var(--moss);
+  font-size: 0.82rem;
+}
+
+.profile-menu__data {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.profile-menu__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-menu__row dt {
+  color: var(--sage);
+  font-size: 0.78rem;
+}
+
+.profile-menu__row dd {
+  margin: 0;
+  color: var(--forest);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: right;
+  word-break: break-word;
+}
+
+.profile-menu__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.profile-menu__cancel,
+.profile-menu__logout {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.profile-menu__cancel {
+  color: var(--leaf);
+  background: var(--surface);
+  box-shadow: var(--raised);
+}
+
+.profile-menu__logout {
+  color: var(--field);
+  background: var(--danger);
+  box-shadow: var(--raised);
+}
+
+.profile-menu__logout:hover {
+  background: var(--danger-deep);
+}

@@ -1,0 +1,103 @@
+/**
+ * Barra superior autenticada.
+ *
+ * Propósito: buscador global y zona de acciones (avisos y perfil).
+ * Contexto: shell de escritorio AGROTECH-T.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--raised);
+}
+
+.top-bar__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 560px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 20px;
+  background: var(--field);
+  box-shadow: var(--inset);
+}
+
+.top-bar__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--moss);
+}
+
+.top-bar__search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+}
+
+.top-bar__search input:focus {
+  outline: none;
+}
+
+.top-bar__search input::placeholder {
+  color: var(--sage);
+}
+
+.top-bar__results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.top-bar__results button {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 14px;
+  color: var(--forest);
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.top-bar__results button:hover {
+  background: color-mix(in srgb, var(--mint) 60%, transparent);
+}
+
+.top-bar__result-hint {
+  color: var(--sage);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.top-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}

@@ -1,0 +1,90 @@
+/**
+ * Panel de notificaciones.
+ *
+ * Propósito: estilos de la campana y su panel de avisos.
+ * Contexto: barra superior del shell autenticado.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.notifications {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.notifications__trigger {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 16px;
+  color: var(--leaf);
+  background: var(--card);
+  box-shadow: var(--raised);
+  cursor: pointer;
+}
+
+.notifications__trigger:hover {
+  color: var(--forest);
+}
+
+.notifications__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.notifications__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 6;
+  width: 300px;
+  padding: 14px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.notifications__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.notifications__title {
+  margin: 0;
+  color: var(--forest);
+  font-weight: 700;
+}
+
+.notifications__badge {
+  min-width: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--field);
+  background: var(--leaf);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.notifications__empty {
+  padding: 20px 12px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+  text-align: center;
+}
+
+.notifications__empty-title {
+  margin: 0 0 4px;
+  color: var(--forest);
+  font-weight: 600;
+}
+
+.notifications__empty-hint {
+  margin: 0;
+  color: var(--sage);
+  font-size: 0.82rem;
+}

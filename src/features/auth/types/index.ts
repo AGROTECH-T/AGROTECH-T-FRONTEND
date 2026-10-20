@@ -15,6 +15,14 @@ export type Account = {
   identification: string;
   phone: string;
   correo: string;
+  is_active: boolean;
+};
+
+export type ProfileUpdate = {
+  first_name: string;
+  last_name: string;
+  correo: string;
+  phone: string;
 };
 
 export type LoginResult = {

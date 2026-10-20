@@ -1,0 +1,97 @@
+/**
+ * Identidad de la cuenta.
+ *
+ * Propósito: chip de usuario y su lugar en el pie del menú lateral.
+ * Contexto: shell autenticado AGROTECH-T.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.account-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.account-chip__avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: var(--field);
+  background: var(--forest);
+  font-weight: 700;
+}
+
+.account-chip__who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.account-chip__name {
+  color: var(--forest);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.account-chip__role {
+  color: var(--sage);
+  font-size: 0.78rem;
+}
+
+.account-chip__caret {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--moss);
+}
+
+.side-nav__foot {
+  margin-top: auto;
+  width: 100%;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.side-nav.is-collapsed .side-nav__foot {
+  display: flex;
+  justify-content: center;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.side-nav.is-collapsed .account-chip__who {
+  display: none;
+}
+
+.account-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-button:hover {
+  background: color-mix(in srgb, var(--mint) 45%, transparent);
+}
+
+.account-button.is-active {
+  background: color-mix(in srgb, var(--mint) 65%, var(--foam));
+  box-shadow: var(--inset);
+}
+
+.side-nav.is-collapsed .account-button {
+  justify-content: center;
+  padding: 8px;
+}
