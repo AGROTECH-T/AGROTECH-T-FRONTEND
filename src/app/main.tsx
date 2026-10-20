@@ -22,6 +22,7 @@ import "../styles/topbar.css";
 import "../styles/profile.css";
 import "../styles/profile-menu.css";
 import "../styles/notifications.css";
+import "../styles/profile-page.css";
 import "../styles/inventario.css";
 import "../styles/notices.css";
 import "../styles/otp.css";

@@ -35,7 +35,9 @@ export function AuthScreen() {
   };
 
   if (account) {
-    return <HomeScreen onLogout={() => void leave()} />;
+    return (
+      <HomeScreen account={account} onAccountChange={setAccount} onLogout={() => void leave()} />
+    );
   }
 
   let form = (
