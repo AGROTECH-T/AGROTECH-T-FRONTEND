@@ -1,0 +1,261 @@
+/**
+ * Pantalla "Mi perfil".
+ *
+ * Propósito: identidad, datos de contacto y edición en dos columnas.
+ * Contexto: sección de perfil del shell autenticado.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.profile-page__head {
+  margin-bottom: 24px;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 320px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.profile-identity {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  padding: 34px 26px 28px;
+  border-radius: 28px;
+  color: var(--forest);
+  text-align: center;
+  background: linear-gradient(160deg, var(--card), var(--foam));
+  box-shadow: var(--raised);
+}
+
+.profile-identity::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -50px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: var(--mint);
+  opacity: 0.6;
+}
+
+.profile-identity__avatar {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  color: var(--mint);
+  background: linear-gradient(145deg, var(--leaf), var(--forest));
+  font-size: 2.4rem;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(20, 43, 27, 0.32), inset 0 -6px 14px rgba(3, 7, 6, 0.35);
+}
+
+.profile-identity__name {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.profile-identity__mail {
+  margin: 0;
+  color: var(--moss);
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.profile-status {
+  margin-top: 12px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.profile-status.is-on {
+  color: var(--field);
+  background: var(--leaf);
+}
+
+.profile-status.is-off {
+  color: var(--field);
+  background: var(--moss);
+}
+
+.profile-identity__edit {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 22px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--field);
+  background: var(--forest);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(20, 43, 27, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.profile-identity__edit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(20, 43, 27, 0.34);
+}
+
+.profile-section__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.profile-section__icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  color: var(--leaf);
+  background: var(--field);
+  box-shadow: var(--raised);
+}
+
+.profile-section__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.profile-section__title {
+  margin: 0;
+  color: var(--forest);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.profile-card,
+.profile-form {
+  padding: 26px 28px;
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+}
+
+.profile-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-field {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.profile-field__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  color: var(--moss);
+  background: var(--field);
+  box-shadow: var(--inset);
+}
+
+.profile-field__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.profile-field__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.profile-field__label {
+  color: var(--sage);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.profile-field__value {
+  color: var(--forest);
+  font-size: 1rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.profile-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.profile-form__locked input[readonly] {
+  color: var(--moss);
+  cursor: not-allowed;
+}
+
+.profile-form__hint {
+  margin: 6px 0 0;
+  color: var(--sage);
+  font-size: 0.8rem;
+}
+
+.profile-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.profile-form__cancel {
+  min-height: 46px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--forest);
+  background: var(--foam);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--raised);
+}
+
+.profile-form__cancel:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 980px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form__grid {
+    grid-template-columns: 1fr;
+  }
+}

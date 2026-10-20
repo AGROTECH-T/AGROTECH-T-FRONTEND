@@ -1,8 +1,9 @@
 /**
- * Modulo reservado.
+ * Feature de inventario.
  *
- * Proposito: dejar el lugar del dominio sin logica prematura.
- * Contexto: se implementa cuando el backend publique ese dominio.
+ * Propósito: exportar la interfaz visual del listado.
+ * Contexto: sin API ni dominio todavía.
  * @author Cristian Deysdayr Jimenez
  */
-export {};
+
+export { InventarioPanel } from "./components/InventarioPanel.tsx";
