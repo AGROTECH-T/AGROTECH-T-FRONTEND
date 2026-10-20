@@ -21,6 +21,17 @@ export async function postJson<T>(path: string, body: unknown, token = ""): Prom
 }
 
 /**
+ * Envía un cambio parcial y devuelve el cuerpo si la respuesta es exitosa.
+ * @param path - Ruta desde el origen, por ejemplo /api/v1/auth/me/.
+ * @param body - Campos que cambian.
+ * @param token - Sesión Bearer.
+ * @returns Cuerpo JSON de la respuesta.
+ */
+export function patchJson<T>(path: string, body: unknown, token: string): Promise<T> {
+  return send<T>(path, { method: "PATCH", body: JSON.stringify(body) }, token);
+}
+
+/**
  * Consulta un recurso JSON.
  * @param path - Ruta desde el origen.
  * @param token - Sesión Bearer.

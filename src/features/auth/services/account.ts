@@ -6,8 +6,8 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { getJson, postJson } from "../../../services/api/client.ts";
-import type { Account, LoginResult, OkResult } from "../types/index.ts";
+import { getJson, patchJson, postJson } from "../../../services/api/client.ts";
+import type { Account, LoginResult, OkResult, ProfileUpdate } from "../types/index.ts";
 
 /**
  * Consulta la cuenta autenticada.
@@ -16,6 +16,16 @@ import type { Account, LoginResult, OkResult } from "../types/index.ts";
  */
 export function fetchAccount(token: string): Promise<Account> {
   return getJson<Account>("/api/v1/auth/me/", token);
+}
+
+/**
+ * Guarda los datos editables del perfil.
+ * @param token - JWT cifrado vigente.
+ * @param changes - Nombre, apellidos, correo y celular.
+ * @returns La cuenta ya actualizada.
+ */
+export function updateAccount(token: string, changes: ProfileUpdate): Promise<Account> {
+  return patchJson<Account>("/api/v1/auth/me/", changes, token);
 }
 
 /**

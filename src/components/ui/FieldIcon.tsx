@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-type Name = "user" | "mail" | "phone" | "lock" | "eye" | "eye-off";
+type Name = "user" | "mail" | "phone" | "lock" | "eye" | "eye-off" | "id";
 
 type Props = {
   name: Name;
@@ -34,6 +34,13 @@ export function FieldIcon({ name }: Readonly<Props>) {
       ) : null}
       {name === "phone" ? (
         <path d="M8 3.8h2.2l1.2 3-1.6 1a12 12 0 0 0 5.4 5.4l1-1.6 3 1.2V15a2 2 0 0 1-2.2 2A14.2 14.2 0 0 1 6 6a2 2 0 0 1 2-2.2Z" />
+      ) : null}
+      {name === "id" ? (
+        <>
+          <rect x="3" y="5.5" width="18" height="13" rx="2" />
+          <circle cx="8.5" cy="10.6" r="1.7" />
+          <path d="M5.7 15.3c.7-1.3 1.7-1.9 2.8-1.9s2.1.6 2.8 1.9M14.4 10h4.1M14.4 13.6h4.1" />
+        </>
       ) : null}
       {name === "lock" ? (
         <>
