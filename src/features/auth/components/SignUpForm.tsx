@@ -10,16 +10,25 @@ import { useState } from "react";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { postJson } from "../../../services/api/client.ts";
+import { fetchAccount, login } from "../services/account.ts";
 import { digitsMessage, lettersMessage, mailMessage, passwordMessage, reviewField } from "../services/fieldRules.ts";
+import { loginPayload } from "../services/payload.ts";
+import { saveToken } from "../services/session.ts";
+import type { Account } from "../types/index.ts";
 import { PasswordGuide } from "./PasswordGuide.tsx";
 
 type Gaps = Record<string, string>;
 
+type Props = {
+  onSuccess: (account: Account) => void;
+};
+
 /**
- * Envía el alta cuando todos los campos están completos.
+ * Envía el alta y abre la sesión cuando todos los campos están completos.
+ * @param props - Sesión creada al terminar el registro.
  * @returns Formulario de registro.
  */
-export function SignUpForm() {
+export function SignUpForm({ onSuccess }: Readonly<Props>) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [identification, setIdentification] = useState("");
@@ -67,7 +76,10 @@ export function SignUpForm() {
         correo,
         password,
       });
-      notices.push(["Cuenta creada con éxito."], "ok");
+      const body = loginPayload(identification, password);
+      const session = await login(body.identification, body.password);
+      saveToken(session.token);
+      onSuccess(await fetchAccount(session.token));
     } catch (cause) {
       notices.push([cause instanceof Error ? cause.message : "No se pudo crear la cuenta"], "warn");
     } finally {
