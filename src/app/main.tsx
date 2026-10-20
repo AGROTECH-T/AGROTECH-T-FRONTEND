@@ -16,7 +16,12 @@ import { AppProviders } from "./providers/AppProviders.tsx";
 import "../styles/tokens.css";
 import "../styles/auth.css";
 import "../styles/password.css";
-import "../styles/home.css";
+import "../styles/shell.css";
+import "../styles/panel.css";
+import "../styles/topbar.css";
+import "../styles/profile.css";
+import "../styles/profile-menu.css";
+import "../styles/notifications.css";
 import "../styles/notices.css";
 import "../styles/otp.css";
 
