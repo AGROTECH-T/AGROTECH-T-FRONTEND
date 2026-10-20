@@ -1,0 +1,81 @@
+/**
+ * Paneles del área autenticada.
+ *
+ * Propósito: tipografía de sección, hub y botón primario.
+ * Contexto: Inicio, Inventario y Usuario en escritorio.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.panel {
+  min-height: calc(100vh - 140px);
+  padding: 32px 36px;
+  border-radius: 28px;
+  background: var(--card);
+  box-shadow: var(--raised);
+  box-sizing: border-box;
+}
+
+.panel__header {
+  margin-bottom: 28px;
+}
+
+.panel__title {
+  margin: 0 0 8px;
+  color: var(--forest);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.panel__lead {
+  margin: 0;
+  color: var(--sage);
+  font-size: 1rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--field);
+  background: var(--forest);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--raised);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--field);
+  background: var(--danger);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--raised);
+  transition: background 0.15s ease;
+}
+
+.btn-danger:hover {
+  background: var(--danger-deep);
+}
+
+.btn-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
