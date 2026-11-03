@@ -1,0 +1,92 @@
+/**
+ * Listado y estados de fincas.
+ *
+ * Propósito: toolbar, filas y vacíos con tokens verdes.
+ * Contexto: Farms v1 en el shell de escritorio.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.farm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.farm-search {
+  flex: 1;
+}
+
+.farm-search input,
+.farm-form__field input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--ink);
+  background: var(--field);
+  box-shadow: var(--inset);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.farm-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.farm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 16px 18px;
+  border: 0;
+  border-radius: 22px;
+  color: var(--forest);
+  background: var(--surface);
+  box-shadow: var(--raised);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.farm-row:hover {
+  background: var(--field);
+}
+
+.farm-row__name {
+  font-weight: 700;
+}
+
+.farm-row__role {
+  color: var(--moss);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.farm-empty,
+.farm-state {
+  padding: 36px 28px;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+  text-align: center;
+}
+
+.farm-empty__title {
+  margin: 0 0 8px;
+  color: var(--forest);
+  font-weight: 700;
+}
+
+.farm-empty__hint {
+  margin: 0;
+  color: var(--sage);
+}

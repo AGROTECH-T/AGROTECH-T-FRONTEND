@@ -1,8 +1,8 @@
 /**
- * Interfaz vacía del inventario.
+ * Inventario por finca.
  *
- * Propósito: barra de búsqueda, CTA y estado sin datos.
- * Contexto: UI de escritorio previa al módulo de dominio.
+ * Propósito: selector, listado, chips de stock y formularios.
+ * Contexto: código de barras obligatorio en cada producto.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -10,14 +10,17 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 22px;
+  margin: 18px 0 22px;
 }
 
 .inventario-search {
   flex: 1;
 }
 
-.inventario-search input {
+.inventario-search input,
+.inv-form__field input,
+.inv-form__field select,
+.inv-farm select {
   width: 100%;
   min-height: 44px;
   padding: 10px 16px;
@@ -30,8 +33,13 @@
   box-sizing: border-box;
 }
 
-.inventario-search input:disabled {
-  opacity: 0.85;
+.inv-farm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 360px;
+  color: var(--leaf);
+  font-weight: 600;
 }
 
 .inventario-empty {
@@ -53,14 +61,75 @@
   color: var(--sage);
 }
 
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+.inv-list {
+  margin: 0;
   padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inv-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 16px 18px;
   border: 0;
+  border-radius: 22px;
+  color: var(--forest);
+  background: var(--surface);
+  box-shadow: var(--raised);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inv-row:hover {
+  background: var(--field);
+}
+
+.inv-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.inv-row__name {
+  font-weight: 700;
+}
+
+.inv-row__code {
+  color: var(--sage);
+  font-size: 0.88rem;
+}
+
+.inv-row__stock {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.inv-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.inv-chip.is-ok {
+  color: var(--forest);
+  background: var(--mint);
+}
+
+.inv-chip.is-bajo {
+  color: var(--leaf);
+  background: var(--foam);
+}
+
+.inv-chip.is-agotado {
+  color: var(--forest);
+  background: color-mix(in srgb, var(--mist) 70%, var(--card));
 }

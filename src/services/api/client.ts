@@ -32,6 +32,17 @@ export function patchJson<T>(path: string, body: unknown, token: string): Promis
 }
 
 /**
+ * Reemplaza un recurso y devuelve el cuerpo si la respuesta es exitosa.
+ * @param path - Ruta desde el origen.
+ * @param body - Cuerpo completo del recurso.
+ * @param token - Sesión Bearer.
+ * @returns Cuerpo JSON de la respuesta.
+ */
+export function putJson<T>(path: string, body: unknown, token: string): Promise<T> {
+  return send<T>(path, { method: "PUT", body: JSON.stringify(body) }, token);
+}
+
+/**
  * Consulta un recurso JSON.
  * @param path - Ruta desde el origen.
  * @param token - Sesión Bearer.
@@ -39,6 +50,22 @@ export function patchJson<T>(path: string, body: unknown, token: string): Promis
  */
 export function getJson<T>(path: string, token: string): Promise<T> {
   return send<T>(path, { method: "GET" }, token);
+}
+
+/**
+ * Elimina un recurso.
+ * @param path - Ruta desde el origen.
+ * @param token - Sesión Bearer.
+ */
+export async function deleteJson(path: string, token: string): Promise<void> {
+  const headers = new Headers({ "Content-Type": "application/json" });
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const response = await fetch(`${apiRoot()}${path}`, { method: "DELETE", headers });
+  if (response.status === 204 || response.status === 205) return;
+  const data = (await response.json().catch(() => ({}))) as { error?: string };
+  if (!response.ok) {
+    throw new Error(limitNotice(data.error ?? "No se pudo completar la solicitud"));
+  }
 }
 
 async function send<T>(path: string, init: RequestInit, token: string): Promise<T> {
