@@ -1,8 +1,15 @@
 /**
- * Modulo reservado.
+ * Servicios del dominio de fincas.
  *
- * Proposito: dejar el lugar del dominio sin logica prematura.
- * Contexto: se implementa cuando el backend publique ese dominio.
+ * Propósito: reexportar el cliente y las etiquetas de rol.
  * @author Cristian Deysdayr Jimenez
  */
-export {};
+
+export {
+  createFarm,
+  deleteFarm,
+  getFarm,
+  listFarms,
+  updateFarm,
+} from "./farmsApi.ts";
+export { roleLabel } from "./roleLabel.ts";

@@ -9,6 +9,8 @@
 import { useState } from "react";
 import { AppShell, type AppSection } from "../../../components/layout/index.ts";
 import type { Account } from "../../auth/types/index.ts";
+import { ConfiguracionScreen } from "../../configuracion/index.ts";
+import { FarmsScreen } from "../../farms/index.ts";
 import { InventarioPanel } from "../../inventario/index.ts";
 import { ProfileScreen } from "../../profile/index.ts";
 import { HomeHub } from "./HomeHub.tsx";
@@ -31,7 +33,9 @@ function renderSection(
   account: Account,
   onAccountChange: (account: Account) => void,
 ) {
+  if (section === "fincas") return <FarmsScreen />;
   if (section === "inventario") return <InventarioPanel />;
+  if (section === "configuracion") return <ConfiguracionScreen />;
   if (section === "perfil") {
     return <ProfileScreen account={account} onAccountChange={onAccountChange} />;
   }

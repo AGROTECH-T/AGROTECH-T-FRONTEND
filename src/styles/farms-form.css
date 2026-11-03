@@ -1,0 +1,79 @@
+/**
+ * Formulario y detalle de fincas.
+ *
+ * Propósito: alta y ficha de consulta con relieve neomórfico.
+ * Contexto: Farms v1; alta, edición y borrado de administrador.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.farm-form {
+  margin-bottom: 22px;
+  padding: 22px 24px;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+}
+
+.farm-form__title {
+  margin: 0 0 16px;
+  color: var(--forest);
+  font-size: 1.15rem;
+}
+
+.farm-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--leaf);
+  font-weight: 600;
+}
+
+.farm-form__gap,
+.farm-form__error {
+  margin: 8px 0 0;
+  color: var(--moss);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.farm-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.farm-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: flex-start;
+}
+
+.farm-detail__meta {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  width: min(420px, 100%);
+}
+
+.farm-detail__meta div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--raised);
+}
+
+.farm-detail__meta dt {
+  color: var(--sage);
+  font-weight: 600;
+}
+
+.farm-detail__meta dd {
+  margin: 0;
+  color: var(--forest);
+  font-weight: 700;
+}

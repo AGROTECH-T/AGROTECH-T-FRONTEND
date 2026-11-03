@@ -1,0 +1,68 @@
+/**
+ * Formularios y detalle de inventario.
+ *
+ * Propósito: alta de producto y registro de movimientos.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.inv-form {
+  margin-bottom: 22px;
+  padding: 22px 24px;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inv-form__title {
+  margin: 0;
+  color: var(--forest);
+  font-size: 1.15rem;
+}
+
+.inv-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--leaf);
+  font-weight: 600;
+}
+
+.inv-form__gap,
+.inv-form__error {
+  margin: 0;
+  color: var(--moss);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.inv-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.inv-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.inv-detail__stock {
+  margin: 0;
+  color: var(--leaf);
+  font-size: 1.05rem;
+}
+
+.inv-moves {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--forest);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
