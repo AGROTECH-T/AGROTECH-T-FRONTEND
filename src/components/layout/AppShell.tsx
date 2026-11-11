@@ -15,7 +15,8 @@ import type { AppSection } from "./navTypes.ts";
 type Props = {
   account: Account;
   section: AppSection;
-  onNavigate: (section: AppSection) => void;
+  view: string;
+  onNavigate: (section: AppSection, view?: string) => void;
   onLogout: () => void;
   children: ReactNode;
 };
@@ -25,7 +26,7 @@ type Props = {
  * @param props - Cuenta, navegación y contenido.
  * @returns Shell de escritorio.
  */
-export function AppShell({ account, section, onNavigate, onLogout, children }: Readonly<Props>) {
+export function AppShell({ account, section, view, onNavigate, onLogout, children }: Readonly<Props>) {
   const [expanded, setExpanded] = useState(true);
   const shellClass = expanded ? "app-shell" : "app-shell is-nav-collapsed";
 
@@ -34,6 +35,7 @@ export function AppShell({ account, section, onNavigate, onLogout, children }: R
       <SideNav
         account={account}
         section={section}
+        view={view}
         expanded={expanded}
         onNavigate={onNavigate}
         onToggle={() => setExpanded((open) => !open)}
