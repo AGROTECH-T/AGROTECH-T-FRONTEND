@@ -118,6 +118,28 @@
   flex-shrink: 0;
 }
 
+.side-nav__chevron {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.side-nav__sub {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0 0 0 22px;
+  list-style: none;
+}
+
+.side-nav__sub .side-nav__item {
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 0.92rem;
+}
+
 .side-nav__toggle {
   width: auto;
   min-height: 40px;
