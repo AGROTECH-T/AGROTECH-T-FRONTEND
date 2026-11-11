@@ -13,15 +13,20 @@ import { FarmCreateForm } from "./FarmCreateForm.tsx";
 import { FarmDetail } from "./FarmDetail.tsx";
 import { FarmList } from "./FarmList.tsx";
 
+type Props = {
+  view: "lista" | "crear";
+  onView: (view: "lista" | "crear") => void;
+  onLeaveCreate: () => void;
+};
+
 /**
  * Orquesta listado, alta y detalle.
  * @returns Panel de Fincas.
  */
-export function FarmsScreen() {
+export function FarmsScreen({ view, onView, onLeaveCreate }: Readonly<Props>) {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Farm | null>(null);
-  const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -93,23 +98,12 @@ export function FarmsScreen() {
         <button
           type="button"
           className="btn-primary"
-          onClick={() => setCreating(true)}
-          disabled={creating}
+          onClick={() => onView("crear")}
+          disabled={view === "crear"}
         >
           + Nueva finca
         </button>
       </div>
-
-      {creating ? (
-        <FarmCreateForm
-          onCancel={() => setCreating(false)}
-          onCreated={(farm) => {
-            setFarms((current) => [...current, farm].sort((a, b) => a.id - b.id));
-            setCreating(false);
-            setSelected(farm);
-          }}
-        />
-      ) : null}
 
       {loading ? (
         <p className="farm-state" role="status">
@@ -141,6 +135,16 @@ export function FarmsScreen() {
 
       {!loading && !error && filtered.length > 0 ? (
         <FarmList farms={filtered} onSelect={setSelected} />
+      ) : null}
+      {view === "crear" ? (
+        <FarmCreateForm
+          onCancel={onLeaveCreate}
+          onCreated={(farm) => {
+            setFarms((current) => [...current, farm].sort((a, b) => a.id - b.id));
+            onView("lista");
+            setSelected(farm);
+          }}
+        />
       ) : null}
     </section>
   );
