@@ -23,6 +23,9 @@ export function UserPanel({ onLogout }: Readonly<Props>) {
         <p className="panel__lead">Gestiona tu sesión en AGROTECH-T.</p>
       </header>
       <button type="button" className="btn-danger" onClick={onLogout}>
+        <svg className="inv-ico" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M10 7V5h8v14h-8v-2M14 12H4M7 9l-3 3 3 3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
         Cerrar sesión
       </button>
     </section>
