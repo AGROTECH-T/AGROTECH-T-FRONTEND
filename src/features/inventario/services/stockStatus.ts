@@ -5,7 +5,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-export type StockStatus = "ok" | "bajo" | "agotado";
+export type StockStatus = "ok" | "bajo" | "agotado" | "inactivo";
 
 /**
  * Calcula el estado a partir de cantidad y mínimo.
@@ -27,7 +27,8 @@ export function stockStatus(quantity: string, minStock: string): StockStatus {
  * @returns Etiqueta en español.
  */
 export function stockStatusLabel(status: StockStatus): string {
+  if (status === "inactivo") return "Inactivo";
   if (status === "agotado") return "Agotado";
   if (status === "bajo") return "Bajo";
-  return "OK";
+  return "Activo";
 }
