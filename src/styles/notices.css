@@ -10,7 +10,7 @@
   position: fixed;
   top: 18px;
   right: 18px;
-  z-index: 40;
+  z-index: 60;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -20,15 +20,29 @@
 .notice-card {
   position: relative;
   padding: 14px 36px 14px 16px;
-  border-radius: 18px;
-  background: var(--surface);
-  box-shadow: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--forest);
+  background: var(--field);
+  box-shadow: 0 10px 24px rgba(20, 43, 27, 0.1);
 }
 
-.notice-card.warn { color: #9f1d1d; background: #fdecec; }
-.notice-card.ok { color: var(--paper); background: var(--leaf); }
+.notice-card.ok {
+  color: #1d6b38;
+  background: #f7fbf7;
+  border-color: #c9e3cd;
+}
+
+.notice-card.warn {
+  color: #9f1d1d;
+  background: #fdecec;
+  border-color: #f3c4c0;
+}
+
 .notice-card p { margin: 0; line-height: 1.4; }
-.notice-time { margin-top: 8px; font-size: 0.75rem; font-weight: 700; }
+.notice-time { margin-top: 8px; font-size: 0.75rem; font-weight: 600; }
+.notice-card.ok .notice-time { color: #3d7a52; }
+.notice-card.warn .notice-time { color: #9f1d1d; }
 .notice-card button {
   position: absolute;
   top: 8px;
