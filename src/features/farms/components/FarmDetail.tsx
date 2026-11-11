@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useState, type FormEvent } from "react";
+import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { deleteFarm, updateFarm } from "../services/farmsApi.ts";
 import { roleLabel } from "../services/roleLabel.ts";
 import type { Farm } from "../types/index.ts";
@@ -90,9 +91,7 @@ export function FarmDetail({
 
   return (
     <section className="farm-detail" aria-labelledby="farm-detail-title">
-      <button type="button" className="btn-secondary" onClick={onBack} disabled={pending}>
-        Volver al listado
-      </button>
+      <BackButton onClick={onBack} disabled={pending} />
 
       <header className="panel__header">
         <h2 id="farm-detail-title" className="panel__title">

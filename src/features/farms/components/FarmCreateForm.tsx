@@ -7,6 +7,8 @@
  */
 
 import { useState, type FormEvent } from "react";
+import { FormWindow } from "../../../components/ui/FormWindow.tsx";
+import { ConfirmModal } from "../../inventario/components/ConfirmModal.tsx";
 import { createFarm } from "../services/farmsApi.ts";
 import type { Farm } from "../types/index.ts";
 
@@ -37,6 +39,15 @@ export function FarmCreateForm({ onCreated, onCancel }: Readonly<Props>) {
   const [gap, setGap] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [askCancel, setAskCancel] = useState(false);
+
+  const leave = () => {
+    if (name.trim()) {
+      setAskCancel(true);
+      return;
+    }
+    onCancel();
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -56,9 +67,9 @@ export function FarmCreateForm({ onCreated, onCancel }: Readonly<Props>) {
   };
 
   return (
+    <FormWindow title="Nueva finca" onClose={leave}>
     <form className="farm-form" onSubmit={(event) => void submit(event)} noValidate>
-      <h2 className="farm-form__title">Nueva finca</h2>
-      <label className="farm-form__field">
+      <label className={gap ? "farm-form__field is-miss" : "farm-form__field"}>
         <span>Nombre</span>
         <input
           type="text"
@@ -81,13 +92,22 @@ export function FarmCreateForm({ onCreated, onCancel }: Readonly<Props>) {
         </p>
       ) : null}
       <div className="farm-form__actions">
-        <button type="button" className="btn-secondary" onClick={onCancel} disabled={pending}>
+        <button type="button" className="btn-danger" onClick={leave} disabled={pending}>
           Cancelar
         </button>
         <button type="submit" className="btn-primary" disabled={pending}>
           {pending ? "Creando..." : "Crear finca"}
         </button>
       </div>
+      {askCancel ? (
+        <ConfirmModal
+          text="¿Cancelar? Se pierde lo escrito."
+          confirmLabel="Sí, cancelar"
+          onConfirm={onCancel}
+          onClose={() => setAskCancel(false)}
+        />
+      ) : null}
     </form>
+    </FormWindow>
   );
 }
