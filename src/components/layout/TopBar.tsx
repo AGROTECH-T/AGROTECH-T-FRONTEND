@@ -15,7 +15,7 @@ import type { AppSection } from "./navTypes.ts";
 
 type Props = {
   account: Account;
-  onNavigate: (section: AppSection) => void;
+  onNavigate: (section: AppSection, view?: string) => void;
   onLogout: () => void;
 };
 
