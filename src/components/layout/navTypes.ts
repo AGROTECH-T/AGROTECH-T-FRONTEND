@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-export type AppSection = "home" | "fincas" | "inventario" | "configuracion" | "perfil";
+export type AppSection = "home" | "fincas" | "inventario" | "galpon" | "configuracion" | "perfil";
 
 export type NavChild = {
   id: string;
@@ -16,7 +16,7 @@ export type NavChild = {
 export type NavItem = {
   id: AppSection;
   label: string;
-  icon: "home" | "land" | "box" | "gear";
+  icon: "home" | "land" | "box" | "bird" | "gear";
   children?: readonly NavChild[];
 };
 
@@ -44,6 +44,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
       { id: "consumo", label: "Estadísticas" },
       { id: "reportes", label: "Reportes" },
     ],
+  },
+  {
+    id: "galpon",
+    label: "Galpón",
+    icon: "bird",
+    children: [{ id: "galpones", label: "Lotes" }],
   },
   { id: "configuracion", label: "Configuración", icon: "gear" },
 ];

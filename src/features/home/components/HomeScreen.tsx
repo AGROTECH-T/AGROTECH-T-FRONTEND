@@ -12,6 +12,7 @@ import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx"
 import type { Account } from "../../auth/types/index.ts";
 import { ConfiguracionScreen } from "../../configuracion/index.ts";
 import { FarmsScreen } from "../../farms/index.ts";
+import { GalponPanel } from "../../galpon/components/GalponPanel.tsx";
 import { InventarioPanel } from "../../inventario/index.ts";
 import { ProfileScreen } from "../../profile/index.ts";
 import { HomeHub } from "./HomeHub.tsx";
@@ -95,6 +96,7 @@ function renderSection(
       />
     );
   }
+  if (section === "galpon") return <GalponPanel onCreateFarm={onCreateFarm} />;
   if (section === "configuracion") return <ConfiguracionScreen />;
   if (section === "perfil") {
     return <ProfileScreen account={account} onAccountChange={onAccountChange} />;
@@ -158,7 +160,7 @@ export function HomeScreen({ account, onAccountChange, onLogout }: Readonly<Prop
     <AppShell
       account={account}
       section={section}
-      view={section === "inventario" ? stockView : farmView}
+      view={section === "inventario" ? stockView : section === "galpon" ? "galpones" : farmView}
       onNavigate={go}
       onLogout={onLogout}
     >
