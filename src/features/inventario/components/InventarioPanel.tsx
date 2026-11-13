@@ -19,16 +19,37 @@ import {
 } from "../services/farmInventories.ts";
 import type { Product } from "../types/index.ts";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
+import { AdjustmentReport } from "./AdjustmentReport.tsx";
 import { CatalogHub } from "./CatalogHub.tsx";
+import { ConsumptionReport } from "./ConsumptionReport.tsx";
 import { FarmHistory } from "./FarmHistory.tsx";
 import { InventarioBrowser } from "./InventarioBrowser.tsx";
 import { InventoryManager } from "./InventoryManager.tsx";
+import { LoansReport } from "./LoansReport.tsx";
+import { OrderReport } from "./OrderReport.tsx";
 import { ProductCreateForm } from "./ProductCreateForm.tsx";
 import { ProductAdjustWindow } from "./ProductAdjust.tsx";
 import { ProductUpdateWindow } from "./ProductDetail.tsx";
 import { ProductViewWindow } from "./ProductView.tsx";
+import { ReportsHub } from "./ReportsHub.tsx";
 
-type StockView = "lista" | "crear" | "entrada" | "salida" | "historial" | "inventarios" | "catalogo" | "categorias" | "unidades" | "medidas";
+type StockView =
+  | "lista"
+  | "crear"
+  | "entrada"
+  | "salida"
+  | "historial"
+  | "inventarios"
+  | "catalogo"
+  | "categorias"
+  | "unidades"
+  | "medidas"
+  | "reportes"
+  | "ajustes"
+  | "consumo"
+  | "prestamos"
+  | "pedido"
+  | "bajo";
 
 type Props = {
   view: StockView;
@@ -86,9 +107,12 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
     setLoading(true);
     setError("");
     try {
-      setProducts(await listProducts(id));
+      const loaded = await listProducts(id);
+      setProducts(loaded);
+      return loaded;
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "No se pudo cargar el inventario");
+      return [];
     } finally {
       setLoading(false);
     }
@@ -96,10 +120,11 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
 
   useEffect(() => {
     if (farmId == null) return;
-    const items = listInventories(farmId);
-    setInventories(items);
-    setInventoryId(items[0]?.id ?? "");
-    void loadProducts(farmId);
+    void loadProducts(farmId).then(() => {
+      const items = listInventories(farmId);
+      setInventories(items);
+      setInventoryId(items[0]?.id ?? "");
+    });
   }, [farmId, loadProducts]);
 
   const clearFresh = useCallback(() => setFresh(null), []);
@@ -206,6 +231,43 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
     );
   }
 
+  if (shown === "reportes" && farmId != null) {
+    return <ReportsHub onOpen={onView} onBack={() => onView("lista")} />;
+  }
+
+  if (
+    farmId != null &&
+    (shown === "ajustes" ||
+      shown === "consumo" ||
+      shown === "prestamos" ||
+      shown === "pedido" ||
+      shown === "bajo")
+  ) {
+    const backToReports = () => onView("reportes");
+    return (
+      <section className="panel">
+        {shown === "ajustes" ? (
+          <AdjustmentReport farmId={farmId} onBack={backToReports} />
+        ) : null}
+        {shown === "consumo" ? (
+          <ConsumptionReport
+            farmId={farmId}
+            farmName={farm?.name ?? "Esta finca"}
+            onBack={() => onView("lista")}
+            onLowStock={() => onView("bajo")}
+          />
+        ) : null}
+        {shown === "prestamos" ? (
+          <LoansReport farmId={farmId} onBack={backToReports} />
+        ) : null}
+        {shown === "pedido" ? <OrderReport farmId={farmId} onBack={backToReports} /> : null}
+        {shown === "bajo" ? (
+          <OrderReport farmId={farmId} onBack={() => onView("lista")} startLow />
+        ) : null}
+      </section>
+    );
+  }
+
   const closeDetail = () => {
     setSelected(null);
     setDetailMode({ intent: "ver" });
@@ -227,6 +289,12 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
       ) : null}
       <button type="button" className="inv-pill is-log" onClick={() => onView("historial")}>
         <Mark kind="log" /> Historial
+      </button>
+      <button type="button" className="inv-pill is-chart" onClick={() => onView("consumo")}>
+        <Mark kind="chart" /> Estadísticas
+      </button>
+      <button type="button" className="inv-pill is-more" onClick={() => onView("reportes")}>
+        <Mark kind="more" /> Más reportes
       </button>
       <button
         type="button"
@@ -405,7 +473,23 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
   );
 }
 
-function Mark({ kind }: { kind: "in" | "out" | "log" | "down" }) {
+function Mark({ kind }: { kind: "in" | "out" | "log" | "down" | "chart" | "more" }) {
+  if (kind === "chart") {
+    return (
+      <svg className="inv-ico" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 19h16M7 15V9M12 15V5M17 15v-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (kind === "more") {
+    return (
+      <svg className="inv-ico" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="5" cy="12" r="1.8" fill="currentColor" />
+        <circle cx="12" cy="12" r="1.8" fill="currentColor" />
+        <circle cx="19" cy="12" r="1.8" fill="currentColor" />
+      </svg>
+    );
+  }
   if (kind === "log") {
     return (
       <svg className="inv-ico" viewBox="0 0 24 24" aria-hidden="true">

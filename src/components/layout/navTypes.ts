@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-export type AppSection = "home" | "fincas" | "inventario" | "configuracion" | "perfil";
+export type AppSection = "home" | "fincas" | "inventario" | "galpon" | "configuracion" | "perfil";
 
 export type NavChild = {
   id: string;
@@ -16,7 +16,7 @@ export type NavChild = {
 export type NavItem = {
   id: AppSection;
   label: string;
-  icon: "home" | "land" | "box" | "gear";
+  icon: "home" | "land" | "box" | "bird" | "gear";
   children?: readonly NavChild[];
 };
 
@@ -41,7 +41,25 @@ export const NAV_ITEMS: readonly NavItem[] = [
       { id: "inventarios", label: "Inventarios" },
       { id: "crear", label: "Crear producto" },
       { id: "catalogo", label: "Catálogo" },
+      { id: "consumo", label: "Estadísticas" },
+      { id: "reportes", label: "Reportes" },
     ],
+  },
+  {
+    id: "galpon",
+    label: "Galpón",
+    icon: "bird",
+    children: [{ id: "galpones", label: "Lotes" }],
   },
   { id: "configuracion", label: "Configuración", icon: "gear" },
 ];
+
+/**
+ * Filtra el menú a los módulos que la cuenta puede abrir.
+ * @param modulos - Identificadores permitidos que entrega la sesión.
+ * @returns Ítems visibles en el orden del menú.
+ */
+export function visibleNavItems(modulos: readonly string[]): readonly NavItem[] {
+  const allowed = new Set(modulos);
+  return NAV_ITEMS.filter((item) => allowed.has(item.id));
+}

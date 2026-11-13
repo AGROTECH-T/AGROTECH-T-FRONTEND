@@ -7,12 +7,11 @@
 import { useState, type FormEvent } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { displayQuantity } from "../services/equivalence.ts";
+import { ADJUSTMENT_REASONS } from "../services/adjustmentReasons.ts";
 import { createMovement, getProduct } from "../services/inventoryApi.ts";
-import type { Product } from "../types/index.ts";
+import type { AdjustmentReason, Product } from "../types/index.ts";
 import { useProductPhoto } from "./productPhoto.ts";
 import { PhotoLight } from "./ProductView.tsx";
-
-const REASONS = ["Merma por humedad", "Conteo físico", "Daño", "Otro"];
 
 /**
  * Compara el stock registrado con el conteo y guarda el ajuste.
@@ -33,7 +32,7 @@ export function ProductAdjustWindow({
   const registered = displayQuantity(product.quantity, product.unit_nature);
   const lent = displayQuantity(product.lent_quantity, product.unit_nature);
   const [counted, setCounted] = useState(registered);
-  const [reason, setReason] = useState(REASONS[0]);
+  const [reason, setReason] = useState<AdjustmentReason>("conteo_fisico");
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
@@ -50,12 +49,12 @@ export function ProductAdjustWindow({
     }
     setPending(true);
     setError("");
-    const extra = note.trim();
     try {
       await createMovement(farmId, product.id, {
         kind: "ajuste",
         quantity: counted.trim(),
-        note: extra ? `${reason}. ${extra}` : reason,
+        reason,
+        note: note.trim(),
       });
       onChanged(await getProduct(farmId, product.id));
       onNotice?.("ajuste guardado");
@@ -82,11 +81,28 @@ export function ProductAdjustWindow({
         </div>
         <div className="adj__main">
           <div className="adj__stocks">
-            <p><span>Stock registrado</span><strong>{registered}</strong><small>{unit}</small></p>
-            <p><span>Prestado</span><strong>{lent}</strong><small>{unit}</small></p>
-            <label>
-              <span>Stock actual (conteo)</span>
-              <input value={counted} onChange={(event) => setCounted(event.target.value)} disabled={pending} />
+            <p>
+              <span>Stock registrado</span>
+              <strong>{registered}</strong>
+              <small>{unit}</small>
+            </p>
+            <p className="adj__lent">
+              <span>Prestado</span>
+              <strong>{lent}</strong>
+              <small>{unit}</small>
+            </p>
+            <label className="adj__count">
+              <span>
+                <CountIcon /> Stock actual (conteo)
+              </span>
+              <input
+                value={counted}
+                onChange={(event) => setCounted(event.target.value)}
+                disabled={pending}
+                autoFocus
+                inputMode="decimal"
+                aria-label="Stock actual contado"
+              />
               <small>{unit}</small>
             </label>
             <p className={delta < 0 ? "is-down" : ""}>
@@ -97,8 +113,16 @@ export function ProductAdjustWindow({
           </div>
           <label className="inv-form__field">
             <span>Motivo del ajuste</span>
-            <select value={reason} onChange={(event) => setReason(event.target.value)} disabled={pending}>
-              {REASONS.map((item) => <option key={item}>{item}</option>)}
+            <select
+              value={reason}
+              onChange={(event) => setReason(event.target.value as AdjustmentReason)}
+              disabled={pending}
+            >
+              {ADJUSTMENT_REASONS.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
             </select>
           </label>
           <label className="inv-form__field">
@@ -131,4 +155,23 @@ function deltaText(delta: number, product: Product): string {
   if (delta > 0) return `+${text}`;
   if (delta < 0) return `−${text}`;
   return text;
+}
+
+/**
+ * Ícono del conteo: una lupa sobre una caja.
+ * @returns Marca del campo destacado.
+ */
+function CountIcon() {
+  return (
+    <svg className="adj__count-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <circle cx="11" cy="12" r="3" stroke="currentColor" strokeWidth="1.6" />
+      <path d="m13.4 14.4 2.6 2.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
 }

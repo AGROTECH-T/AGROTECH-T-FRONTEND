@@ -25,6 +25,7 @@ import "../styles/notifications.css";
 import "../styles/profile-page.css";
 import "../styles/inventario.css";
 import "../styles/inventario-form.css";
+import "../styles/galpon.css";
 import "../styles/farms.css";
 import "../styles/farms-form.css";
 import "../styles/configuracion.css";

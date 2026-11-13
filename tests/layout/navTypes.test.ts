@@ -7,21 +7,35 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { NAV_ITEMS } from "../../src/components/layout/navTypes.ts";
+import { NAV_ITEMS, visibleNavItems } from "../../src/components/layout/navTypes.ts";
 
 describe("menú del shell", () => {
-  it("expone Inicio, Fincas, Inventario y Configuración en ese orden", () => {
+  it("expone Inicio, Fincas, Inventario, Galpón y Configuración en ese orden", () => {
     expect(NAV_ITEMS.map((item) => item.id)).toEqual([
       "home",
       "fincas",
       "inventario",
+      "galpon",
       "configuracion",
     ]);
     expect(NAV_ITEMS.map((item) => item.label)).toEqual([
       "Inicio",
       "Fincas",
       "Inventario",
+      "Galpón",
       "Configuración",
     ]);
+  });
+
+  it("una cuenta nueva solo ve Inicio", () => {
+    expect(visibleNavItems(["home"]).map((item) => item.id)).toEqual(["home"]);
+  });
+
+  it("el superadmin y el administrador ven todos los módulos", () => {
+    expect(
+      visibleNavItems(["home", "fincas", "inventario", "galpon", "configuracion"]).map(
+        (item) => item.id,
+      ),
+    ).toEqual(["home", "fincas", "inventario", "galpon", "configuracion"]);
   });
 });

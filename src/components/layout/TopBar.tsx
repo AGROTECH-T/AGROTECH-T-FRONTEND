@@ -2,7 +2,7 @@
  * Barra superior del área autenticada.
  *
  * Propósito: buscar en el sistema, ver notificaciones y abrir el perfil.
- * Contexto: escritorio, encima del contenido principal.
+ * Contexto: encima del contenido; pasa a una fila compacta en móvil.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -30,7 +30,7 @@ export function TopBar({ account, onNavigate, onLogout }: Readonly<Props>) {
   const [query, setQuery] = useState("");
   const [panel, setPanel] = useState<Panel>(null);
   const bar = useRef<HTMLElement>(null);
-  const matches = useMemo(() => searchEntries(query), [query]);
+  const matches = useMemo(() => searchEntries(query, account.modulos), [query, account.modulos]);
 
   useEffect(() => {
     if (!panel) return;
@@ -81,7 +81,7 @@ export function TopBar({ account, onNavigate, onLogout }: Readonly<Props>) {
           id="app-search"
           type="search"
           name="q"
-          placeholder="Buscar en AGROTECH-T..."
+          placeholder="Buscar..."
           value={query}
           autoComplete="off"
           onChange={(event) => setQuery(event.target.value)}
@@ -103,6 +103,7 @@ export function TopBar({ account, onNavigate, onLogout }: Readonly<Props>) {
         <NotificationsMenu
           open={panel === "notifications"}
           onToggle={() => toggle("notifications")}
+          onNavigate={onNavigate}
         />
         <ProfileMenu
           account={account}
