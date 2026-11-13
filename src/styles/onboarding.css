@@ -1,0 +1,221 @@
+/**
+ * Bienvenida del onboarding (F10.2; distribución en dos paneles).
+ *
+ * Propósito: panel de cuenta a la izquierda y opciones (o el paso abierto) a
+ * la derecha, sobre un paisaje que ocupa toda la pantalla detrás de los
+ * paneles. Las tarjetas se apilan; cada ilustración queda a la izquierda,
+ * separada del contenido por una línea vertical.
+ * Contexto: reutiliza .shell, .panel, .blob, .brand, .solid, .ghost y
+ * .text-link de auth.css, .invite-message e .invite-actions de
+ * invitation-accept.css y .farm-form de farms-form.css. Solo usa los tokens de
+ * tokens.css; cualquier ajuste a estilos compartidos queda dentro de .onboard-*.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+/* --- Composición --------------------------------------------------------- */
+
+.shell.onboard-shell {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  isolation: isolate;
+  background: var(--card) url("../assets/onboard-paisaje.webp") center bottom / cover no-repeat;
+}
+
+/* El paisaje reemplaza a las manchas decorativas en esta pantalla. */
+.onboard-shell .blob { display: none; }
+
+.onboard-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: stretch;
+  gap: 32px;
+  width: min(1080px, 100%);
+  min-width: 0;
+}
+
+.onboard-intro,
+.onboard-actions {
+  min-width: 0;
+}
+
+/* --- Panel izquierdo ----------------------------------------------------- */
+
+.onboard-intro {
+  justify-content: center;
+  gap: 20px;
+}
+
+.onboard-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.onboard-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--forest);
+  box-shadow: var(--raised);
+  object-fit: cover;
+}
+
+.onboard-brand .brand { color: var(--moss); }
+
+.onboard-verified {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--forest);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: var(--raised);
+}
+.onboard-verified svg { width: 18px; height: 18px; color: var(--leaf); flex: none; }
+
+.onboard-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.onboard-heading h2 { text-align: left; overflow-wrap: anywhere; }
+.onboard-heading p { color: var(--moss); font-size: 1.05rem; }
+
+.onboard-account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+}
+
+.onboard-account__mark,
+.onboard-option__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--mint);
+  color: var(--leaf);
+}
+.onboard-account__mark { width: 44px; height: 44px; }
+.onboard-account__mark svg { width: 22px; height: 22px; }
+
+.onboard-account__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.onboard-account__name { color: var(--forest); font-weight: 700; overflow-wrap: anywhere; }
+.onboard-account__mail { color: var(--moss); font-size: 0.9rem; overflow-wrap: anywhere; }
+
+/* --- Panel derecho ------------------------------------------------------- */
+
+.onboard-actions { justify-content: center; }
+
+.onboard-options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+.onboard-option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 22px;
+  min-width: 0;
+  margin: 0;
+  padding: 22px;
+  border-radius: 22px;
+  background: var(--card);
+  color: var(--forest);
+  box-shadow: var(--raised);
+}
+.onboard-option:hover { box-shadow: var(--raised), 0 0 0 2px var(--sage); }
+.onboard-option:focus-within { box-shadow: var(--raised), 0 0 0 2px var(--moss); }
+
+/* Ilustración a la izquierda y línea vertical que la separa del contenido. */
+.onboard-option__art {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  padding-right: 22px;
+  border-right: 1px solid var(--line);
+}
+.onboard-option__mark { width: 112px; height: 112px; }
+.onboard-option__mark img {
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+.onboard-option__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.onboard-option__title { margin: 0; font-size: 1.2rem; font-weight: 700; }
+.onboard-option__text { color: var(--moss); font-size: 0.92rem; }
+
+.onboard-option__action { align-self: stretch; margin-top: 6px; padding-inline: 18px; }
+.onboard-option__action:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; }
+.onboard-option__action:active { box-shadow: var(--inset); }
+
+.onboard-step { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.onboard-lead { margin: 0; color: var(--leaf); }
+
+/* Formularios reutilizados dentro del panel: sin margen inferior suelto y con
+   acciones que pueden pasar de línea en pantallas estrechas. */
+.onboard-actions .farm-form { margin-bottom: 0; }
+.onboard-actions .farm-form__actions { flex-wrap: wrap; }
+
+.onboard-footer {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 24px;
+}
+
+/* --- Adaptación ---------------------------------------------------------- */
+
+@media (max-width: 980px) {
+  .onboard-layout { gap: 24px; }
+  .onboard-intro,
+  .onboard-actions { padding: 26px 22px 22px; }
+  .onboard-options { gap: 14px; }
+  .onboard-option { gap: 18px; padding: 18px; }
+  .onboard-option__art { padding-right: 18px; }
+  .onboard-option__mark { width: 92px; height: 92px; }
+  .onboard-option__mark img { width: 60px; height: 60px; }
+}
+
+@media (max-width: 860px) {
+  .onboard-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+}
+
+@media (max-width: 560px) {
+  .onboard-intro,
+  .onboard-actions { padding: 22px 16px 18px; }
+  .onboard-intro { gap: 16px; }
+  .onboard-heading h2 { font-size: 1.6rem; }
+  .onboard-option { gap: 14px; padding: 16px; }
+  .onboard-option__art { padding-right: 14px; }
+  .onboard-option__mark { width: 64px; height: 64px; }
+  .onboard-option__mark img { width: 42px; height: 42px; }
+  .onboard-actions .farm-form { padding: 18px 16px; }
+}
