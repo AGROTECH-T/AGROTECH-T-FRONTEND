@@ -19,6 +19,8 @@ type Props = {
   onReload: () => void;
   onSelect: (product: Product) => void;
   onCreated: (product: Product) => void;
+  /** Capacidad de escritura de la finca (F6); sin ella no se ofrece el alta. */
+  canWrite?: boolean;
 };
 
 /**
@@ -34,6 +36,7 @@ export function InventarioBrowser({
   onReload,
   onSelect,
   onCreated,
+  canWrite = true,
 }: Readonly<Props>) {
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
@@ -59,17 +62,19 @@ export function InventarioBrowser({
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() => setCreating(true)}
-          disabled={creating}
-        >
-          + Nuevo insumo
-        </button>
+        {canWrite ? (
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => setCreating(true)}
+            disabled={creating}
+          >
+            + Nuevo insumo
+          </button>
+        ) : null}
       </div>
 
-      {creating ? (
+      {creating && canWrite ? (
         <ProductCreateForm
           farmId={farmId}
           onCancel={() => setCreating(false)}

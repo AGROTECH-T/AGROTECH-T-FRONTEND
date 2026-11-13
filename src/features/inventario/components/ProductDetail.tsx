@@ -16,6 +16,8 @@ type Props = {
   product: Product;
   onBack: () => void;
   onChanged: (product: Product) => void;
+  /** Capacidad de escritura de la finca (F6); sin ella no se ofrece el registro. */
+  canWrite?: boolean;
 };
 
 /**
@@ -23,7 +25,13 @@ type Props = {
  * @param props - Finca, producto y callbacks.
  * @returns Detalle.
  */
-export function ProductDetail({ farmId, product, onBack, onChanged }: Readonly<Props>) {
+export function ProductDetail({
+  farmId,
+  product,
+  onBack,
+  onChanged,
+  canWrite = true,
+}: Readonly<Props>) {
   const [current, setCurrent] = useState(product);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [kind, setKind] = useState<MovementKind>("entrada");
@@ -77,6 +85,7 @@ export function ProductDetail({ farmId, product, onBack, onChanged }: Readonly<P
         Stock: <strong>{current.quantity}</strong> {current.unit_label}
       </p>
 
+      {canWrite ? (
       <form className="inv-form" onSubmit={(event) => void submit(event)}>
         <h3 className="inv-form__title">Registrar movimiento</h3>
         <label className="inv-form__field">
@@ -111,6 +120,9 @@ export function ProductDetail({ farmId, product, onBack, onChanged }: Readonly<P
           {pending ? "Guardando..." : "Registrar"}
         </button>
       </form>
+      ) : (
+        <p className="panel__lead">Tu rol en esta finca solo permite consultar el inventario.</p>
+      )}
 
       <h3 className="inv-form__title">Últimos movimientos</h3>
       {movements.length === 0 ? (
