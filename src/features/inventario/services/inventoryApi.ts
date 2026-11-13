@@ -10,14 +10,19 @@ import { apiRoot } from "../../../services/api/config.ts";
 import { limitNotice } from "../../../services/api/limitNotice.ts";
 import { readToken } from "../../auth/services/session.ts";
 import type {
+  AdjustmentReport,
+  ConsumptionReport,
   InventoryCatalog,
+  LoanReport,
   Movement,
   MovementDraft,
   MovementPage,
+  OrderReport,
   Product,
   ProductDraft,
   ProductLoan,
   ProductPatch,
+  ReportQuery,
 } from "../types/index.ts";
 
 const CATALOG_PATH = "/api/v1/inventory/catalog/";
@@ -356,9 +361,101 @@ export function createMovement(
       kind: draft.kind,
       quantity: draft.takeAll ? null : draft.quantity,
       note: draft.note ?? "",
+      reason: draft.reason ?? "",
       take_all: Boolean(draft.takeAll),
       idempotency_key: draft.idempotencyKey ?? "",
     },
     readToken(),
+  );
+}
+
+/**
+ * Arma los filtros de un reporte para la URL.
+ * @param query - Filtros elegidos en la pantalla.
+ * @returns Cadena con "?" o vacía.
+ */
+function reportParams(query: ReportQuery): string {
+  const params = new URLSearchParams();
+  if (query.from) params.set("from", query.from);
+  if (query.to) params.set("to", query.to);
+  if (query.product) params.set("product", query.product);
+  if (query.category) params.set("category", query.category);
+  if (query.reason) params.set("reason", query.reason);
+  if (query.status) params.set("status", query.status);
+  if (query.person) params.set("person", query.person);
+  if (query.low) params.set("low", "1");
+  if (query.target) params.set("target", query.target);
+  return params.size ? `?${params.toString()}` : "";
+}
+
+function reportPath(farmId: number, name: string): string {
+  return `/api/v1/inventory/${farmId}/reports/${name}`;
+}
+
+/**
+ * Reconteos del rango, con motivo y diferencia.
+ */
+export function getAdjustmentReport(farmId: number, query: ReportQuery): Promise<AdjustmentReport> {
+  return getJson<AdjustmentReport>(`${reportPath(farmId, "adjustments/")}${reportParams(query)}`, readToken());
+}
+
+/**
+ * Baja el Excel de los reconteos con los filtros de pantalla.
+ */
+export async function downloadAdjustmentReport(farmId: number, query: ReportQuery): Promise<void> {
+  await downloadFile(
+    `${reportPath(farmId, "adjustments.xlsx")}${reportParams(query)}`,
+    `ajustes-${farmId}.xlsx`,
+  );
+}
+
+/**
+ * Consumo del rango, con comparación y tendencia.
+ */
+export function getConsumptionReport(farmId: number, query: ReportQuery): Promise<ConsumptionReport> {
+  return getJson<ConsumptionReport>(`${reportPath(farmId, "consumption/")}${reportParams(query)}`, readToken());
+}
+
+/**
+ * Baja el Excel del consumo con los filtros de pantalla.
+ */
+export async function downloadConsumptionReport(farmId: number, query: ReportQuery): Promise<void> {
+  await downloadFile(
+    `${reportPath(farmId, "consumption.xlsx")}${reportParams(query)}`,
+    `consumo-${farmId}.xlsx`,
+  );
+}
+
+/**
+ * Préstamos de la finca y lo que sigue pendiente.
+ */
+export function getLoanReport(farmId: number, query: ReportQuery): Promise<LoanReport> {
+  return getJson<LoanReport>(`${reportPath(farmId, "loans/")}${reportParams(query)}`, readToken());
+}
+
+/**
+ * Baja el Excel de los préstamos con los filtros de pantalla.
+ */
+export async function downloadLoanReport(farmId: number, query: ReportQuery): Promise<void> {
+  await downloadFile(
+    `${reportPath(farmId, "loans.xlsx")}${reportParams(query)}`,
+    `prestamos-${farmId}.xlsx`,
+  );
+}
+
+/**
+ * Inicial contra actual y cuánto conviene pedir.
+ */
+export function getOrderReport(farmId: number, query: ReportQuery): Promise<OrderReport> {
+  return getJson<OrderReport>(`${reportPath(farmId, "order/")}${reportParams(query)}`, readToken());
+}
+
+/**
+ * Baja el Excel de lo que hay que pedir.
+ */
+export async function downloadOrderReport(farmId: number, query: ReportQuery): Promise<void> {
+  await downloadFile(
+    `${reportPath(farmId, "order.xlsx")}${reportParams(query)}`,
+    `pedido-${farmId}.xlsx`,
   );
 }
