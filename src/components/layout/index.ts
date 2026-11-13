@@ -13,4 +13,4 @@ export { ProfileMenu } from "./ProfileMenu.tsx";
 export { NotificationsMenu } from "./NotificationsMenu.tsx";
 export { AccountChip, accountInitial, accountName } from "./AccountChip.tsx";
 export { SEARCH_ENTRIES, searchEntries, type SearchEntry } from "./searchEntries.ts";
-export { NAV_ITEMS, type AppSection, type NavItem } from "./navTypes.ts";
+export { NAV_ITEMS, visibleNavItems, type AppSection, type NavItem } from "./navTypes.ts";
