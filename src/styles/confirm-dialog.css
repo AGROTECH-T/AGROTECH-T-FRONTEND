@@ -1,0 +1,62 @@
+/**
+ * Diálogo de confirmación.
+ *
+ * Propósito: ventana modal con el relieve neomórfico de las tarjetas.
+ * Contexto: acciones sensibles (p. ej. desactivar una finca).
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.confirm-dialog {
+  width: min(440px, calc(100vw - 32px));
+  padding: 26px 28px;
+  border: 0;
+  border-radius: 28px;
+  color: var(--leaf);
+  background: var(--card);
+  box-shadow: var(--raised);
+  font-family: var(--font);
+  box-sizing: border-box;
+}
+
+.confirm-dialog::backdrop {
+  background: var(--shade);
+}
+
+.confirm-dialog__title {
+  margin: 0 0 12px;
+  color: var(--forest);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.confirm-dialog.is-warning .confirm-dialog__title {
+  color: var(--danger-deep);
+}
+
+.confirm-dialog__body {
+  color: var(--leaf);
+  line-height: 1.5;
+}
+
+.confirm-dialog__body p {
+  margin: 0 0 8px;
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 520px) {
+  .confirm-dialog {
+    padding: 22px 20px;
+  }
+
+  .confirm-dialog__actions > button {
+    flex: 1 1 auto;
+  }
+}
