@@ -8,17 +8,25 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { listFarms } from "../../farms/services/farmsApi.ts";
+import type { Account } from "../../auth/types/index.ts";
 import type { Farm } from "../../farms/types/index.ts";
+import { canWriteInventory, emptyInventoryState } from "../services/inventoryAccess.ts";
 import { listProducts } from "../services/inventoryApi.ts";
 import type { Product } from "../types/index.ts";
 import { InventarioBrowser } from "./InventarioBrowser.tsx";
 import { ProductDetail } from "./ProductDetail.tsx";
 
+type Props = {
+  /** Capacidad global de la cuenta, para el mensaje sin fincas (F6). */
+  account?: Pick<Account, "can_create_farms" | "can_create_first_farm">;
+};
+
 /**
  * Orquesta finca activa, listado y detalle.
  * @returns Panel de Inventario.
  */
-export function InventarioPanel() {
+export function InventarioPanel({ account }: Readonly<Props>) {
+  const empty = emptyInventoryState(account);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [farmId, setFarmId] = useState<number | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -55,10 +63,14 @@ export function InventarioPanel() {
     if (farmId != null) void loadProducts(farmId);
   }, [farmId, loadProducts]);
 
+  // Se recalcula al cambiar de finca: cada finca trae sus propias capacidades.
+  const canWrite = canWriteInventory(farms.find((farm) => farm.id === farmId));
+
   if (selected && farmId != null) {
     return (
       <section className="panel">
         <ProductDetail
+          canWrite={canWrite}
           farmId={farmId}
           product={selected}
           onBack={() => setSelected(null)}
@@ -103,13 +115,14 @@ export function InventarioPanel() {
 
       {farms.length === 0 && !error ? (
         <div className="inventario-empty" role="status">
-          <p className="inventario-empty__title">Primero crea una finca</p>
-          <p className="inventario-empty__hint">El inventario vive dentro de una finca.</p>
+          <p className="inventario-empty__title">{empty.title}</p>
+          <p className="inventario-empty__hint">{empty.hint}</p>
         </div>
       ) : null}
 
       {farmId != null ? (
         <InventarioBrowser
+          canWrite={canWrite}
           farmId={farmId}
           products={products}
           loading={loading}
