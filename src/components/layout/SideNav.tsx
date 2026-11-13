@@ -1,8 +1,8 @@
 /**
- * Menú lateral de escritorio.
+ * Menú principal.
  *
  * Propósito: cambiar de sección, plegar y mostrar la cuenta activa.
- * Contexto: shell autenticado de AGROTECH-T.
+ * Contexto: lateral con etiquetas en escritorio y barra compacta al angostarse.
  * @author Cristian Deysdayr Jimenez
  */
 
