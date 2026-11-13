@@ -12,6 +12,7 @@
 }
 
 .notifications__trigger {
+  position: relative;
   display: grid;
   place-items: center;
   width: 46px;
@@ -22,6 +23,23 @@
   background: var(--card);
   box-shadow: var(--raised);
   cursor: pointer;
+}
+
+.notifications__dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--danger);
+  box-shadow: 0 0 0 2px var(--card);
+  font-size: 0.68rem;
+  font-weight: 700;
 }
 
 .notifications__trigger:hover {
@@ -87,4 +105,84 @@
   margin: 0;
   color: var(--sage);
   font-size: 0.82rem;
+}
+
+.notifications__hint {
+  margin: 0;
+  padding: 14px 12px;
+  color: var(--sage);
+  text-align: center;
+}
+
+.notifications__error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: var(--danger);
+  background: var(--danger-soft);
+  font-size: 0.84rem;
+}
+
+.notifications__list {
+  display: grid;
+  gap: 8px;
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.notifications__item {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notifications__item:hover {
+  background: var(--field);
+}
+
+.notifications__item-title {
+  color: var(--forest);
+  font-weight: 700;
+}
+
+.notifications__item.is-agotado .notifications__item-title {
+  color: var(--danger);
+}
+
+.notifications__item-detail {
+  color: var(--moss);
+  font-size: 0.82rem;
+}
+
+.notifications__item-farm {
+  color: var(--sage);
+  font-size: 0.76rem;
+}
+
+.notifications__all {
+  width: 100%;
+  min-height: 38px;
+  margin-top: 10px;
+  border: 0;
+  border-radius: 14px;
+  color: var(--field);
+  background: var(--leaf);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.notifications__all:hover {
+  background: var(--forest);
 }
