@@ -54,6 +54,133 @@
   cursor: not-allowed;
 }
 
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--leaf);
+  background: var(--surface);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--raised);
+}
+
+.form-window {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.form-window__shade {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(20, 43, 27, 0.4);
+  cursor: pointer;
+}
+
+.form-window__card {
+  position: relative;
+  z-index: 1;
+  width: min(480px, 100%);
+  max-height: 90vh;
+  margin: 0;
+  padding: 0 0 16px;
+  overflow: auto;
+  border: 0;
+  border-radius: 22px;
+  color: var(--ink);
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.form-window__card.is-wide {
+  width: min(920px, 100%);
+}
+
+.form-window__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  position: sticky;
+  top: 0;
+  background: var(--card);
+}
+
+.form-window__head h2 {
+  margin: 0;
+  color: var(--forest);
+  font-size: 1.15rem;
+}
+
+.form-window__x {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--forest);
+  background: var(--field);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.form-window__body {
+  padding: 0 16px 8px;
+}
+
+.form-window .inv-form__actions .btn-primary,
+.form-window .inv-form__actions .btn-danger {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 128px;
+  min-height: 40px;
+  padding: 8px 18px;
+  border-radius: 14px;
+}
+
+.form-window .inv-form--create,
+.form-window .inv-form,
+.form-window .farm-form {
+  width: 100%;
+  margin: 0;
+  padding: 0 16px 4px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.screen-back {
+  width: fit-content;
+  min-height: 44px;
+  margin-bottom: 16px;
+  padding: 10px 18px;
+  gap: 8px;
+  border-radius: 18px;
+}
+
+.screen-back__arrow {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .btn-danger {
   display: inline-flex;
   align-items: center;
@@ -65,6 +192,7 @@
   color: var(--field);
   background: var(--danger);
   font: inherit;
+  gap: 8px;
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--raised);

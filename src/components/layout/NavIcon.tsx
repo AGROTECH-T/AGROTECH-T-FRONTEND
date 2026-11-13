@@ -1,34 +1,36 @@
 /**
  * Iconos del menú lateral.
  *
- * Propósito: dibujar casa, caja e usuario con trazo verde.
+ * Propósito: mostrar cada sección con su imagen.
  * Contexto: sidebar del shell autenticado.
  * @author Cristian Deysdayr Jimenez
  */
 
-type Name = "home" | "box";
+import configuracionIcon from "../../assets/icons/configuracion.png";
+import fincaIcon from "../../assets/icons/finca.png";
+import galponIcon from "../../assets/icons/galpon.png";
+import inicioIcon from "../../assets/icons/inicio.png";
+import inventarioIcon from "../../assets/icons/inventario.png";
+
+type Name = "home" | "land" | "box" | "bird" | "gear";
 
 type Props = {
   name: Name;
 };
 
+const PICTURES: Record<Name, string> = {
+  home: inicioIcon,
+  land: fincaIcon,
+  box: inventarioIcon,
+  bird: galponIcon,
+  gear: configuracionIcon,
+};
+
 /**
- * Icono lineal del ítem de navegación.
+ * Icono del ítem de navegación.
  * @param props - Nombre del glifo.
- * @returns SVG decorativo.
+ * @returns Imagen decorativa.
  */
 export function NavIcon({ name }: Readonly<Props>) {
-  return (
-    <svg className="side-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-      {name === "home" ? (
-        <path d="M4 11.5 12 4l8 7.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z" />
-      ) : null}
-      {name === "box" ? (
-        <>
-          <path d="M12 3 20 7.5v9L12 21 4 16.5v-9L12 3Z" />
-          <path d="M12 12v9M12 12 20 7.5M12 12 4 7.5" />
-        </>
-      ) : null}
-    </svg>
-  );
+  return <img className="side-nav__icon" src={PICTURES[name]} alt="" />;
 }

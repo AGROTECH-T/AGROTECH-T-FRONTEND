@@ -1,8 +1,7 @@
 /**
  * Feature de inventario.
  *
- * Propósito: exportar la interfaz visual del listado.
- * Contexto: sin API ni dominio todavía.
+ * Propósito: exponer la pantalla de stock por finca.
  * @author Cristian Deysdayr Jimenez
  */
 

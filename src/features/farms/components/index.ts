@@ -1,8 +1,8 @@
 /**
- * Modulo reservado.
+ * Componentes visuales de fincas.
  *
- * Proposito: dejar el lugar del dominio sin logica prematura.
- * Contexto: se implementa cuando el backend publique ese dominio.
+ * Propósito: reexportar la pantalla principal.
  * @author Cristian Deysdayr Jimenez
  */
-export {};
+
+export { FarmsScreen } from "./FarmsScreen.tsx";

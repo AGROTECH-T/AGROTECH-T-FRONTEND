@@ -1,0 +1,55 @@
+---
+description: Reglas transversales de seguridad, diseño y git
+alwaysApply: true
+---
+
+# Reglas transversales
+
+Base genérica: skill OpenCode `desarrollo-obligatorio`.
+Producto AGROTECH-T: skill `agrotech-t`.
+
+## Comunicación
+
+- Decir siempre qué se está haciendo en ese momento.
+
+## Confirmación
+
+- **No** pedir confirmación para editar código, crear archivos, tests, rebuild Docker
+  local, ni trabajo rutinario: ejecutar y narrar qué se hace.
+- Pedir confirmación **solo** ante acciones graves o irreversibles:
+  borrar/resetear base de datos, desplegar a producción, push a remoto,
+  force push, o borrar datos/volúmenes de forma permanente.
+- Commit local: preparar y pedir un sí breve solo si el usuario no lo ordenó ya.
+
+## Seguridad
+
+- No subir secretos, tokens, claves ni contraseñas.
+- Toda configuración sensible debe provenir del entorno.
+
+## Cabeceras
+
+- No colocar en la cabecera la fecha en que se creó el archivo.
+- Autor: **Cristian Deysdayr Jimenez**.
+
+## Código (estilo humano, obligatorio)
+
+- Escribir **como un desarrollador humano**: claro, natural, fácil de leer.
+- Nombres claros; funciones cortas; sin magia ni over-engineering.
+- Evitar one-liners crípticos y “código de generador”.
+- Comentarios solo para el *porqué* no obvio.
+- Misma voz que el código existente del frontend.
+- POO, SOLID (S), DRY; ≤150 líneas por archivo.
+- UI en español; tokens de `tokens.css`; HTML semántico.
+- No inventar features no pedidas.
+
+## Despliegue
+
+- Local primero; producción solo tras aceptación explícita.
+- Clear cache de Render no borra la base de datos.
+
+## Git
+
+- Ramas: `main`, `develop`, `feature/*`; sin force push.
+- Commit: `tipo(ámbito): mensaje` imperativo, ≤60 caracteres.
+- Sin atribución de IA ni prefijo `Cursor` en el autor.
+- Autor visible = solo el nombre del usuario.
