@@ -1,0 +1,28 @@
+/* Unión a una finca con código de invitación (F10.3.5). */
+.invite-code__preview {
+  border: 1px solid var(--line, #d9e3d6);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.invite-code__lead {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.invite-code__preview dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0;
+}
+
+.invite-code__preview dt {
+  font-weight: 600;
+}
+
+.invite-code__preview dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
