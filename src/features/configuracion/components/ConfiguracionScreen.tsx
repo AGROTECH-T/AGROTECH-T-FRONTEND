@@ -19,7 +19,7 @@ export function ConfiguracionScreen() {
         <h1 id="config-title" className="panel__title">
           Configuración
         </h1>
-        <p className="panel__lead">Administra los roles y permisos de la plataforma.</p>
+        <p className="panel__lead">Crea usuarios, asigna su rol y suma permisos adicionales.</p>
       </header>
 
       <nav className="config-tabs" aria-label="Submódulos de configuración">
