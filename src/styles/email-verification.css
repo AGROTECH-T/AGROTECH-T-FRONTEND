@@ -1,0 +1,33 @@
+/**
+ * Verificación obligatoria del correo.
+ *
+ * Propósito: complementar la escena OTP (otp.css) con el correo destinatario,
+ * el error y la salida de la sesión.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.verify-card .verify-mail {
+  color: #d6ff6a;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.verify-card .verify-error {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #f4f7ef;
+  background: rgba(179, 38, 30, 0.55);
+}
+.verify-card .otp-resend { align-self: center; }
+.verify-logout {
+  align-self: center;
+  margin-top: 12px;
+  border: 0;
+  background: transparent;
+  color: rgba(244, 247, 239, 0.8);
+  font: 600 0.9rem/1 inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.verify-logout:disabled { opacity: 0.5; cursor: default; }

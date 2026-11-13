@@ -2,9 +2,13 @@
  * Sesión del navegador.
  *
  * Propósito: guardar el token solo mientras la pestaña sigue abierta.
- * Contexto: no se escribe en código ni en almacenamiento permanente.
+ * Contexto: no se escribe en código ni en almacenamiento permanente. Registra
+ * su lectura en el cliente HTTP para que una solicitud que salió con un token
+ * rotado se reintente una vez con el vigente (F10.2-CORRECCIONES).
  * @author Cristian Deysdayr Jimenez
  */
+
+import { setSessionTokenReader } from "../../../services/api/client.ts";
 
 const key = "agrotech.token";
 
@@ -22,3 +26,5 @@ export function readToken(): string {
 export function clearToken(): void {
   sessionStorage.removeItem(key);
 }
+
+setSessionTokenReader(readToken);
