@@ -97,7 +97,7 @@ function renderSection(
     );
   }
   if (section === "galpon") return <GalponPanel onCreateFarm={onCreateFarm} />;
-  if (section === "configuracion") return <ConfiguracionScreen />;
+  if (section === "configuracion") return <ConfiguracionScreen account={account} />;
   if (section === "perfil") {
     return <ProfileScreen account={account} onAccountChange={onAccountChange} />;
   }
@@ -118,6 +118,7 @@ export function HomeScreen({ account, onAccountChange, onLogout }: Readonly<Prop
   const notices = useNotices();
 
   const go = (next: AppSection, view?: string) => {
+    if (next !== "perfil" && !account.modulos.includes(next)) return;
     setSection(next);
     if (next === "fincas") setFarmView(view === "crear" ? "crear" : "lista");
     if (next === "inventario") {
@@ -148,6 +149,12 @@ export function HomeScreen({ account, onAccountChange, onLogout }: Readonly<Prop
       setFarmView("lista");
     },
   );
+
+  useEffect(() => {
+    if (section !== "perfil" && !account.modulos.includes(section)) {
+      setSection("home");
+    }
+  }, [account.modulos, section]);
 
   useEffect(() => {
     const flash = sessionStorage.getItem("agrotech-t.flash");

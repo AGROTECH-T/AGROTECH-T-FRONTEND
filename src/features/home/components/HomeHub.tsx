@@ -18,13 +18,20 @@ type Props = {
  * @returns Contenido de la sección Inicio.
  */
 export function HomeHub({ account }: Readonly<Props>) {
+  const pendiente = !account.is_superadmin && !account.is_administrador && account.modulos.length <= 1;
   return (
     <section className="panel" aria-labelledby="home-title">
       <header className="panel__header">
         <h1 id="home-title" className="panel__title">
           Hola, {account.first_name}
         </h1>
-        <p className="panel__lead">Aquí tienes un resumen de tus fincas y actividades.</p>
+        {pendiente ? null : (
+          <p className="panel__lead">
+            {account.is_superadmin
+              ? "Desde Configuración nombra a los administradores."
+              : "Aquí tienes un resumen de tus fincas y actividades."}
+          </p>
+        )}
       </header>
     </section>
   );

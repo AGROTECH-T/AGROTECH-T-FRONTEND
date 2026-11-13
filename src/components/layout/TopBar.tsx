@@ -30,7 +30,7 @@ export function TopBar({ account, onNavigate, onLogout }: Readonly<Props>) {
   const [query, setQuery] = useState("");
   const [panel, setPanel] = useState<Panel>(null);
   const bar = useRef<HTMLElement>(null);
-  const matches = useMemo(() => searchEntries(query), [query]);
+  const matches = useMemo(() => searchEntries(query, account.modulos), [query, account.modulos]);
 
   useEffect(() => {
     if (!panel) return;
