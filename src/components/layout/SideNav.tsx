@@ -33,9 +33,10 @@ export function SideNav({ account, section, view, expanded, onNavigate, onToggle
   const toggleLabel = expanded ? "Ocultar" : "Mostrar";
   const profileOpen = section === "perfil";
   const profileClass = profileOpen ? "account-button is-active" : "account-button";
+  const items = visibleNavItems(account.modulos ?? ["home"]);
 
   const openModule = (itemId: AppSection, childId?: string) => {
-    const item = NAV_ITEMS.find((entry) => entry.id === itemId);
+    const item = items.find((entry) => entry.id === itemId);
     const children = item?.children;
     if (!children?.length) {
       setOpenGroup(null);
@@ -69,9 +70,9 @@ export function SideNav({ account, section, view, expanded, onNavigate, onToggle
       </div>
       <nav>
         <ul className="side-nav__list">
-          {NAV_ITEMS.map((item) => {
-            const active = item.id === section;
           {items.map((item) => {
+            const active = item.id === section;
+            const opened = expanded && openGroup === item.id && Boolean(item.children?.length);
             return (
               <li key={item.id}>
                 <button

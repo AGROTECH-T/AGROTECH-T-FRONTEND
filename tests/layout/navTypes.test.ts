@@ -31,14 +31,7 @@ describe("menú del shell", () => {
     expect(visibleNavItems(["home"]).map((item) => item.id)).toEqual(["home"]);
   });
 
-  it("el superadmin ve Inicio y Configuración", () => {
-    expect(visibleNavItems(["home", "configuracion"]).map((item) => item.id)).toEqual([
-      "home",
-      "configuracion",
-    ]);
-  });
-
-  it("el administrador ve todos los módulos", () => {
+  it("el superadmin y el administrador ven todos los módulos", () => {
     expect(
       visibleNavItems(["home", "fincas", "inventario", "galpon", "configuracion"]).map(
         (item) => item.id,
