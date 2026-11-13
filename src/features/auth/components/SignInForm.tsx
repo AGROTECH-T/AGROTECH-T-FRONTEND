@@ -62,9 +62,10 @@ export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
       const body = loginPayload(identification, password);
       const session = await login(body.identification, body.password);
       saveToken(session.token);
+      sessionStorage.setItem("agrotech-t.flash", "inicio de sesión exitosa");
       onSuccess(await fetchAccount(session.token));
-    } catch (cause) {
-      notices.push([cause instanceof Error ? cause.message : "No se pudo ingresar"], "warn");
+    } catch {
+      notices.push(["no es posible entrar"], "warn");
     } finally {
       setPending(false);
     }
