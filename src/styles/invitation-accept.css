@@ -1,0 +1,37 @@
+/**
+ * Pantalla de aceptación de invitaciones.
+ *
+ * Propósito: tarjeta única centrada con la misma estética del acceso.
+ * Contexto: reutiliza .shell, .form, .solid, .ghost y .text-link de auth.css.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.shell.invite-shell { grid-template-columns: 1fr; }
+.form.invite-card { width: min(480px, 100%); }
+
+.invite-account {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+}
+.invite-account div { display: flex; flex-direction: column; gap: 2px; }
+.invite-account dt { color: var(--moss); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; }
+.invite-account dd { margin: 0; color: var(--forest); font-weight: 600; overflow-wrap: anywhere; }
+
+.invite-message {
+  padding: 12px 14px;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  text-align: center;
+}
+.invite-message.is-ok { color: var(--forest); background: var(--mint); }
+.invite-message.is-warn { color: var(--danger-deep); background: var(--danger-soft); }
+.invite-message.is-busy { color: var(--leaf); }
+
+.invite-actions { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.invite-actions .text-link { align-self: center; }
+.invite-actions button:disabled { opacity: 0.6; cursor: wait; }
