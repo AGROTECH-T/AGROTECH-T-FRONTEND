@@ -1,8 +1,9 @@
 /**
- * Modulo reservado.
+ * Feature de alertas.
  *
- * Proposito: dejar el lugar del dominio sin logica prematura.
- * Contexto: se implementa cuando el backend publique ese dominio.
+ * Propósito: exponer los avisos de stock y sus tipos.
  * @author Cristian Deysdayr Jimenez
  */
-export {};
+
+export { listAlerts } from "./services/alertsApi.ts";
+export type { Alert, AlertKind, AlertList } from "./types/index.ts";
