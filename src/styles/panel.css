@@ -19,6 +19,14 @@
   margin-bottom: 28px;
 }
 
+.panel__kicker {
+  margin: 0 0 6px;
+  color: var(--moss);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 .panel__title {
   margin: 0 0 8px;
   color: var(--forest);
@@ -27,10 +35,18 @@
   line-height: 1.15;
 }
 
+.panel--home .panel__title {
+  margin: 0;
+  font-size: 2.4rem;
+  letter-spacing: -0.02em;
+}
+
 .panel__lead {
   margin: 0;
+  max-width: 42rem;
   color: var(--sage);
   font-size: 1rem;
+  line-height: 1.5;
 }
 
 .btn-primary {
