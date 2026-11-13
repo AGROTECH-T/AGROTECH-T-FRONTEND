@@ -1,0 +1,176 @@
+/**
+ * Invitaciones de una finca.
+ *
+ * Propósito: formulario, aviso de entrega fallida y filas del listado.
+ * Contexto: reutiliza .farm-form, .farm-state, .farm-members__item y los
+ * filtros en píldora; aquí solo se ordena el contenido y las etiquetas.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.farm-invitations {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.farm-invitations > .farm-form,
+.farm-invitations > .farm-state {
+  width: 100%;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+.farm-invitations__form .farm-form__field + .farm-form__field {
+  margin-top: 16px;
+}
+
+.farm-invitations__form .farm-members__filter:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.farm-invitations__warning .farm-empty__title {
+  color: var(--danger-deep);
+}
+
+.farm-invitations__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.farm-invitation {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.farm-invitation.is-highlighted {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+}
+
+.farm-invitation__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+}
+
+.farm-invitation__main .farm-members__name {
+  overflow-wrap: anywhere;
+}
+
+.farm-invitation__main .farm-members__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.farm-invitation__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0;
+}
+
+.farm-invitation__facts div {
+  display: flex;
+  gap: 6px;
+  font-size: 0.88rem;
+}
+
+.farm-invitation__facts dt {
+  color: var(--sage);
+  font-weight: 600;
+}
+
+.farm-invitation__facts dd {
+  margin: 0;
+  color: var(--leaf);
+}
+
+.farm-invitation-status,
+.farm-invitation-delivery {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--leaf);
+  background: var(--card);
+  box-shadow: var(--inset);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.farm-invitation-status.is-pending,
+.farm-invitation-delivery.is-sent {
+  color: var(--field);
+  background: var(--moss);
+  box-shadow: none;
+}
+
+.farm-invitation-status.is-accepted {
+  color: var(--field);
+  background: var(--forest);
+  box-shadow: none;
+}
+
+.farm-invitation-status.is-cancelled,
+.farm-invitation-status.is-expired {
+  color: var(--sage);
+}
+
+.farm-invitation-delivery.is-failed {
+  color: var(--danger-deep);
+  background: var(--danger-soft);
+  box-shadow: none;
+}
+
+/* F9: reenvío, cambio de rol y cancelación; reutiliza botones y filtros. */
+.farm-invitation__admin {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.farm-invitation__admin .farm-form__error {
+  margin: 0;
+}
+
+.farm-invitation__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.farm-invitation__role-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.farm-invitation__role-editor .farm-members__filter:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.farm-invitation__label {
+  color: var(--sage);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .farm-invitation__facts {
+    flex-direction: column;
+  }
+}

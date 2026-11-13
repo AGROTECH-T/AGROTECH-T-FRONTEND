@@ -1,20 +1,33 @@
 /**
  * Listado y estados de fincas.
  *
- * Propósito: toolbar, filas y vacíos con tokens verdes.
+ * Propósito: selector de rol, buscador, cuadrícula de tarjetas y vacíos con
+ * tokens verdes.
  * Contexto: Farms v1 en el shell de escritorio.
  * @author Cristian Deysdayr Jimenez
  */
 
 .farm-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 14px;
   margin-bottom: 22px;
 }
 
 .farm-search {
-  flex: 1;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+/* Etiqueta solo para lectores de pantalla (el campo ya muestra el placeholder). */
+.farm-search .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .farm-search input,
@@ -31,44 +44,276 @@
   box-sizing: border-box;
 }
 
-.farm-list {
+/* --- Selector de rol: franja hundida con opciones sólidas ---------------- */
+
+.farm-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+}
+
+.farm-roles__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--leaf);
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.farm-roles__option:hover { color: var(--forest); background: var(--card); }
+.farm-roles__option:focus-visible { outline: 2px solid var(--moss); outline-offset: 2px; }
+.farm-roles__option[aria-pressed="true"] {
+  color: var(--card);
+  background: var(--forest);
+  box-shadow: var(--raised);
+}
+
+.farm-roles__count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: var(--forest);
+  background: var(--mint);
+  font-size: 0.75rem;
+  text-align: center;
+  box-sizing: border-box;
+}
+.farm-roles__option[aria-pressed="true"] .farm-roles__count {
+  color: var(--mint);
+  background: var(--leaf);
+}
+
+/* --- Cuadrícula de tarjetas ----------------------------------------------- */
+
+.farm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+.farm-grid > li { display: flex; min-width: 0; }
+
+.farm-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+.farm-card:hover { box-shadow: var(--raised), 0 0 0 2px var(--sage); }
+.farm-card:focus-within { box-shadow: var(--raised), 0 0 0 2px var(--moss); }
+
+.farm-card__band {
+  position: relative;
+  height: 64px;
+  background: repeating-linear-gradient(160deg, var(--mint) 0 14px, var(--foam) 14px 28px);
 }
 
-.farm-row {
+.farm-card__mark {
+  position: absolute;
+  left: 16px;
+  bottom: -26px;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+.farm-card__mark img { display: block; width: 32px; height: 32px; object-fit: contain; }
+
+.farm-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  padding: 36px 16px 16px;
+}
+
+.farm-card__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  padding: 16px 18px;
-  border: 0;
-  border-radius: 22px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.farm-card__name {
+  margin: 0;
+  min-width: 0;
   color: var(--forest);
-  background: var(--surface);
+  font-size: 1.1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.farm-card__role {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.farm-card__role[data-role="administrador"] { color: var(--card); background: var(--forest); }
+.farm-card__role[data-role="operador"] { color: var(--forest); background: var(--mint); }
+.farm-card__role[data-role="consulta"] { color: var(--leaf); background: var(--field); box-shadow: inset 0 0 0 1px var(--line); }
+
+.farm-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--moss);
+  font-size: 0.85rem;
+}
+
+.farm-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--moss);
+}
+
+.farm-card__open {
+  margin-top: auto;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--card);
+  background: var(--forest);
   box-shadow: var(--raised);
   font: inherit;
-  text-align: left;
+  font-weight: 700;
   cursor: pointer;
 }
+.farm-card__open:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; }
+.farm-card__open:active { box-shadow: var(--inset); }
 
-.farm-row:hover {
-  background: var(--field);
+/* Finca desactivada: hundida y apagada. */
+.farm-card[data-active="false"] { background: var(--surface); box-shadow: var(--inset); }
+.farm-card[data-active="false"] .farm-card__band {
+  background: repeating-linear-gradient(160deg, var(--surface) 0 14px, var(--line) 14px 28px);
+}
+.farm-card[data-active="false"] .farm-card__mark img { filter: grayscale(1); opacity: 0.6; }
+.farm-card[data-active="false"] .farm-card__name { color: var(--moss); }
+.farm-card[data-active="false"] .farm-card__dot { background: transparent; border: 1.5px solid var(--sage); box-sizing: border-box; }
+.farm-card[data-active="false"] .farm-card__open { color: var(--forest); background: var(--card); }
+
+/* --- Banner superior: título, total y acciones --------------------------- */
+
+.farm-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+  padding: 22px 24px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: var(--raised);
 }
 
-.farm-row__name {
+/* Franja de surcos a la derecha, cortada en diagonal. */
+.farm-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 42%;
+  background: repeating-linear-gradient(160deg, var(--mint) 0 16px, var(--foam) 16px 32px);
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.farm-hero__text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.farm-hero__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.farm-hero__title .panel__title { margin: 0; }
+
+.farm-hero__count {
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--forest);
+  background: var(--mint);
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
-.farm-row__role {
-  color: var(--moss);
-  font-size: 0.92rem;
-  font-weight: 600;
+.farm-hero .panel__lead { margin: 0 0 10px; }
+
+.farm-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.farm-hero__actions .btn-primary,
+.farm-hero__actions .btn-secondary {
+  border-radius: 999px;
+  box-shadow: var(--raised);
+  font-weight: 700;
+}
+.farm-hero__actions .btn-secondary { color: var(--forest); background: var(--field); }
+
+.farm-hero__lookup {
+  margin-top: 8px;
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.farm-hero__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 84px;
+  height: 84px;
+  margin-right: 12px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+.farm-hero__art img { display: block; width: 48px; height: 48px; object-fit: contain; }
+
+@media (max-width: 560px) {
+  .farm-roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100%; padding: 4px; box-sizing: border-box; border-radius: 22px; }
+  .farm-roles__option { justify-content: space-between; gap: 4px; min-width: 0; padding: 8px; font-size: 0.78rem; }
+  .farm-grid { grid-template-columns: minmax(0, 1fr); }
+  /* En pantallas estrechas los surcos pasan a una franja superior. */
+  .farm-hero { padding: 54px 16px 18px; }
+  .farm-hero::before { inset: 0 0 auto 0; width: auto; height: 36px; clip-path: none; }
+  .farm-hero__art { display: none; }
 }
 
 .farm-empty,
@@ -89,4 +334,141 @@
 .farm-empty__hint {
   margin: 0;
   color: var(--sage);
+}
+
+.farm-history {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.farm-history__list {
+  margin: 0;
+  padding: 0 0 0 18px;
+  list-style: none;
+  border-left: 2px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.farm-history__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.farm-history__label {
+  color: var(--forest);
+  font-weight: 700;
+}
+
+.farm-history__meta {
+  color: var(--sage);
+  font-size: 0.88rem;
+}
+
+.farm-history__desc {
+  color: var(--leaf);
+  font-size: 0.95rem;
+}
+
+.farm-history__pagination {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.farm-history__page {
+  color: var(--sage);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.farm-members {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.farm-members__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.farm-members__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.farm-members__filter {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--leaf);
+  background: var(--surface);
+  box-shadow: var(--raised);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.farm-members__filter.is-active {
+  color: var(--field);
+  background: var(--forest);
+}
+
+.farm-members__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.farm-members__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--raised);
+}
+
+.farm-members__name {
+  color: var(--forest);
+  font-weight: 700;
+}
+
+.farm-members__meta {
+  color: var(--sage);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.farm-members__pagination {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.farm-members__page {
+  color: var(--sage);
+  font-weight: 600;
+  font-size: 0.9rem;
 }

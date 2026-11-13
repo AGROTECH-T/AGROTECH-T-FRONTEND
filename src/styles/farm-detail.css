@@ -1,0 +1,428 @@
+/**
+ * Detalle de una finca.
+ *
+ * Propósito: banner con nombre, rol y estado; pestañas con ícono; Resumen de
+ * solo lectura en tarjetas; Configuración en tarjetas horizontales; y el
+ * mismo lenguaje visual para Integrantes, Invitaciones e Historial.
+ * Contexto: solo tokens de tokens.css (colores, --raised, --inset). Todo va
+ * acotado a .farm-detail para no alterar otras pantallas que reutilizan
+ * .farm-form, .farm-members__* o .farm-history__*.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.detail-icon { width: 18px; height: 18px; flex: none; }
+
+.farm-detail { gap: 20px; align-items: stretch; }
+
+/* --- Banner ---------------------------------------------------------------- */
+
+.farm-detail-hero {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.farm-detail-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 36%;
+  background: repeating-linear-gradient(160deg, var(--mint) 0 16px, var(--foam) 16px 32px);
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.farm-detail-hero > * { position: relative; }
+
+.farm-detail-hero__back {
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--forest);
+  background: var(--field);
+  font-weight: 700;
+}
+
+.farm-detail-hero__art {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+.farm-detail-hero__art img { display: block; width: 36px; height: 36px; object-fit: contain; }
+
+.farm-detail-hero__text { display: flex; flex: 1 1 220px; flex-direction: column; gap: 2px; min-width: 0; }
+
+.farm-detail-hero__title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.farm-detail-hero__title .panel__title { margin: 0; overflow-wrap: anywhere; }
+.farm-detail-hero .panel__lead { color: var(--moss); }
+
+.overview-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--forest);
+  background: var(--mint);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.overview-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--moss);
+}
+.overview-status[data-active="false"] { color: var(--leaf); background: var(--surface); box-shadow: var(--inset); }
+.overview-status[data-active="false"]::before { background: transparent; border: 1.5px solid var(--sage); box-sizing: border-box; }
+
+/* --- Pestañas -------------------------------------------------------------- */
+
+.farm-detail .farm-tabs { gap: 6px; padding: 6px; align-self: flex-start; }
+
+.farm-detail .farm-tabs__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: transparent;
+  box-shadow: none;
+  font-weight: 700;
+}
+.farm-detail .farm-tabs__tab:hover { color: var(--forest); background: var(--card); }
+.farm-detail .farm-tabs__tab.is-active { color: var(--card); background: var(--forest); box-shadow: var(--raised); }
+
+.farm-detail .farm-tabs__panel { align-items: stretch; gap: 18px; }
+
+/* --- Tarjetas comunes del detalle ------------------------------------------ */
+
+.farm-detail .farm-form {
+  margin-bottom: 0;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.farm-detail .farm-state { border-radius: 22px; }
+
+/* --- Resumen (solo lectura) ------------------------------------------------ */
+
+.farm-overview { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+
+.overview-readonly {
+  align-self: flex-end;
+  margin: -4px 0 -6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--moss);
+  background: var(--field);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.farm-detail .overview-facts-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
+  gap: 14px;
+  width: 100%;
+}
+
+.farm-detail .overview-facts-row .overview-fact {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+  justify-content: stretch;
+  padding: 14px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.overview-fact__icon,
+.overview-card__icon,
+.farm-settings__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  color: var(--leaf);
+  background: var(--mint);
+}
+.overview-fact__icon { grid-row: 1 / span 2; width: 40px; height: 40px; }
+.overview-fact__icon .detail-icon { width: 20px; height: 20px; }
+
+.farm-detail .overview-fact dt { color: var(--moss); font-size: 0.8rem; font-weight: 700; }
+.farm-detail .overview-fact dd { margin: 0; color: var(--forest); font-size: 1rem; font-weight: 700; }
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 16px;
+}
+
+.overview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 18px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.overview-card__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px;
+  color: var(--forest);
+  font-size: 1.05rem;
+}
+.overview-card__icon { width: 34px; height: 34px; }
+
+.overview-count {
+  padding: 2px 9px;
+  border-radius: 999px;
+  color: var(--forest);
+  background: var(--mint);
+  font-size: 0.75rem;
+}
+
+.overview-card__state { margin: 0; color: var(--sage); font-size: 0.9rem; }
+
+.overview-card__more {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  margin-top: auto;
+  padding: 6px 0 0;
+  border: 0;
+  color: var(--forest);
+  background: transparent;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.overview-card__more:hover { text-decoration: underline; text-underline-offset: 4px; }
+.overview-card__more:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; border-radius: 6px; }
+
+.overview-facts { display: flex; flex-direction: column; margin: 0; }
+.overview-facts > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.overview-facts > div:last-child { border-bottom: 0; }
+.overview-facts dt { color: var(--moss); font-size: 0.88rem; }
+.overview-facts dd { margin: 0; color: var(--forest); font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+
+.overview-people { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+
+.overview-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.overview-person:last-child { border-bottom: 0; }
+
+.overview-person__avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--forest);
+  background: var(--mint);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.overview-person__avatar[data-role="administrador"] { color: var(--card); background: var(--forest); }
+
+.overview-person__text { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.overview-person__name { color: var(--forest); font-weight: 700; overflow-wrap: anywhere; }
+.overview-person__meta { color: var(--moss); font-size: 0.8rem; }
+
+.overview-tally { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.overview-tally span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 6px;
+  border-radius: 16px;
+  color: var(--moss);
+  background: var(--surface);
+  box-shadow: var(--inset);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.overview-tally strong { color: var(--forest); font-size: 1.2rem; }
+
+.overview-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0 0 0 6px;
+  padding: 0 0 0 18px;
+  border-left: 2px solid var(--line);
+  list-style: none;
+}
+.overview-timeline li { position: relative; display: flex; flex-direction: column; gap: 2px; }
+.overview-timeline li::before {
+  content: "";
+  position: absolute;
+  left: -25px;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--forest);
+}
+.overview-timeline__head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; color: var(--forest); }
+.overview-timeline__head span { color: var(--moss); font-size: 0.82rem; }
+.overview-timeline__desc { color: var(--leaf); font-size: 0.9rem; }
+
+/* --- Configuración: tarjetas horizontales ---------------------------------- */
+
+.farm-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+}
+
+.farm-detail .farm-settings__card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.farm-settings__card .farm-form__title { margin: 0; }
+.farm-settings__card .farm-empty__hint { margin: 0; line-height: 1.5; }
+.farm-settings__card .farm-form__actions { margin-top: auto; padding-top: 6px; }
+.farm-settings__card .farm-form__actions > button { flex: 1; border-radius: 999px; }
+.farm-settings__icon { width: 46px; height: 46px; }
+.farm-settings__icon .detail-icon { width: 22px; height: 22px; }
+
+.farm-detail .farm-settings__card.is-danger { box-shadow: var(--raised), inset 0 0 0 1.5px var(--danger-soft); }
+.farm-settings__card.is-danger .farm-settings__icon { color: var(--danger); background: var(--danger-soft); }
+
+.farm-settings > .farm-form__error { grid-column: 1 / -1; }
+
+/* --- Integrantes ------------------------------------------------------------ */
+
+.farm-detail .farm-members { gap: 14px; align-items: stretch; }
+
+.farm-detail .farm-members__toolbar { align-items: center; }
+
+.farm-detail .farm-members__filters {
+  gap: 4px;
+  align-self: flex-start;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+}
+
+.farm-detail .farm-members__filter {
+  color: var(--leaf);
+  background: transparent;
+  box-shadow: none;
+  font-weight: 700;
+}
+.farm-detail .farm-members__filter:hover { color: var(--forest); background: var(--card); }
+.farm-detail .farm-members__filter.is-active { color: var(--card); background: var(--forest); box-shadow: var(--raised); }
+
+.farm-detail .farm-members__list { gap: 10px; }
+
+.farm-detail .farm-members__item {
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: var(--card);
+}
+.farm-detail .farm-members__row { cursor: pointer; }
+.farm-detail .farm-members__row:hover { box-shadow: var(--raised), 0 0 0 2px var(--sage); }
+
+.farm-detail .farm-members__meta { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--moss); }
+
+.farm-detail .farm-members__pagination,
+.farm-detail .farm-history__pagination { justify-content: center; }
+
+/* --- Invitaciones ----------------------------------------------------------- */
+
+.farm-detail .farm-invitations { gap: 16px; align-items: stretch; }
+.farm-detail .farm-invitations > .farm-form__title { margin: 6px 0 0; }
+.farm-detail .farm-invitation { background: var(--card); border-radius: 20px; }
+
+/* --- Historial -------------------------------------------------------------- */
+
+.farm-detail .farm-history { align-items: stretch; }
+
+.farm-detail .farm-history__list {
+  margin-left: 6px;
+  padding: 18px 20px 18px 22px;
+  border-left: 0;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.farm-detail .farm-history__item {
+  position: relative;
+  padding-left: 18px;
+  border-left: 2px solid var(--line);
+}
+.farm-detail .farm-history__item::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--forest);
+}
+
+/* --- Pantallas estrechas ---------------------------------------------------- */
+
+@media (max-width: 560px) {
+  .farm-detail-hero { padding: 54px 16px 18px; }
+  .farm-detail-hero::before { inset: 0 0 auto 0; width: auto; height: 36px; clip-path: none; }
+  .farm-detail-hero__back { position: absolute; top: 4px; left: 12px; min-height: 28px; padding: 4px 10px; font-size: 0.8rem; }
+  .farm-detail-hero__art { width: 46px; height: 46px; }
+  .farm-detail-hero__art img { width: 28px; height: 28px; }
+  .farm-detail .farm-tabs { align-self: stretch; }
+  .farm-detail .farm-tabs__tab { padding: 8px 12px; }
+  .farm-detail .overview-facts-row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .farm-detail .overview-facts-row .overview-fact { padding: 12px; column-gap: 8px; }
+  .overview-fact__icon { width: 32px; height: 32px; }
+  .farm-detail .farm-members__filters { border-radius: 22px; }
+}
