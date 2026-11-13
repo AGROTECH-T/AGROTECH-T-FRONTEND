@@ -1,0 +1,136 @@
+/**
+ * Detalle de integrantes.
+ *
+ * Propósito: filas pulsables del listado, etiqueta de estado y ficha del
+ * integrante con su historial.
+ * Contexto: mismo relieve y tokens que las filas de fincas y el historial.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.farm-members__row {
+  width: 100%;
+  border: 0;
+  color: var(--forest);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.farm-members__row:hover {
+  background: var(--field);
+}
+
+.farm-members__row:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+}
+
+.farm-members__row .farm-members__meta {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.farm-member-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--leaf);
+  background: var(--card);
+  box-shadow: var(--inset);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.farm-member-status.is-active {
+  color: var(--field);
+  background: var(--moss);
+  box-shadow: none;
+}
+
+.farm-member-status.is-revoked {
+  color: var(--danger-deep);
+  background: var(--danger-soft);
+  box-shadow: none;
+}
+
+.farm-member-status.is-left {
+  color: var(--sage);
+}
+
+.farm-member-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.farm-member-detail__header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.farm-member-detail__header .farm-form__title {
+  margin: 0;
+}
+
+.farm-member-role {
+  width: 100%;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+.farm-member-role .farm-members__filter:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.farm-member-role .farm-members__filter:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+}
+
+/* F8: revocación y transferencia; reutiliza .farm-form y los botones globales. */
+.farm-member-actions {
+  width: 100%;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+
+.farm-member-actions__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.farm-member-actions__item + .farm-member-actions__item {
+  margin-top: 14px;
+}
+
+.farm-member-actions__item .farm-empty__hint {
+  margin: 0;
+}
+
+.farm-member-detail > .farm-state {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 520px) {
+  .farm-members__row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .farm-members__row .farm-members__meta {
+    justify-content: flex-start;
+  }
+}

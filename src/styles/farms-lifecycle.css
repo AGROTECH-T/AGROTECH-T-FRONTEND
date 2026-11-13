@@ -1,0 +1,44 @@
+/**
+ * Ciclo de vida de fincas.
+ *
+ * Propósito: aviso de finca desactivada, bloque Abandonar y barra de
+ * herramientas con la apertura por identificador.
+ * Contexto: reutiliza .farm-state, .farm-form y los botones existentes; aquí
+ * solo se ajustan ancho, espaciado y el ajuste de línea en pantallas pequeñas.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.farm-toolbar {
+  flex-wrap: wrap;
+}
+
+.farm-toolbar .farm-search {
+  min-width: min(240px, 100%);
+}
+
+.farm-lifecycle {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.farm-lifecycle .farm-empty__hint {
+  line-height: 1.5;
+}
+
+.farm-lifecycle__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.farm-form .farm-empty__hint {
+  margin: 0 0 14px;
+}
+
+@media (max-width: 520px) {
+  .farm-toolbar > button {
+    flex: 1 1 auto;
+  }
+}

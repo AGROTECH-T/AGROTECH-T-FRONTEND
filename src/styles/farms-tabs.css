@@ -1,0 +1,74 @@
+/**
+ * Pestañas del detalle de finca.
+ *
+ * Propósito: separar Resumen, Integrantes, Invitaciones e Historial.
+ * Contexto: mismo relieve de los filtros de integrantes; carril hundido y
+ * pestaña activa en verde bosque. En pantallas estrechas el carril se desplaza.
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.farm-tabs {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  padding: 8px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--inset);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  box-sizing: border-box;
+}
+
+.farm-tabs__tab {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--leaf);
+  background: var(--surface);
+  box-shadow: var(--raised);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.farm-tabs__tab:hover {
+  background: var(--field);
+}
+
+.farm-tabs__tab.is-active {
+  color: var(--field);
+  background: var(--forest);
+}
+
+.farm-tabs__tab:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+}
+
+.farm-tabs__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.farm-tabs__panel[hidden] {
+  display: none;
+}
+
+.farm-tabs__panel > .farm-form,
+.farm-tabs__panel > .farm-state {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 520px) {
+  .farm-tabs__tab {
+    padding: 8px 14px;
+  }
+}
