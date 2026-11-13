@@ -9,7 +9,9 @@ export {
   createFarm,
   deleteFarm,
   getFarm,
+  leaveFarm,
   listFarms,
+  reactivateFarm,
   updateFarm,
 } from "./farmsApi.ts";
 export { roleLabel } from "./roleLabel.ts";
