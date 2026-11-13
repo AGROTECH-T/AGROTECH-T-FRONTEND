@@ -11,7 +11,7 @@ import { BrandMark } from "../ui/BrandMark.tsx";
 import { AccountChip } from "./AccountChip.tsx";
 import { NavIcon } from "./NavIcon.tsx";
 import { useState } from "react";
-import { NAV_ITEMS, type AppSection } from "./navTypes.ts";
+import { visibleNavItems, type AppSection } from "./navTypes.ts";
 
 type Props = {
   account: Account;
@@ -71,7 +71,7 @@ export function SideNav({ account, section, view, expanded, onNavigate, onToggle
         <ul className="side-nav__list">
           {NAV_ITEMS.map((item) => {
             const active = item.id === section;
-            const opened = expanded && openGroup === item.id && Boolean(item.children?.length);
+          {items.map((item) => {
             return (
               <li key={item.id}>
                 <button
