@@ -12,7 +12,6 @@ import { roleLabel } from "../../farms/services/roleLabel.ts";
 import type { Farm, FarmRole } from "../../farms/types/index.ts";
 import { downloadInventory, listProducts } from "../services/inventoryApi.ts";
 import {
-  arrangeDemoInventories,
   inventoryIdFor,
   listInventories,
   placeProduct,
@@ -121,18 +120,12 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
 
   useEffect(() => {
     if (farmId == null) return;
-    const farmName = farms.find((item) => item.id === farmId)?.name ?? "";
-    if (!farmName) return;
-    void loadProducts(farmId).then((loaded) => {
-      const items = arrangeDemoInventories(
-        farmId,
-        farmName,
-        loaded.map((item) => item.id),
-      );
+    void loadProducts(farmId).then(() => {
+      const items = listInventories(farmId);
       setInventories(items);
       setInventoryId(items[0]?.id ?? "");
     });
-  }, [farmId, farms, loadProducts]);
+  }, [farmId, loadProducts]);
 
   const clearFresh = useCallback(() => setFresh(null), []);
 

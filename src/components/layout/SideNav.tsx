@@ -11,7 +11,7 @@ import { BrandMark } from "../ui/BrandMark.tsx";
 import { AccountChip } from "./AccountChip.tsx";
 import { NavIcon } from "./NavIcon.tsx";
 import { useState } from "react";
-import { NAV_ITEMS, type AppSection } from "./navTypes.ts";
+import { visibleNavItems, type AppSection } from "./navTypes.ts";
 
 type Props = {
   account: Account;
@@ -33,9 +33,10 @@ export function SideNav({ account, section, view, expanded, onNavigate, onToggle
   const toggleLabel = expanded ? "Ocultar" : "Mostrar";
   const profileOpen = section === "perfil";
   const profileClass = profileOpen ? "account-button is-active" : "account-button";
+  const items = visibleNavItems(account.modulos ?? ["home"]);
 
   const openModule = (itemId: AppSection, childId?: string) => {
-    const item = NAV_ITEMS.find((entry) => entry.id === itemId);
+    const item = items.find((entry) => entry.id === itemId);
     const children = item?.children;
     if (!children?.length) {
       setOpenGroup(null);
@@ -69,7 +70,7 @@ export function SideNav({ account, section, view, expanded, onNavigate, onToggle
       </div>
       <nav>
         <ul className="side-nav__list">
-          {NAV_ITEMS.map((item) => {
+          {items.map((item) => {
             const active = item.id === section;
             const opened = expanded && openGroup === item.id && Boolean(item.children?.length);
             return (

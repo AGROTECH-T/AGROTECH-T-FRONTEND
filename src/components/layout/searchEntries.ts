@@ -48,16 +48,19 @@ export const SEARCH_ENTRIES: readonly SearchEntry[] = [
 ];
 
 /**
- * Filtra el catálogo por lo que escribe la persona.
+ * Filtra el catálogo por lo que escribe la persona y por sus módulos.
  * @param query - Texto del buscador.
+ * @param modulos - Módulos que la cuenta puede abrir.
  * @returns Coincidencias de secciones y accesos.
  */
-export function searchEntries(query: string): SearchEntry[] {
+export function searchEntries(query: string, modulos: readonly string[] = []): SearchEntry[] {
   const needle = query.trim().toLowerCase();
   if (!needle) return [];
-  return SEARCH_ENTRIES.filter(
-    (entry) =>
-      entry.label.toLowerCase().includes(needle) ||
-      entry.hint.toLowerCase().includes(needle),
-  );
+  const allowed = new Set(modulos);
+  return SEARCH_ENTRIES.filter((entry) => {
+    if (entry.kind === "section" && entry.section !== "perfil" && !allowed.has(entry.section)) {
+      return false;
+    }
+    return entry.label.toLowerCase().includes(needle) || entry.hint.toLowerCase().includes(needle);
+  });
 }

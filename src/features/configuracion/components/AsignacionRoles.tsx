@@ -111,7 +111,13 @@ export function AsignacionRoles() {
   }
 
   if (cargando) return <p className="config-state">Cargando personas...</p>;
-  if (!puedo) return <p className="config-note">Solo el administrador de la finca asigna roles y permisos.</p>;
+  if (!puedo) {
+    return (
+      <p className="config-note">
+        Crea una finca para poder crear trabajadores y asignarles rol.
+      </p>
+    );
+  }
 
   if (vista === "detalle" && persona) {
     return (

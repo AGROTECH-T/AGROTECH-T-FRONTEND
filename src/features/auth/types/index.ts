@@ -16,6 +16,9 @@ export type Account = {
   phone: string;
   correo: string;
   is_active: boolean;
+  is_superadmin: boolean;
+  is_administrador: boolean;
+  modulos: string[];
 };
 
 export type ProfileUpdate = {

@@ -53,3 +53,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
   },
   { id: "configuracion", label: "Configuración", icon: "gear" },
 ];
+
+/**
+ * Filtra el menú a los módulos que la cuenta puede abrir.
+ * @param modulos - Identificadores permitidos que entrega la sesión.
+ * @returns Ítems visibles en el orden del menú.
+ */
+export function visibleNavItems(modulos: readonly string[]): readonly NavItem[] {
+  const allowed = new Set(modulos);
+  return NAV_ITEMS.filter((item) => allowed.has(item.id));
+}

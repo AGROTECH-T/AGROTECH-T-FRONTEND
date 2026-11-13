@@ -147,36 +147,6 @@ export function inventoryIdFor(farmId: number, productId: number): string {
  * @param productId - Producto.
  * @param inventoryId - Inventario de la finca.
  */
-const DEMO_BOOKS = "agrotech-t.demo-books";
-
-/**
- * Reparte los datos de prueba: la esperanza queda con dos inventarios
- * y las demás fincas con uno.
- * @param farmId - Finca activa.
- * @param farmName - Nombre de la finca.
- * @param productIds - Productos que ya existen.
- * @returns Inventarios de esa finca.
- */
-export function arrangeDemoInventories(
-  farmId: number,
-  farmName: string,
-  productIds: number[],
-): FarmInventory[] {
-  if (!farmName) return listInventories(farmId);
-  const mark = `${DEMO_BOOKS}.${farmId}`;
-  if (localStorage.getItem(mark)) return listInventories(farmId);
-  const books = listInventories(farmId);
-  const two = farmName.toLowerCase().includes("esperanza");
-  if (two && !books.some((item) => item.name.toLowerCase() === "bodega")) {
-    const bodega = addInventory(farmId, "Bodega");
-    productIds.forEach((id, index) => {
-      if (index % 2 === 0) placeProduct(id, bodega.id);
-    });
-  }
-  localStorage.setItem(mark, "1");
-  return listInventories(farmId);
-}
-
 export function placeProduct(productId: number, inventoryId: string) {
   const store = readStore();
   writeStore({
