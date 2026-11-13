@@ -41,6 +41,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
       { id: "inventarios", label: "Inventarios" },
       { id: "crear", label: "Crear producto" },
       { id: "catalogo", label: "Catálogo" },
+      { id: "consumo", label: "Estadísticas" },
+      { id: "reportes", label: "Reportes" },
     ],
   },
   { id: "configuracion", label: "Configuración", icon: "gear" },

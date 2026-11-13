@@ -26,7 +26,13 @@ type StockView =
   | "catalogo"
   | "categorias"
   | "unidades"
-  | "medidas";
+  | "medidas"
+  | "reportes"
+  | "ajustes"
+  | "consumo"
+  | "prestamos"
+  | "pedido"
+  | "bajo";
 
 function asStockView(view?: string): StockView {
   if (
@@ -38,7 +44,13 @@ function asStockView(view?: string): StockView {
     view === "catalogo" ||
     view === "categorias" ||
     view === "unidades" ||
-    view === "medidas"
+    view === "medidas" ||
+    view === "reportes" ||
+    view === "ajustes" ||
+    view === "consumo" ||
+    view === "prestamos" ||
+    view === "pedido" ||
+    view === "bajo"
   ) {
     return view;
   }
