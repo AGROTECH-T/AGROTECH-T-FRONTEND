@@ -662,6 +662,37 @@
   font-weight: 700;
 }
 
+.adj__stocks .adj__lent strong {
+  color: var(--danger);
+}
+
+.adj__stocks .adj__count {
+  background: linear-gradient(150deg, rgb(47 93 58 / 14%), rgb(47 93 58 / 4%));
+  box-shadow: inset 0 0 0 2px var(--leaf), var(--inset);
+}
+
+.adj__stocks .adj__count span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--leaf);
+  font-weight: 700;
+}
+
+.adj__stocks .adj__count input {
+  font-size: 1.8rem;
+}
+
+.adj__stocks .adj__count input:focus {
+  outline: none;
+}
+
+.adj__count-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .pv-light {
   position: fixed;
   inset: 0;
