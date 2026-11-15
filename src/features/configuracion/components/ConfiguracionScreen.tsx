@@ -13,7 +13,6 @@ import { SuperadminPanel } from "./SuperadminPanel.tsx";
 
 type Props = {
   account: Account;
-  tick?: number;
 };
 
 type TabId = "administradores" | "roles";
@@ -27,7 +26,7 @@ function leadDeTab(tab: TabId): string {
   if (tab === "administradores") {
     return "Crea al administrador o nombra a una cuenta que ya se registró.";
   }
-  return "Crea usuarios, asigna su rol y suma permisos adicionales.";
+  return "Crea cuentas, elige el rol en cada finca y suma permisos extra.";
 }
 
 /**
@@ -35,7 +34,7 @@ function leadDeTab(tab: TabId): string {
  * @param props - Cuenta autenticada para elegir el panel.
  * @returns Panel del superadmin o de roles de finca.
  */
-export function ConfiguracionScreen({ account, tick = 0 }: Readonly<Props>) {
+export function ConfiguracionScreen({ account }: Readonly<Props>) {
   const superadmin = account.is_superadmin;
   const [tab, setTab] = useState<TabId>(superadmin ? "administradores" : "roles");
 
@@ -69,7 +68,7 @@ export function ConfiguracionScreen({ account, tick = 0 }: Readonly<Props>) {
         </button>
       </nav>
 
-      {tab === "administradores" ? <SuperadminPanel /> : <RolesPermisosPanel tick={tick} />}
+      {tab === "administradores" ? <SuperadminPanel /> : <RolesPermisosPanel />}
     </section>
   );
 }

@@ -26,3 +26,14 @@ export const ROL_NOMBRE: Record<RolId, string> = {
   operador: "Operador",
   consulta: "Consulta",
 };
+
+/**
+ * Iniciales para el avatar de una persona.
+ * @param nombre - Nombre visible.
+ * @returns Hasta dos letras, o ? si viene vacío.
+ */
+export function inicialesPersona(nombre: string): string {
+  const partes = nombre.trim().split(/\s+/).slice(0, 2);
+  const letras = partes.map((parte) => parte.charAt(0)).join("");
+  return letras.toUpperCase() || "?";
+}

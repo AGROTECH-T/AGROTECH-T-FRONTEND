@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { ROL_NOMBRE } from "../services/catalogo.ts";
+import { inicialesPersona, ROL_NOMBRE } from "../services/catalogo.ts";
 import {
   agregarPermiso,
   cambiarEstado,
@@ -24,16 +24,11 @@ import { FormularioUsuario } from "./FormularioUsuario.tsx";
 
 type Vista = "lista" | "detalle" | "crear";
 
-type Props = {
-  tick?: number;
-};
-
 /**
  * Pantalla de usuarios, alta y detalle de permisos.
- * @param props - Pulso de navegación del menú.
  * @returns Roles y permisos.
  */
-export function AsignacionRoles({ tick = 0 }: Readonly<Props>) {
+export function AsignacionRoles() {
   const [usuarios, setUsuarios] = useState<UsuarioAsignado[]>([]);
   const [fincas, setFincas] = useState<FincaAsignable[]>([]);
   const [catalogo, setCatalogo] = useState<CatalogoRoles | null>(null);
@@ -44,13 +39,6 @@ export function AsignacionRoles({ tick = 0 }: Readonly<Props>) {
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [cargando, setCargando] = useState(true);
-  const [seenTick, setSeenTick] = useState(tick);
-
-  if (tick !== seenTick) {
-    setSeenTick(tick);
-    setVista("lista");
-    setPersona(null);
-  }
 
   useEffect(() => {
     let activo = true;
@@ -125,9 +113,10 @@ export function AsignacionRoles({ tick = 0 }: Readonly<Props>) {
   if (cargando) return <p className="config-state">Cargando personas...</p>;
   if (!puedo) {
     return (
-      <p className="config-note">
-        Crea una finca para poder crear trabajadores y asignarles rol.
-      </p>
+      <div className="config-empty">
+        <h2>Falta una finca</h2>
+        <p>Crea una finca para poder crear trabajadores y asignarles rol.</p>
+      </div>
     );
   }
 
@@ -152,26 +141,38 @@ export function AsignacionRoles({ tick = 0 }: Readonly<Props>) {
     );
   }
 
+  const sinResultados = visibles.length === 0;
+  const buscando = busqueda.trim().length > 0;
+
   return (
-    <section className="config-people" aria-labelledby="config-people-title">
-      <p id="config-people-title" className="config-note">
-        Elige una persona para ver y editar su rol y sus permisos adicionales.
-        Solo el administrador de la finca puede hacerlo.
-      </p>
-      {vista === "lista" && error ? <p className="config-assign__error">{error}</p> : null}
-      <div className="config-people__bar">
-        <button type="button" className="btn-primary config-people__create" onClick={() => setVista("crear")}>
-          Crear usuario
-        </button>
-        <label>
-          Buscar
+    <section className="config-crew" aria-label="Personas de tus fincas">
+      <div className="config-crew__toolbar">
+        <label className="config-crew__search">
+          Buscar persona
           <input
+            type="search"
             value={busqueda}
             onChange={(event) => setBusqueda(event.target.value)}
             placeholder="Nombre, documento o correo"
           />
         </label>
+        <button type="button" className="btn-primary config-crew__create" onClick={() => setVista("crear")}>
+          Crear usuario
+        </button>
       </div>
+      {error ? <p className="config-assign__error">{error}</p> : null}
+
+      {catalogo?.roles.length ? (
+        <ul className="config-role-hints">
+          {catalogo.roles.map((rol) => (
+            <li key={rol.id}>
+              <h3>{rol.nombre}</h3>
+              <p>{rol.resumen}</p>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
       {vista === "crear" ? (
         <FormularioUsuario
           fincas={fincas}
@@ -185,42 +186,71 @@ export function AsignacionRoles({ tick = 0 }: Readonly<Props>) {
           onCrear={(datos) => void crear(datos)}
         />
       ) : null}
-      <div className="config-people__table">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Usuario</th>
-              <th scope="col">Documento</th>
-              <th scope="col">Roles</th>
-              <th scope="col">Estado</th>
-              <th scope="col">Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibles.map((item) => (
-              <tr key={item.id}>
-                <th scope="row">
-                  <strong>{item.nombre}</strong>
-                  <span>{item.correo || "Sin correo"}</span>
-                </th>
-                <td>{item.identification}</td>
-                <td>{rolesDe(item)}</td>
-                <td className={item.activo ? "is-on" : "is-off"}>{item.activo ? "Activo" : "Inactivo"}</td>
-                <td>
-                  <button type="button" className="config-people__link" disabled={guardando} onClick={() => void abrir(item.id)}>
+
+      {sinResultados ? (
+        <div className="config-empty">
+          <h2>{buscando ? "Nadie coincide" : "Aún no hay usuarios"}</h2>
+          <p>
+            {buscando
+              ? "Prueba con otro nombre, documento o correo."
+              : "Crea el primero para asignarle un rol en tus fincas."}
+          </p>
+        </div>
+      ) : (
+        <ul className="config-crew__grid">
+          {visibles.map((item) => (
+            <li key={item.id}>
+              <article className="config-person">
+                <header className="config-person__head">
+                  <span className="config-person__avatar" aria-hidden="true">
+                    {inicialesPersona(item.nombre)}
+                  </span>
+                  <div className="config-person__who">
+                    <h3>{item.nombre}</h3>
+                    <p>{item.correo || "Sin correo"}</p>
+                  </div>
+                  <span className={item.activo ? "config-status is-on" : "config-status is-off"}>
+                    {item.activo ? "Activo" : "Inactivo"}
+                  </span>
+                </header>
+                <dl className="config-person__facts">
+                  <div>
+                    <dt>Documento</dt>
+                    <dd>{item.identification}</dd>
+                  </div>
+                  <div>
+                    <dt>Roles</dt>
+                    <dd>
+                      {item.membresias.length ? (
+                        <ul className="config-person__roles">
+                          {item.membresias.map((membresia) => (
+                            <li key={membresia.farm_id}>
+                              <strong>{ROL_NOMBRE[membresia.role]}</strong>
+                              <span>{membresia.farm_name}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        "Sin rol"
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+                <div className="config-person__actions">
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    disabled={guardando}
+                    onClick={() => void abrir(item.id)}
+                  >
                     Ver permisos
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </div>
+              </article>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
-}
-
-function rolesDe(persona: UsuarioAsignado): string {
-  const nombres = persona.membresias.map((item) => `${ROL_NOMBRE[item.role]} · ${item.farm_name}`);
-  return nombres.join(", ") || "Sin rol";
 }

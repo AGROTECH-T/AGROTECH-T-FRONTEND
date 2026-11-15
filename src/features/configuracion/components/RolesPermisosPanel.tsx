@@ -8,15 +8,10 @@
 
 import { AsignacionRoles } from "./AsignacionRoles.tsx";
 
-type Props = {
-  tick?: number;
-};
-
 /**
  * Contenido de Roles y permisos.
- * @param props - Pulso de navegación del menú.
  * @returns Asignación de roles.
  */
-export function RolesPermisosPanel({ tick = 0 }: Readonly<Props>) {
-  return <AsignacionRoles tick={tick} />;
+export function RolesPermisosPanel() {
+  return <AsignacionRoles />;
 }
