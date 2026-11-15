@@ -13,27 +13,9 @@ import type { Account } from "../../auth/types/index.ts";
 import { ConfiguracionScreen } from "../../configuracion/index.ts";
 import { FarmsScreen } from "../../farms/index.ts";
 import { GalponPanel } from "../../galpon/components/GalponPanel.tsx";
-import { InventarioPanel } from "../../inventario/index.ts";
+import { InventarioPanel, type StockView } from "../../inventario/index.ts";
 import { ProfileScreen } from "../../profile/index.ts";
 import { HomeHub } from "./HomeHub.tsx";
-
-type StockView =
-  | "lista"
-  | "crear"
-  | "entrada"
-  | "salida"
-  | "historial"
-  | "inventarios"
-  | "catalogo"
-  | "categorias"
-  | "unidades"
-  | "medidas"
-  | "reportes"
-  | "ajustes"
-  | "consumo"
-  | "prestamos"
-  | "pedido"
-  | "bajo";
 
 function asStockView(view?: string): StockView {
   if (
@@ -77,24 +59,14 @@ function renderSection(
   onAccountChange: (account: Account) => void,
   farmView: "lista" | "crear",
   onFarmView: (view: "lista" | "crear") => void,
-  farmTick: number,
   stockView: StockView,
   onStockView: (view: StockView) => void,
   stockTick: number,
-  galponTick: number,
-  configTick: number,
   onCreateFarm: () => void,
   onLeaveCreate: () => void,
 ) {
   if (section === "fincas") {
-    return (
-      <FarmsScreen
-        view={farmView}
-        tick={farmTick}
-        onView={onFarmView}
-        onLeaveCreate={onLeaveCreate}
-      />
-    );
+    return <FarmsScreen view={farmView} onView={onFarmView} onLeaveCreate={onLeaveCreate} />;
   }
   if (section === "inventario") {
     return (
@@ -106,8 +78,8 @@ function renderSection(
       />
     );
   }
-  if (section === "galpon") return <GalponPanel tick={galponTick} onCreateFarm={onCreateFarm} />;
-  if (section === "configuracion") return <ConfiguracionScreen account={account} tick={configTick} />;
+  if (section === "galpon") return <GalponPanel onCreateFarm={onCreateFarm} />;
+  if (section === "configuracion") return <ConfiguracionScreen account={account} />;
   if (section === "perfil") {
     return <ProfileScreen account={account} onAccountChange={onAccountChange} />;
   }
@@ -122,27 +94,19 @@ function renderSection(
 export function HomeScreen({ account, onAccountChange, onLogout }: Readonly<Props>) {
   const [section, setSection] = useState<AppSection>("home");
   const [farmView, setFarmView] = useState<"lista" | "crear">("lista");
-  const [farmTick, setFarmTick] = useState(0);
   const [stockView, setStockView] = useState<StockView>("lista");
   const [stockTick, setStockTick] = useState(0);
-  const [galponTick, setGalponTick] = useState(0);
-  const [configTick, setConfigTick] = useState(0);
   const [backToInventory, setBackToInventory] = useState(false);
   const notices = useNotices();
 
   const go = (next: AppSection, view?: string) => {
     if (next !== "perfil" && !account.modulos.includes(next)) return;
     setSection(next);
-    if (next === "fincas") {
-      setFarmView(view === "crear" ? "crear" : "lista");
-      setFarmTick((current) => current + 1);
-    }
+    if (next === "fincas") setFarmView(view === "crear" ? "crear" : "lista");
     if (next === "inventario") {
       setStockView(asStockView(view));
-      setStockTick((current) => current + 1);
+      if (asStockView(view) === "lista") setStockTick((current) => current + 1);
     }
-    if (next === "galpon") setGalponTick((current) => current + 1);
-    if (next === "configuracion") setConfigTick((current) => current + 1);
   };
 
   const content = renderSection(
@@ -151,12 +115,9 @@ export function HomeScreen({ account, onAccountChange, onLogout }: Readonly<Prop
     onAccountChange,
     farmView,
     setFarmView,
-    farmTick,
     stockView,
     setStockView,
     stockTick,
-    galponTick,
-    configTick,
     () => {
       setBackToInventory(section === "inventario");
       go("fincas", "crear");

@@ -8,6 +8,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import type { Account } from "../../features/auth/types/index.ts";
+import { SectionBar } from "./SectionBar.tsx";
 import { SideNav } from "./SideNav.tsx";
 import { TopBar } from "./TopBar.tsx";
 import type { AppSection } from "./navTypes.ts";
@@ -44,7 +45,12 @@ export function AppShell({ account, section, view, onNavigate, onLogout, childre
     return () => query.removeEventListener("change", sync);
   }, []);
 
-  const shellClass = expanded ? "app-shell" : "app-shell is-nav-collapsed";
+  useEffect(() => {
+    document.body.classList.toggle("is-galpon", section === "galpon");
+    return () => document.body.classList.remove("is-galpon");
+  }, [section]);
+
+  const shellClass = ["app-shell", expanded ? "" : "is-nav-collapsed"].filter(Boolean).join(" ");
 
   return (
     <div className={shellClass}>
@@ -58,6 +64,7 @@ export function AppShell({ account, section, view, onNavigate, onLogout, childre
       />
       <div className="app-shell__column">
         <TopBar account={account} onNavigate={onNavigate} onLogout={onLogout} />
+        <SectionBar section={section} view={view} onNavigate={onNavigate} />
         <main className="app-shell__main">{children}</main>
       </div>
     </div>
