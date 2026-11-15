@@ -978,10 +978,16 @@
   text-align: center;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1080px) {
   .cat-hero,
   .cat-flow {
     grid-template-columns: 1fr;
+  }
+
+  .cat-chain__row,
+  .cat-chain__row--open {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 }
 
@@ -1139,7 +1145,7 @@
   box-shadow: none;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 980px) {
   .catalog-well .easy-card__row,
   .catalog-well .easy-card__row:has(.easy-hint):has(.easy-chips) {
     grid-template-columns: 1fr;
@@ -1364,14 +1370,15 @@ button.easy-chip {
   gap: 10px;
   width: 100%;
   padding: 16px;
+  border: 1px solid var(--emerald-line);
   border-radius: 20px;
-  background: var(--field);
-  box-shadow: var(--inset);
+  background: var(--white);
+  box-shadow: 0 10px 24px rgba(15, 122, 90, 0.08);
   box-sizing: border-box;
 }
 
 .rp__filtertitle {
-  color: var(--sage);
+  color: var(--emerald);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -1389,9 +1396,10 @@ button.easy-chip {
   width: 100%;
   max-height: 520px;
   overflow: auto;
+  border: 1px solid var(--emerald-line);
   border-radius: 18px;
-  background: var(--field);
-  box-shadow: var(--inset);
+  background: var(--white);
+  box-shadow: 0 10px 24px rgba(15, 122, 90, 0.06);
 }
 
 .rp__table table {
@@ -1406,8 +1414,8 @@ button.easy-chip {
   top: 0;
   z-index: 1;
   padding: 12px 14px;
-  color: var(--sage);
-  background: var(--card);
+  color: var(--emerald);
+  background: var(--emerald-soft);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1417,17 +1425,17 @@ button.easy-chip {
 
 .rp__table tbody td {
   padding: 11px 14px;
-  border-top: 1px solid var(--line);
-  color: var(--forest);
+  border-top: 1px solid var(--emerald-line);
+  color: var(--report-ink);
 }
 
 .rp__table tbody tr:hover {
-  background: var(--card);
+  background: var(--report-paper);
 }
 
 .rp__note {
   margin: 0;
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.78rem;
 }
 
@@ -1481,13 +1489,14 @@ button.easy-chip {
   display: grid;
   gap: 4px;
   padding: 14px;
+  border: 1px solid var(--emerald-line);
   border-radius: 18px;
-  background: var(--field);
-  box-shadow: var(--inset);
+  background: var(--white);
+  box-shadow: 0 8px 20px rgba(15, 122, 90, 0.07);
 }
 
 .rp__stat span {
-  color: var(--sage);
+  color: var(--emerald);
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -1495,21 +1504,21 @@ button.easy-chip {
 }
 
 .rp__stat strong {
-  color: var(--forest);
+  color: var(--report-ink);
   font-size: 1.35rem;
 }
 
 .rp__stat small {
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.8rem;
 }
 
 .rp__stat.is-ok strong {
-  color: var(--leaf);
+  color: var(--emerald);
 }
 
 .rp__stat.is-warn strong {
-  color: var(--danger);
+  color: var(--tangerine);
 }
 
 .rp__stat.is-down strong {
@@ -1521,18 +1530,19 @@ button.easy-chip {
   display: inline-block;
   padding: 2px 10px;
   border-radius: 999px;
-  color: var(--leaf);
-  background: var(--field);
+  color: var(--emerald);
+  background: var(--emerald-soft);
   font-size: 0.8rem;
   font-weight: 700;
 }
 
 .rp__reason.is-missing {
-  color: var(--sage);
+  color: var(--emerald-light);
 }
 
 .rp__state.is-open {
-  color: var(--danger);
+  color: var(--tangerine);
+  background: var(--tangerine-soft);
 }
 
 .rp__delta {
@@ -1540,12 +1550,12 @@ button.easy-chip {
 }
 
 .rp__delta.is-up {
-  color: var(--leaf);
+  color: var(--emerald);
   font-weight: 700;
 }
 
 .rp__delta.is-down {
-  color: var(--danger);
+  color: var(--tangerine);
   font-weight: 700;
 }
 
@@ -1577,7 +1587,7 @@ button.easy-chip {
 
 .rp__people h3 {
   margin: 0 0 10px;
-  color: var(--forest);
+  color: var(--emerald-deep);
   font-size: 1rem;
 }
 
@@ -1594,27 +1604,27 @@ button.easy-chip {
   display: grid;
   gap: 2px;
   padding: 10px 12px;
+  border: 1px solid var(--emerald-line);
   border-radius: 14px;
-  background: var(--card);
-  box-shadow: var(--raised);
+  background: var(--report-paper);
 }
 
 .rp__people li strong {
-  color: var(--forest);
+  color: var(--emerald-deep);
 }
 
 .rp__people li span {
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.8rem;
 }
 
 .rp__people li small {
-  color: var(--danger);
+  color: var(--tangerine);
   font-weight: 700;
 }
 
 .rp__people li em {
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.74rem;
   font-style: normal;
 }
@@ -1634,9 +1644,10 @@ button.easy-chip {
   gap: 14px;
   min-width: 0;
   padding: 18px;
+  border: 1px solid var(--emerald-line);
   border-radius: 22px;
-  background: var(--field);
-  box-shadow: var(--inset);
+  background: var(--white);
+  box-shadow: 0 10px 24px rgba(15, 122, 90, 0.07);
   box-sizing: border-box;
 }
 
@@ -1654,12 +1665,12 @@ button.easy-chip {
 
 .dash__head h3 {
   margin: 0;
-  color: var(--forest);
+  color: var(--emerald-deep);
   font-size: 1rem;
 }
 
 .dash__head span {
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.76rem;
   font-weight: 600;
 }
@@ -1674,7 +1685,7 @@ button.easy-chip {
 .chart-empty {
   margin: 0;
   padding: 18px 4px;
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.86rem;
   text-align: center;
 }
@@ -1726,15 +1737,14 @@ button.easy-chip {
   height: 12px;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--card);
-  box-shadow: var(--inset);
+  background: var(--emerald-soft);
 }
 
 .chart-bars__track span {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--moss), var(--leaf));
+  background: linear-gradient(90deg, var(--emerald-light), var(--emerald));
   transition: width 240ms ease;
 }
 
@@ -1760,22 +1770,22 @@ button.easy-chip {
 }
 
 .chart-compare__head strong {
-  color: var(--forest);
+  color: var(--emerald-deep);
   font-size: 0.88rem;
 }
 
 .chart-compare__delta {
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.76rem;
   font-weight: 700;
 }
 
 .chart-compare__delta.is-up {
-  color: var(--danger);
+  color: var(--tangerine);
 }
 
 .chart-compare__delta.is-down {
-  color: var(--leaf);
+  color: var(--emerald);
 }
 
 .chart-compare__series {
@@ -1791,7 +1801,7 @@ button.easy-chip {
 }
 
 .chart-compare__item small {
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.74rem;
   white-space: nowrap;
 }
@@ -1804,11 +1814,11 @@ button.easy-chip {
 }
 
 .chart-compare__item.is-now .chart-compare__track span {
-  background: linear-gradient(90deg, var(--moss), var(--leaf));
+  background: linear-gradient(90deg, var(--emerald-light), var(--emerald));
 }
 
 .chart-compare__item.is-before .chart-compare__track span {
-  background: var(--mist);
+  background: var(--tangerine-soft);
 }
 
 .chart-spark {
@@ -1816,10 +1826,10 @@ button.easy-chip {
   flex-direction: column;
   gap: 8px;
   padding: 14px;
+  border: 1px solid var(--emerald-line);
   border-radius: 18px;
-  color: var(--leaf);
-  background: var(--card);
-  box-shadow: var(--raised);
+  color: var(--emerald);
+  background: var(--report-paper);
 }
 
 .chart-spark__head {
@@ -1830,12 +1840,12 @@ button.easy-chip {
 }
 
 .chart-spark__head strong {
-  color: var(--forest);
+  color: var(--emerald-deep);
   font-size: 1.05rem;
 }
 
 .chart-spark__head span {
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.74rem;
 }
 
@@ -1868,9 +1878,10 @@ button.easy-chip {
   align-items: flex-start;
   gap: 8px;
   padding: 18px;
+  border: 1px solid var(--emerald-line);
   border-radius: 22px;
-  background: var(--field);
-  box-shadow: var(--inset);
+  background: var(--white);
+  box-shadow: 0 10px 24px rgba(15, 122, 90, 0.07);
 }
 
 .rp-hub__icon {
@@ -1879,9 +1890,8 @@ button.easy-chip {
   width: 44px;
   height: 44px;
   border-radius: 16px;
-  color: var(--leaf);
-  background: var(--card);
-  box-shadow: var(--raised);
+  color: var(--white);
+  background: var(--emerald);
 }
 
 .rp-hub__icon svg {
@@ -1891,14 +1901,14 @@ button.easy-chip {
 
 .rp-hub__card h2 {
   margin: 0;
-  color: var(--forest);
+  color: var(--emerald-deep);
   font-size: 1.05rem;
   text-align: left;
 }
 
 .rp-hub__card p {
   margin: 0;
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.88rem;
   line-height: 1.45;
 }
@@ -1923,9 +1933,10 @@ button.easy-chip {
 .stats__card {
   min-width: 0;
   padding: 16px 18px;
+  border: 1px solid var(--emerald-line);
   border-radius: 22px;
-  background: var(--field);
-  box-shadow: var(--raised);
+  background: var(--white);
+  box-shadow: 0 10px 24px rgba(15, 122, 90, 0.07);
 }
 
 .stats__kpi {
@@ -1935,20 +1946,20 @@ button.easy-chip {
 
 .stats__kpi span,
 .stats__farm span {
-  color: var(--sage);
+  color: var(--emerald);
   font-size: 0.78rem;
   font-weight: 700;
 }
 
 .stats__kpi strong,
 .stats__farm strong {
-  color: var(--forest);
+  color: var(--emerald-deep);
   font-size: 1.7rem;
   line-height: 1.1;
 }
 
 .stats__kpi small {
-  color: var(--moss);
+  color: var(--emerald-light);
   font-size: 0.75rem;
 }
 
@@ -1958,7 +1969,7 @@ button.easy-chip {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--moss);
+  color: var(--emerald);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 700;
@@ -1966,7 +1977,7 @@ button.easy-chip {
 }
 
 .stats__kpi.is-warn strong {
-  color: #b86a16;
+  color: var(--tangerine);
 }
 
 .stats {
@@ -1997,11 +2008,11 @@ button.easy-chip {
 }
 
 .stats__key i.is-in {
-  background: #3d9a62;
+  background: var(--emerald);
 }
 
 .stats__key i.is-out {
-  background: #1d4d32;
+  background: var(--tangerine);
 }
 
 .stats-donut,
@@ -2033,17 +2044,17 @@ button.easy-chip {
   width: 78px;
   height: 78px;
   border-radius: 50%;
-  background: var(--field);
+  background: var(--white);
   text-align: center;
 }
 
 .stats-donut__ring strong {
-  color: var(--forest);
+  color: var(--emerald-deep);
   font-size: 1.2rem;
 }
 
 .stats-donut__ring span {
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.62rem;
   line-height: 1.2;
 }
@@ -2061,7 +2072,7 @@ button.easy-chip {
   grid-template-columns: 10px 1fr auto;
   align-items: center;
   gap: 8px;
-  color: var(--forest);
+  color: var(--report-ink);
   font-size: 0.82rem;
 }
 
@@ -2079,7 +2090,7 @@ button.easy-chip {
 .stats-flow footer {
   display: flex;
   justify-content: space-between;
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.72rem;
 }
 
@@ -2100,14 +2111,14 @@ button.easy-chip {
 
 .stats__lows strong,
 .stats__lows em {
-  color: var(--forest);
+  color: var(--report-ink);
   font-style: normal;
   font-size: 0.88rem;
 }
 
 .stats__lows small {
   display: block;
-  color: var(--sage);
+  color: var(--emerald-light);
   font-size: 0.74rem;
 }
 
@@ -2124,7 +2135,7 @@ button.easy-chip {
 
 .stats__farm-name {
   margin: 0;
-  color: var(--forest);
+  color: var(--emerald-deep);
   font-weight: 800;
 }
 

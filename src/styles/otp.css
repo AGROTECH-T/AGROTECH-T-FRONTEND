@@ -73,11 +73,11 @@
 .otp-back {
   align-self: flex-start;
   margin: 0 0 12px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
-  padding: 8px 14px;
-  background: rgba(0, 0, 0, 0.35);
-  color: #f4f7ef;
+  border: 0;
+  border-radius: 18px;
+  padding: 10px 18px;
+  background: var(--ash);
+  color: #f4f6f5;
   font: 700 0.9rem/1.2 inherit;
   cursor: pointer;
 }

@@ -13,6 +13,7 @@ import { SuperadminPanel } from "./SuperadminPanel.tsx";
 
 type Props = {
   account: Account;
+  tick?: number;
 };
 
 type TabId = "administradores" | "roles";
@@ -34,7 +35,7 @@ function leadDeTab(tab: TabId): string {
  * @param props - Cuenta autenticada para elegir el panel.
  * @returns Panel del superadmin o de roles de finca.
  */
-export function ConfiguracionScreen({ account }: Readonly<Props>) {
+export function ConfiguracionScreen({ account, tick = 0 }: Readonly<Props>) {
   const superadmin = account.is_superadmin;
   const [tab, setTab] = useState<TabId>(superadmin ? "administradores" : "roles");
 
@@ -68,7 +69,7 @@ export function ConfiguracionScreen({ account }: Readonly<Props>) {
         </button>
       </nav>
 
-      {tab === "administradores" ? <SuperadminPanel /> : <RolesPermisosPanel />}
+      {tab === "administradores" ? <SuperadminPanel /> : <RolesPermisosPanel tick={tick} />}
     </section>
   );
 }

@@ -136,6 +136,7 @@ button { font: inherit; cursor: pointer; }
 .solid:disabled { opacity: 0.7; cursor: wait; }
 .ghost { color: var(--forest); background: var(--foam); box-shadow: var(--raised); }
 .form .text-link { align-self: flex-end; }
+.form .screen-back { align-self: flex-start; margin-bottom: 0; }
 .text-link { border: 0; background: transparent; color: var(--leaf); text-decoration: underline; text-underline-offset: 4px; }
 .notice, .alert { text-align: center; font-size: 0.9rem; }
 .alert { color: var(--forest); }

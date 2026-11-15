@@ -26,6 +26,7 @@ import { LotWorkspace } from "./LotWorkspace.tsx";
 import { Empty } from "./galponUi.tsx";
 
 type Props = {
+  tick?: number;
   onCreateFarm?: () => void;
 };
 
@@ -38,7 +39,7 @@ function message(cause: unknown, fallback: string): string {
  * @param props - Acción para crear una finca cuando todavía no hay ninguna.
  * @returns Cabecera, ruta y contenido de la pantalla actual.
  */
-export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
+export function GalponPanel({ tick = 0, onCreateFarm }: Readonly<Props> = {}) {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [farmId, setFarmId] = useState<number | null>(null);
   const [houses, setHouses] = useState<House[]>([]);
@@ -47,9 +48,19 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
   const [lotId, setLotId] = useState<number | null>(null);
   const [detail, setDetail] = useState<Lot | null>(null);
   const [events, setEvents] = useState<LotEvent[]>([]);
+  const [seenTick, setSeenTick] = useState(tick);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const notices = useNotices();
+
+  if (tick !== seenTick) {
+    setSeenTick(tick);
+    setHouseId(null);
+    setLotId(null);
+    setDetail(null);
+    setEvents([]);
+    setError("");
+  }
 
   const notify = useCallback(
     (text: string, tone: "ok" | "warn" = "ok") => {

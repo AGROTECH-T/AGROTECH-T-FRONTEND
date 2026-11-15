@@ -207,7 +207,7 @@ export function CatalogUnits({
 
       {catalog === null ? <p className="cat-empty">Cargando el catálogo…</p> : null}
       {catalog && catalog.units.length === 0 ? (
-        <p className="cat-empty">Todavía no hay formas de contar. Crea la primera aquí abajo.</p>
+        <p className="cat-empty">Todavía no hay unidades. Crea la primera aquí abajo.</p>
       ) : null}
 
       <ul className="easy-list">
@@ -281,9 +281,9 @@ export function CatalogUnits({
       ) : null}
       {writable && canAdd && adding ? (
         <form className="easy-sheet" onSubmit={(event) => void create(event)}>
-          <h2>Nueva forma de contar</h2>
+          <h2>Nueva unidad</h2>
           <label className={gaps.name ? "is-miss" : ""}>
-            <span>¿Cómo lo llamas al sacarlo? Ahí va bulto, caja o caneca. Si sale suelto, va kilo.</span>
+            <span>¿Qué unidad es? Ahí va bulto, caja o caneca. Si sale suelto, va kilo.</span>
             <input
               type="text"
               maxLength={80}

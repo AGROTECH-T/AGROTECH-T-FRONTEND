@@ -231,7 +231,7 @@ export function CatalogCategories({
                 <div className="easy-card__row">
                   <h2>{item.label}</h2>
                   <div className="easy-chips">
-                    {names.length ? names.slice(0, 4).map((label) => <span key={label} className="easy-chip">{label}</span>) : <span className="easy-chip">Todavía sin forma de contar</span>}
+                    {names.length ? names.slice(0, 4).map((label) => <span key={label} className="easy-chip">{label}</span>) : <span className="easy-chip">Todavía sin unidad</span>}
                     {names.length > 4 ? <span className="easy-chip">+{names.length - 4}</span> : null}
                   </div>
                   {writable ? (
@@ -278,13 +278,13 @@ export function CatalogCategories({
             />
             {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
           </label>
-          <p>¿Qué formas de contar van aquí? Toca bulto, kilo o caja. El verde queda. Se pueden tocar varias.</p>
+          <p>¿Qué unidades van aquí? Toca bulto, kilo o caja. El verde queda. Se pueden tocar varias.</p>
           {units.length === 0 ? (
             <p className="easy-hint">
               Todavía no hay ninguna.{" "}
               {onNeedCount ? (
-                <button type="button" className="text-link" onClick={onNeedCount}>Créala en ¿Cómo lo cuentas?</button>
-              ) : "Créala en ¿Cómo lo cuentas?"}
+                <button type="button" className="text-link" onClick={onNeedCount}>Créala en Unidad</button>
+              ) : "Créala en Unidad"}
             </p>
           ) : (
             <div className="easy-chips">

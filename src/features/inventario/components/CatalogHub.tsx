@@ -51,11 +51,11 @@ const STEPS: Step[] = [
   },
   {
     id: "cuentas",
-    title: "Cómo lo cuentas",
+    title: "Unidad",
     hint: "Bulto, caja, kilo suelto",
     detail: "Es como sale del depósito. Un bulto puede traer varios kilos.",
-    one: "forma de contar",
-    many: "formas de contar",
+    one: "unidad",
+    many: "unidades",
   },
   {
     id: "grupos",
@@ -138,9 +138,9 @@ export function CatalogHub({
     <section className="panel catalog" aria-labelledby="catalogo-title">
       <BackButton onClick={onBack} />
       <header className="panel__header">
-        <h1 id="catalogo-title" className="panel__title">Catálogo</h1>
+        <h1 id="catalogo-title" className="panel__title">Crear catálogo</h1>
         <p className="panel__lead">
-          Aquí decides cómo se mide, cómo se cuenta y en qué grupo va cada producto.
+          Aquí decides la medida, la unidad y la categoría de cada producto.
         </p>
       </header>
 
@@ -203,7 +203,7 @@ export function CatalogHub({
         <section className="cat-add" aria-labelledby="catalogo-add-title">
           <header className="cat-add__head">
             <h2 id="catalogo-add-title">Agregar algo nuevo</h2>
-            <p>Puedes crear la medida, la forma de contar y la categoría en una sola vez.</p>
+            <p>Puedes crear la medida, la unidad y la categoría en una sola vez.</p>
           </header>
           <CatalogChain farmId={farmId} onNotice={onNotice} onSaved={() => setRevision((current) => current + 1)} />
         </section>

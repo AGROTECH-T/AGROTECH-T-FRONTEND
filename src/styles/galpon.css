@@ -54,6 +54,12 @@ Contexto: solo presentación; las cifras las entrega el backend.
 
 .galpon__panel > .screen-back {
   margin-bottom: 0;
+  color: #f4f6f5;
+  background: var(--ash);
+}
+
+.galpon__panel > .screen-back:hover:not(:disabled) {
+  background: var(--ash-deep);
 }
 
 .galpon__head {

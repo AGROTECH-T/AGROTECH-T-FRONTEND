@@ -24,11 +24,16 @@ import { FormularioUsuario } from "./FormularioUsuario.tsx";
 
 type Vista = "lista" | "detalle" | "crear";
 
+type Props = {
+  tick?: number;
+};
+
 /**
  * Pantalla de usuarios, alta y detalle de permisos.
+ * @param props - Pulso de navegación del menú.
  * @returns Roles y permisos.
  */
-export function AsignacionRoles() {
+export function AsignacionRoles({ tick = 0 }: Readonly<Props>) {
   const [usuarios, setUsuarios] = useState<UsuarioAsignado[]>([]);
   const [fincas, setFincas] = useState<FincaAsignable[]>([]);
   const [catalogo, setCatalogo] = useState<CatalogoRoles | null>(null);
@@ -39,6 +44,13 @@ export function AsignacionRoles() {
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [cargando, setCargando] = useState(true);
+  const [seenTick, setSeenTick] = useState(tick);
+
+  if (tick !== seenTick) {
+    setSeenTick(tick);
+    setVista("lista");
+    setPersona(null);
+  }
 
   useEffect(() => {
     let activo = true;
