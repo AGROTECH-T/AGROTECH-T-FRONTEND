@@ -46,8 +46,8 @@ export function ProductViewWindow({
   const equivalent = equivalenceText(qty, product.unit_factor, product.base_symbol);
 
   useEffect(() => {
-    void listMovements(farmId, product.id)
-      .then(setMovements)
+    void listMovements(farmId, product.id, 1)
+      .then((data) => setMovements(data.results))
       .catch(() => setMovements([]));
   }, [farmId, product.id, product.updated_at]);
 

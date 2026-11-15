@@ -6,12 +6,16 @@
  */
 
 import { useEffect, useState, type FormEvent } from "react";
+import { matchesCatalogQuery } from "../services/catalogSearch.ts";
+import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
 import type { Farm, FarmRole } from "../../farms/types/index.ts";
 import { createBaseUnit, getInventoryCatalog, removeBaseUnit, updateBaseUnit } from "../services/inventoryApi.ts";
 import type { InventoryCatalog } from "../types/index.ts";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { ConfirmModal } from "./ConfirmModal.tsx";
+import { CatalogSearch } from "./CatalogSearch.tsx";
+import { ListPager } from "./ListPager.tsx";
 
 type Props = {
   farmId: number | null;
@@ -57,7 +61,14 @@ export function CatalogMeasures({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [gaps, setGaps] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
   const writable = canWrite && farmId != null;
+  const measures = catalog?.base_units ?? [];
+  const filtered = measures.filter((item) =>
+    matchesCatalogQuery(query, [item.label, item.name, item.symbol]),
+  );
+  const listed = slicePage(filtered, page);
 
   const cancelNew = () => {
     if (name.trim() !== "" || symbol.trim() !== "" || decimals) {
@@ -76,6 +87,10 @@ export function CatalogMeasures({
       setError(cause instanceof Error ? cause.message : "No se pudo cargar el catálogo");
     });
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [query]);
 
   const drop = async () => {
     if (farmId == null || !pendingDelete) return;
@@ -175,13 +190,23 @@ export function CatalogMeasures({
 
       {error ? <p className="farm-form__error" role="alert">{error}</p> : null}
 
+      <CatalogSearch
+        value={query}
+        onChange={setQuery}
+        label="Buscar medida"
+        placeholder="Buscar medida..."
+      />
+
       {catalog === null ? <p className="cat-empty">Cargando el catálogo…</p> : null}
       {catalog && (catalog.base_units ?? []).length === 0 ? (
         <p className="cat-empty">Todavía no hay medidas. Crea la primera aquí abajo.</p>
       ) : null}
+      {catalog && (catalog.base_units ?? []).length > 0 && filtered.length === 0 ? (
+        <p className="cat-empty">No hay medidas que coincidan.</p>
+      ) : null}
 
       <ul className="easy-list">
-        {(catalog?.base_units ?? []).map((item) => (
+        {listed.map((item) => (
           <li key={item.id} className="easy-card">
             {editing === item.id ? (
               <form onSubmit={(event) => void saveEdit(event)}>
@@ -236,6 +261,7 @@ export function CatalogMeasures({
           </li>
         ))}
       </ul>
+      <ListPager page={page} count={filtered.length} onPage={setPage} one="medida" many="medidas" />
       {writable && canAdd && !adding ? (
         <button type="button" className="btn-primary easy-add" onClick={() => setAdding(true)}>
           + Agregar

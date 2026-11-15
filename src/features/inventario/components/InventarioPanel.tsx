@@ -10,9 +10,8 @@ import { useCallback, useEffect, useState } from "react";
 import { listFarms } from "../../farms/services/farmsApi.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
 import type { Farm, FarmRole } from "../../farms/types/index.ts";
-import { downloadInventory, listProducts } from "../services/inventoryApi.ts";
+import { downloadInventory } from "../services/inventoryApi.ts";
 import {
-  inventoryIdFor,
   listInventories,
   placeProduct,
   type FarmInventory,
@@ -33,7 +32,7 @@ import { ProductUpdateWindow } from "./ProductDetail.tsx";
 import { ProductViewWindow } from "./ProductView.tsx";
 import { ReportsHub } from "./ReportsHub.tsx";
 
-type StockView =
+export type StockView =
   | "lista"
   | "crear"
   | "entrada"
@@ -65,12 +64,10 @@ type Props = {
 export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<Props>) {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [farmId, setFarmId] = useState<number | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
   const [selected, setSelected] = useState<Product | null>(null);
   const [detailMode, setDetailMode] = useState<{
     intent: "ver" | "actualizar" | "ajuste";
   }>({ intent: "ver" });
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [inventories, setInventories] = useState<FarmInventory[]>([]);
   const [inventoryId, setInventoryId] = useState("");
@@ -95,53 +92,30 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
       .then((items) => {
         setFarms(items);
         setFarmId(items[0]?.id ?? null);
-        if (items.length === 0) setLoading(false);
       })
       .catch((cause) => {
         setError(cause instanceof Error ? cause.message : "No se pudieron cargar las fincas");
-        setLoading(false);
       });
-  }, []);
-
-  const loadProducts = useCallback(async (id: number) => {
-    setLoading(true);
-    setError("");
-    try {
-      const loaded = await listProducts(id);
-      setProducts(loaded);
-      return loaded;
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "No se pudo cargar el inventario");
-      return [];
-    } finally {
-      setLoading(false);
-    }
   }, []);
 
   useEffect(() => {
     if (farmId == null) return;
-    void loadProducts(farmId).then(() => {
-      const items = listInventories(farmId);
-      setInventories(items);
-      setInventoryId(items[0]?.id ?? "");
-    });
-  }, [farmId, loadProducts]);
+    const items = listInventories(farmId);
+    setInventories(items);
+    setInventoryId(items[0]?.id ?? "");
+  }, [farmId]);
 
   const clearFresh = useCallback(() => setFresh(null), []);
 
   const replaceProduct = (product: Product) => {
-    setProducts((current) => current.map((item) => (item.id === product.id ? product : item)));
+    setSelected((current) => (current?.id === product.id ? product : current));
   };
-
-  const visible = products.filter(
-    (item) => inventoryId !== "" && inventoryIdFor(farmId ?? 0, item.id) === inventoryId,
-  );
 
   const downloadStock = async () => {
     if (farmId == null) return;
     setDownloading(true);
     try {
-      await downloadInventory(farmId, visible.map((item) => item.id));
+      await downloadInventory(farmId, []);
       tell("inventario descargado");
     } catch (cause) {
       notices.push(
@@ -300,7 +274,7 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
         type="button"
         className="inv-pill is-download"
         onClick={() => void downloadStock()}
-        disabled={downloading || visible.length === 0}
+        disabled={downloading || farmId == null}
       >
         <Mark kind="down" /> {downloading ? "Preparando..." : "Descargar inventario"}
       </button>
@@ -386,11 +360,8 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
       {farmId != null ? (
         <InventarioBrowser
           farmId={farmId}
+          inventoryId={inventoryId}
           role={role}
-          products={visible}
-          loading={loading}
-          error={error}
-          onReload={() => void loadProducts(farmId)}
           onSelect={(product) => {
             setDetailMode({ intent: "ver" });
             setSelected(product);
@@ -421,7 +392,6 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
         onCancel={() => onView("lista")}
         onCreated={(product) => {
           placeProduct(product.id, inventoryId);
-          setProducts((current) => [...current, product]);
           setFresh(product);
           onView("lista");
           tell("producto creado");
@@ -462,8 +432,8 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
           setSelected(product);
           replaceProduct(product);
         }}
-        onRemoved={(productId) => {
-          setProducts((current) => current.filter((item) => item.id !== productId));
+        onRemoved={() => {
+          setFresh(selected);
           closeDetail();
         }}
         onNotice={tell}

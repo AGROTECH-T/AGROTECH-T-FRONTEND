@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { getInventoryCatalog, listProducts } from "../services/inventoryApi.ts";
+import { getInventoryCatalog, listAllProducts } from "../services/inventoryApi.ts";
 import type { CatalogOption, Product } from "../types/index.ts";
 
 /**
@@ -19,7 +19,7 @@ export function useProductOptions(farmId: number): Product[] {
 
   useEffect(() => {
     let active = true;
-    void listProducts(farmId)
+    void listAllProducts(farmId)
       .then((items) => {
         if (active) setProducts(items);
       })

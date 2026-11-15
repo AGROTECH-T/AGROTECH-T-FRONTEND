@@ -8,7 +8,6 @@
  */
 
 import type { ReactNode } from "react";
-import { BackButton } from "../../../components/ui/BackButton.tsx";
 
 type Props = {
   title: string;
@@ -46,7 +45,9 @@ export function ReportShell({
 }: Readonly<Props>) {
   return (
     <section className="inv-detail inv-history rp">
-      <BackButton onClick={onBack} />
+      <button type="button" className="btn-secondary" onClick={onBack}>
+        ← Volver atrás
+      </button>
 
       <header className="rp__head">
         <div>

@@ -1,7 +1,7 @@
 /**
  * Catálogo en un solo lugar.
  *
- * Propósito: entender de inmediato medida, forma de contar y categoría.
+ * Propósito: entender de inmediato medida, unidad y categoría.
  * Contexto: el ejemplo con un bulto explica cómo se conectan los tres pasos.
  * @author Cristian Deysdayr Jimenez
  */
