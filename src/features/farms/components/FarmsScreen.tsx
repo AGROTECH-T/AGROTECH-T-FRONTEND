@@ -15,6 +15,7 @@ import { FarmList } from "./FarmList.tsx";
 
 type Props = {
   view: "lista" | "crear";
+  tick: number;
   onView: (view: "lista" | "crear") => void;
   onLeaveCreate: () => void;
 };
@@ -23,12 +24,18 @@ type Props = {
  * Orquesta listado, alta y detalle.
  * @returns Panel de Fincas.
  */
-export function FarmsScreen({ view, onView, onLeaveCreate }: Readonly<Props>) {
+export function FarmsScreen({ view, tick, onView, onLeaveCreate }: Readonly<Props>) {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Farm | null>(null);
+  const [seenTick, setSeenTick] = useState(tick);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  if (tick !== seenTick) {
+    setSeenTick(tick);
+    setSelected(null);
+  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -52,7 +59,7 @@ export function FarmsScreen({ view, onView, onLeaveCreate }: Readonly<Props>) {
     return farms.filter((farm) => farm.name.toLowerCase().includes(needle));
   }, [farms, query]);
 
-  if (selected) {
+  if (selected && view === "lista") {
     return (
       <section className="panel" aria-label="Detalle de finca">
         <FarmDetail

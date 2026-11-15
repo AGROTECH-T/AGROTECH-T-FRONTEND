@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { downloadFarmHistory, listFarmMovements } from "../services/inventoryApi.ts";
 import { displayQuantity, equivalenceText } from "../services/equivalence.ts";
 import type { Movement, MovementKind } from "../types/index.ts";
+import { BackButton } from "../../../components/ui/BackButton.tsx";
 
 type Props = {
   farmId: number;
@@ -77,9 +78,7 @@ export function FarmHistory({ farmId, onBack }: Readonly<Props>) {
 
   return (
     <section className="inv-detail inv-history">
-      <button type="button" className="btn-secondary" onClick={onBack}>
-        ← Volver atrás
-      </button>
+      <BackButton onClick={onBack} />
       <header className="panel__header">
         <h2 className="panel__title">Historial de la finca</h2>
         <p className="panel__lead">Los movimientos no se editan. Un error se corrige con un ajuste.</p>

@@ -20,9 +20,22 @@
   --card: #e7f1e3;
   --field: #f4f8f2;
   --line: #b7c9b2;
+  /* Tablero de reportes: esmeralda, blanco y tangerina. */
+  --emerald: #0f7a5a;
+  --emerald-deep: #0b5b43;
+  --emerald-light: #35a97f;
+  --emerald-soft: #d8f2e7;
+  --emerald-line: #b7e3d1;
+  --tangerine: #f28500;
+  --tangerine-soft: #ffeddb;
+  --white: #ffffff;
+  --report-paper: #f5fbf8;
+  --report-ink: #0b3b2e;
   --danger: #b3261e;
   --danger-deep: #8c1d18;
   --danger-soft: #f3d4d0;
+  --ash: #6b706e;
+  --ash-deep: #585d5b;
   --light: rgba(255, 255, 255, 0.55);
   --shade: rgba(20, 43, 27, 0.2);
   --raised: 8px 8px 16px var(--shade), -5px -5px 12px var(--light);
