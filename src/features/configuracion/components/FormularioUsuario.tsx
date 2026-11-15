@@ -218,7 +218,7 @@ function FilaAsignar({ nombre, activo, onClick }: Readonly<{ nombre: string; act
   return (
     <button type="button" className={activo ? "config-pick is-on" : "config-pick"} aria-pressed={activo} onClick={onClick}>
       <span>{nombre}</span>
-      <span className="config-pick__action">Asignar</span>
+      <span className="config-pick__action">{activo ? "Listo" : "Asignar"}</span>
     </button>
   );
 }

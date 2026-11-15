@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { ROLES_ORDEN, ROL_NOMBRE } from "../../src/features/configuracion/services/catalogo.ts";
+import { inicialesPersona, ROLES_ORDEN, ROL_NOMBRE } from "../../src/features/configuracion/services/catalogo.ts";
 
 describe("catálogo de roles y permisos", () => {
   it("etiqueta todos los roles posibles", () => {
@@ -22,5 +22,11 @@ describe("catálogo de roles y permisos", () => {
 
   it("mantiene el orden de las columnas de roles", () => {
     expect(ROLES_ORDEN).toEqual(["administrador", "operador", "consulta"]);
+  });
+
+  it("arma iniciales para el avatar", () => {
+    expect(inicialesPersona("Ana García")).toBe("AG");
+    expect(inicialesPersona("Luis")).toBe("L");
+    expect(inicialesPersona("  ")).toBe("?");
   });
 });
