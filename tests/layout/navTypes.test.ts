@@ -39,6 +39,7 @@ describe("menú del shell", () => {
       "crear",
       "catalogo",
     ]);
+    expect(inventario?.children?.map((child) => child.label)).toContain("Crear catálogo");
   });
 
   it("el superadmin y el administrador ven todos los módulos", () => {
