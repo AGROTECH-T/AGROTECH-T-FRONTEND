@@ -160,7 +160,7 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
       {gaps.measureName || gaps.symbol ? <p className="field-miss">{gaps.measureName || gaps.symbol}</p> : null}
 
       <div className="cat-chain__row cat-chain__row--open">
-        <strong>¿Qué unidad es?</strong>
+        <strong>¿Cómo lo llamas?</strong>
         <div className="cat-chain__fields">
           <input
             value={countName}

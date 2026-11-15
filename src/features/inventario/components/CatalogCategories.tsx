@@ -6,12 +6,16 @@
  */
 
 import { useEffect, useState, type FormEvent } from "react";
+import { matchesCatalogQuery } from "../services/catalogSearch.ts";
+import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
 import type { Farm, FarmRole } from "../../farms/types/index.ts";
 import { createCategory, getInventoryCatalog, removeCategory, updateCategory } from "../services/inventoryApi.ts";
 import type { InventoryCatalog } from "../types/index.ts";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { ConfirmModal } from "./ConfirmModal.tsx";
+import { CatalogSearch } from "./CatalogSearch.tsx";
+import { ListPager } from "./ListPager.tsx";
 
 type Props = {
   farmId: number | null;
@@ -57,6 +61,8 @@ export function CatalogCategories({
   const [adding, setAdding] = useState(false);
   const [askCancel, setAskCancel] = useState<"alta" | "cambio" | null>(null);
   const [gaps, setGaps] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     void getInventoryCatalog().then(setCatalog).catch((cause) => {
@@ -64,10 +70,19 @@ export function CatalogCategories({
     });
   }, []);
 
+  useEffect(() => {
+    setPage(1);
+  }, [query]);
+
   const unitsOf = (categoryId: string) => catalog?.units_by_category[categoryId] ?? [];
   const unitLabel = (id: string) => catalog?.units.find((item) => item.id === id)?.label ?? id;
   const writable = canWrite && farmId != null;
   const units = catalog?.units ?? [];
+  const categories = catalog?.categories ?? [];
+  const filtered = categories.filter((item) =>
+    matchesCatalogQuery(query, [item.label, item.description, ...unitsOf(item.id).map(unitLabel)]),
+  );
+  const visible = slicePage(filtered, page);
 
   const cancelEdit = () => {
     const item = (catalog?.categories ?? []).find((one) => one.id === editing);
@@ -181,13 +196,23 @@ export function CatalogCategories({
 
       {error ? <p className="farm-form__error" role="alert">{error}</p> : null}
 
+      <CatalogSearch
+        value={query}
+        onChange={setQuery}
+        label="Buscar categoría"
+        placeholder="Buscar categoría..."
+      />
+
       {catalog === null ? <p className="cat-empty">Cargando el catálogo…</p> : null}
       {catalog && catalog.categories.length === 0 ? (
         <p className="cat-empty">Todavía no hay categorías. Crea la primera aquí abajo.</p>
       ) : null}
+      {catalog && catalog.categories.length > 0 && filtered.length === 0 ? (
+        <p className="cat-empty">No hay categorías que coincidan.</p>
+      ) : null}
 
       <ul className="easy-list">
-        {(catalog?.categories ?? []).map((item) => {
+        {visible.map((item) => {
           const names = unitsOf(item.id).map(unitLabel);
           return (
             <li key={item.id} className="easy-card">
@@ -258,6 +283,7 @@ export function CatalogCategories({
           );
         })}
       </ul>
+      <ListPager page={page} count={filtered.length} onPage={setPage} one="categoría" many="categorías" />
       {writable && canAdd && !adding ? (
         <button type="button" className="btn-primary easy-add" onClick={() => setAdding(true)}>
           + Agregar

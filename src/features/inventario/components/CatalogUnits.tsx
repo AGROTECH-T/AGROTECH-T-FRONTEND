@@ -6,6 +6,8 @@
  */
 
 import { useEffect, useState, type FormEvent } from "react";
+import { matchesCatalogQuery } from "../services/catalogSearch.ts";
+import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
 import type { Farm, FarmRole } from "../../farms/types/index.ts";
 import {
@@ -17,6 +19,8 @@ import {
 import type { InventoryCatalog } from "../types/index.ts";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { ConfirmModal } from "./ConfirmModal.tsx";
+import { CatalogSearch } from "./CatalogSearch.tsx";
+import { ListPager } from "./ListPager.tsx";
 
 type Props = {
   farmId: number | null;
@@ -66,6 +70,8 @@ export function CatalogUnits({
   const [adding, setAdding] = useState(false);
   const [askCancel, setAskCancel] = useState<"alta" | "cambio" | null>(null);
   const [gaps, setGaps] = useState<Record<string, string>>({});
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     void getInventoryCatalog().then(setCatalog).catch((cause) => {
@@ -73,9 +79,23 @@ export function CatalogUnits({
     });
   }, []);
 
+  useEffect(() => {
+    setPage(1);
+  }, [query]);
+
   const writable = canWrite && farmId != null;
   const categoriesOf = (unitId: string) =>
     (catalog?.categories ?? []).filter((item) => (catalog?.units_by_category[item.id] ?? []).includes(unitId));
+  const units = catalog?.units ?? [];
+  const filtered = units.filter((item) =>
+    matchesCatalogQuery(query, [
+      item.label,
+      item.equivalent,
+      item.base_symbol,
+      ...categoriesOf(item.id).map((category) => category.label),
+    ]),
+  );
+  const listed = slicePage(filtered, page);
 
   const cancelEdit = () => {
     const item = (catalog?.units ?? []).find((one) => one.id === editing);
@@ -205,13 +225,23 @@ export function CatalogUnits({
 
       {error ? <p className="farm-form__error" role="alert">{error}</p> : null}
 
+      <CatalogSearch
+        value={query}
+        onChange={setQuery}
+        label="Buscar unidad"
+        placeholder="Buscar unidad..."
+      />
+
       {catalog === null ? <p className="cat-empty">Cargando el catálogo…</p> : null}
       {catalog && catalog.units.length === 0 ? (
         <p className="cat-empty">Todavía no hay unidades. Crea la primera aquí abajo.</p>
       ) : null}
+      {catalog && catalog.units.length > 0 && filtered.length === 0 ? (
+        <p className="cat-empty">No hay unidades que coincidan.</p>
+      ) : null}
 
       <ul className="easy-list">
-        {(catalog?.units ?? []).map((item) => (
+        {listed.map((item) => (
           <li key={item.id} className="easy-card">
             {editing === item.id ? (
               <form onSubmit={(event) => void saveEdit(event)}>
@@ -274,6 +304,7 @@ export function CatalogUnits({
           </li>
         ))}
       </ul>
+      <ListPager page={page} count={filtered.length} onPage={setPage} one="unidad" many="unidades" />
       {writable && canAdd && !adding ? (
         <button type="button" className="btn-primary easy-add" onClick={() => setAdding(true)}>
           + Agregar
@@ -283,7 +314,7 @@ export function CatalogUnits({
         <form className="easy-sheet" onSubmit={(event) => void create(event)}>
           <h2>Nueva unidad</h2>
           <label className={gaps.name ? "is-miss" : ""}>
-            <span>¿Qué unidad es? Ahí va bulto, caja o caneca. Si sale suelto, va kilo.</span>
+            <span>¿Cómo lo llamas al sacarlo? Ahí va bulto, caja o caneca. Si sale suelto, va kilo.</span>
             <input
               type="text"
               maxLength={80}

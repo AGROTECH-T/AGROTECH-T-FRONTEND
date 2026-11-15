@@ -7,10 +7,12 @@
  */
 
 import { useEffect, useState, type FormEvent } from "react";
+import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
 import type { Farm, FarmRole } from "../../farms/types/index.ts";
 import {
   addInventory,
+  ensureDemoInventories,
   listInventories,
   removeInventory,
   renameInventory,
@@ -18,6 +20,7 @@ import {
 } from "../services/farmInventories.ts";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { ConfirmModal } from "./ConfirmModal.tsx";
+import { ListPager } from "./ListPager.tsx";
 
 type Props = {
   farmId: number;
@@ -49,16 +52,17 @@ export function InventoryManager({
   onChanged,
   onBack,
 }: Readonly<Props>) {
-  const [items, setItems] = useState<FarmInventory[]>(() => listInventories(farmId));
+  const [items, setItems] = useState<FarmInventory[]>(() => ensureDemoInventories(farmId));
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [pendingDelete, setPendingDelete] = useState<FarmInventory | null>(null);
   const [askBack, setAskBack] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    setItems(listInventories(farmId));
+    setItems(ensureDemoInventories(farmId));
     setEditing(null);
     setName("");
     setError("");
@@ -160,7 +164,7 @@ export function InventoryManager({
       ) : null}
 
       <ul className="farm-list">
-        {items.map((item) => (
+        {slicePage(items, page).map((item) => (
           <li key={item.id} className="inv-book">
             {editing === item.id ? (
               <form className="inv-book__edit" onSubmit={saveName}>
@@ -204,6 +208,7 @@ export function InventoryManager({
           </li>
         ))}
       </ul>
+      <ListPager page={page} count={items.length} onPage={setPage} one="inventario" many="inventarios" />
 
       {askBack ? (
         <ConfirmModal

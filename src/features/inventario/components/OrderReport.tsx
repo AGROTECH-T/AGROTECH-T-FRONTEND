@@ -7,10 +7,12 @@
  */
 
 import { useEffect, useState } from "react";
+import { slicePage } from "../services/paging.ts";
 import { downloadOrderReport, getOrderReport } from "../services/inventoryApi.ts";
 import { displayQuantity } from "../services/equivalence.ts";
 import { defaultRange } from "../services/reportRange.ts";
 import type { OrderReport as OrderReportData, OrderReportRow } from "../types/index.ts";
+import { ListPager } from "./ListPager.tsx";
 import { ReportShell, ReportStat } from "./ReportShell.tsx";
 import { useCategoryOptions } from "./useReportOptions.ts";
 
@@ -36,6 +38,7 @@ export function OrderReport({ farmId, onBack, startLow = false }: Readonly<Props
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [page, setPage] = useState(1);
   const categories = useCategoryOptions();
 
   useEffect(() => {
@@ -59,6 +62,10 @@ export function OrderReport({ farmId, onBack, startLow = false }: Readonly<Props
     };
   }, [farmId, from, to, category, onlyLow, target]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [farmId, from, to, category, onlyLow, target]);
+
   const download = async () => {
     setDownloading(true);
     setError("");
@@ -72,6 +79,7 @@ export function OrderReport({ farmId, onBack, startLow = false }: Readonly<Props
   };
 
   const rows = data?.rows ?? [];
+  const visible = slicePage(rows, page);
   const withoutOpening = rows.filter((row) => !row.initial_known).length;
 
   return (
@@ -162,7 +170,7 @@ export function OrderReport({ farmId, onBack, startLow = false }: Readonly<Props
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {visible.map((row) => (
               <tr key={row.product_id} className={row.is_low ? "rp__row is-low" : "rp__row"}>
                 <td>{row.product}</td>
                 <td className={row.initial_known ? undefined : "rp__unknown"}>
@@ -184,6 +192,7 @@ export function OrderReport({ farmId, onBack, startLow = false }: Readonly<Props
         </table>
       </div>
 
+      <ListPager page={page} count={rows.length} onPage={setPage} one="producto" many="productos" />
       <p className="rp__legend">
         <strong>Inicial</strong> es el stock registrado justo antes del primer movimiento
         del rango. Si el producto no tuvo movimientos, se muestra el stock actual cuando

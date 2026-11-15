@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { slicePage } from "../services/paging.ts";
 import { downloadConsumptionReport, getConsumptionReport } from "../services/inventoryApi.ts";
 import { displayQuantity } from "../services/equivalence.ts";
 import { formatDate, variationText } from "../services/reportFormat.ts";
@@ -27,6 +28,7 @@ import {
   type CompareItem,
   type Slice,
 } from "./reportCharts.tsx";
+import { ListPager } from "./ListPager.tsx";
 import { ReportShell, ReportStat } from "./ReportShell.tsx";
 import { useCategoryOptions, useProductOptions } from "./useReportOptions.ts";
 
@@ -52,6 +54,7 @@ export function ConsumptionReport({ farmId, farmName, onBack, onLowStock }: Read
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [page, setPage] = useState(1);
   const products = useProductOptions(farmId);
   const categories = useCategoryOptions();
 
@@ -76,6 +79,10 @@ export function ConsumptionReport({ farmId, farmName, onBack, onLowStock }: Read
     };
   }, [farmId, from, to, category, product]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [farmId, from, to, category, product]);
+
   const download = async () => {
     setDownloading(true);
     setError("");
@@ -89,6 +96,7 @@ export function ConsumptionReport({ farmId, farmName, onBack, onLowStock }: Read
   };
 
   const rows = data?.rows ?? [];
+  const tableRows = slicePage(rows, page);
   const previousAvailable = data?.previous.available ?? false;
   const previousBySymbol = sumBySymbol(rows);
   const bars: BarItem[] = rows.slice(0, 8).map((row) => ({
@@ -366,7 +374,7 @@ export function ConsumptionReport({ farmId, farmName, onBack, onLowStock }: Read
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row) => (
+                {tableRows.map((row) => (
                   <tr key={row.product_id}>
                     <td>{row.product}</td>
                     <td>{row.category}</td>
@@ -385,6 +393,7 @@ export function ConsumptionReport({ farmId, farmName, onBack, onLowStock }: Read
               </tbody>
             </table>
           </div>
+          <ListPager page={page} count={rows.length} onPage={setPage} one="producto" many="productos" />
         </section>
       </div>
     </ReportShell>

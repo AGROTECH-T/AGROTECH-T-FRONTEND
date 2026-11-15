@@ -13,6 +13,7 @@ import type {
   AdjustmentReport,
   ConsumptionReport,
   InventoryCatalog,
+  LoanPage,
   LoanReport,
   Movement,
   MovementDraft,
@@ -21,9 +22,11 @@ import type {
   Product,
   ProductDraft,
   ProductLoan,
+  ProductPage,
   ProductPatch,
   ReportQuery,
 } from "../types/index.ts";
+import { INV_PAGE_SIZE } from "./paging.ts";
 
 const CATALOG_PATH = "/api/v1/inventory/catalog/";
 
@@ -141,13 +144,51 @@ export function createCustomUnit(
   return postJson(`/api/v1/inventory/${farmId}/units/`, draft, readToken());
 }
 
+export type ProductQuery = {
+  q?: string;
+  category?: string;
+  status?: "all" | "active" | "inactive" | "low";
+  order?: "name" | "quantity" | "last_movement";
+  page?: number;
+};
+
 /**
- * Lista insumos de una finca, incluidos los inactivos.
+ * Lista insumos de una finca, de 25 en 25.
  * @param farmId - Finca activa.
- * @returns Despensa completa.
+ * @param query - Filtros y página.
+ * @returns Página de productos.
  */
-export function listProducts(farmId: number): Promise<Product[]> {
-  return getJson<Product[]>(`${productsPath(farmId)}?status=all`, readToken());
+export function listProducts(farmId: number, query: ProductQuery = {}): Promise<ProductPage> {
+  const params = new URLSearchParams();
+  params.set("page", String(query.page ?? 1));
+  params.set("page_size", String(INV_PAGE_SIZE));
+  const status = query.status ?? "all";
+  if (status === "low") {
+    params.set("status", "all");
+    params.set("low_stock", "1");
+  } else {
+    params.set("status", status);
+  }
+  if (query.category) params.set("category", query.category);
+  if (query.q) params.set("q", query.q);
+  if (query.order) params.set("order", query.order);
+  return getJson<ProductPage>(`${productsPath(farmId)}?${params.toString()}`, readToken());
+}
+
+/**
+ * Junta todas las páginas de productos para selects.
+ * @param farmId - Finca activa.
+ * @returns Lista completa.
+ */
+export async function listAllProducts(farmId: number): Promise<Product[]> {
+  const first = await listProducts(farmId, { page: 1, status: "all" });
+  const rows = [...first.results];
+  const pages = Math.max(1, Math.ceil(first.count / INV_PAGE_SIZE));
+  for (let page = 2; page <= pages; page += 1) {
+    const next = await listProducts(farmId, { page, status: "all" });
+    rows.push(...next.results);
+  }
+  return rows;
 }
 
 /**
@@ -195,8 +236,14 @@ export function getProduct(farmId: number, productId: number): Promise<Product> 
 /**
  * Lista movimientos del producto.
  */
-export function listLoans(farmId: number, productId: number): Promise<ProductLoan[]> {
-  return getJson<ProductLoan[]>(`${productsPath(farmId)}${productId}/loans/`, readToken());
+export function listLoans(farmId: number, productId: number, page = 1): Promise<LoanPage> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("page_size", String(INV_PAGE_SIZE));
+  return getJson<LoanPage>(
+    `${productsPath(farmId)}${productId}/loans/?${params.toString()}`,
+    readToken(),
+  );
 }
 
 /**
@@ -292,8 +339,14 @@ async function authed(path: string, init: RequestInit): Promise<Response> {
   throw new Error(limitNotice(data.error ?? "No se pudo completar la solicitud"));
 }
 
-export function listMovements(farmId: number, productId: number): Promise<Movement[]> {
-  return getJson<Movement[]>(`${productsPath(farmId)}${productId}/movements/`, readToken());
+export function listMovements(farmId: number, productId: number, page = 1): Promise<MovementPage> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("page_size", String(INV_PAGE_SIZE));
+  return getJson<MovementPage>(
+    `${productsPath(farmId)}${productId}/movements/?${params.toString()}`,
+    readToken(),
+  );
 }
 
 export type FarmHistoryQuery = {
@@ -312,7 +365,7 @@ export function listFarmMovements(farmId: number, query: FarmHistoryQuery): Prom
   if (query.from) params.set("from", query.from);
   if (query.to) params.set("to", query.to);
   params.set("page", String(query.page ?? 1));
-  params.set("page_size", "15");
+  params.set("page_size", String(INV_PAGE_SIZE));
   return getJson<MovementPage>(
     `/api/v1/inventory/${farmId}/movements/?${params.toString()}`,
     readToken(),

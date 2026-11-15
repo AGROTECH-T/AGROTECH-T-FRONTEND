@@ -7,11 +7,13 @@
  */
 
 import { useEffect, useState } from "react";
+import { slicePage } from "../services/paging.ts";
 import { downloadAdjustmentReport, getAdjustmentReport } from "../services/inventoryApi.ts";
 import { ADJUSTMENT_REASONS } from "../services/adjustmentReasons.ts";
 import { formatWhen, signedText } from "../services/reportFormat.ts";
 import { defaultRange } from "../services/reportRange.ts";
 import type { AdjustmentReport as AdjustmentReportData } from "../types/index.ts";
+import { ListPager } from "./ListPager.tsx";
 import { ReportShell, ReportStat } from "./ReportShell.tsx";
 import { useProductOptions } from "./useReportOptions.ts";
 
@@ -35,6 +37,7 @@ export function AdjustmentReport({ farmId, onBack }: Readonly<Props>) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [page, setPage] = useState(1);
   const products = useProductOptions(farmId);
 
   useEffect(() => {
@@ -58,6 +61,10 @@ export function AdjustmentReport({ farmId, onBack }: Readonly<Props>) {
     };
   }, [farmId, from, to, product, reason]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [farmId, from, to, product, reason]);
+
   const download = async () => {
     setDownloading(true);
     setError("");
@@ -71,6 +78,7 @@ export function AdjustmentReport({ farmId, onBack }: Readonly<Props>) {
   };
 
   const rows = data?.rows ?? [];
+  const visible = slicePage(rows, page);
 
   return (
     <ReportShell
@@ -140,7 +148,7 @@ export function AdjustmentReport({ farmId, onBack }: Readonly<Props>) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {visible.map((row) => (
               <tr key={row.id}>
                 <td>{formatWhen(row.when)}</td>
                 <td>{row.product}</td>
@@ -161,6 +169,7 @@ export function AdjustmentReport({ farmId, onBack }: Readonly<Props>) {
           </tbody>
         </table>
       </div>
+      <ListPager page={page} count={rows.length} onPage={setPage} one="ajuste" many="ajustes" />
     </ReportShell>
   );
 }

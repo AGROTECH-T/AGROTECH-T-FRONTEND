@@ -22,6 +22,7 @@ import type { InventoryCatalog, Movement, Product } from "../types/index.ts";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { ConfirmModal } from "./ConfirmModal.tsx";
+import { ListPager } from "./ListPager.tsx";
 import { MovementForm } from "./MovementForm.tsx";
 import { ProductPhotoPicker } from "./ProductPhotoPicker.tsx";
 import { useProductPhoto } from "./productPhoto.ts";
@@ -52,6 +53,8 @@ export function ProductDetail({
 }: Readonly<Props>) {
   const [current, setCurrent] = useState(product);
   const [movements, setMovements] = useState<Movement[]>([]);
+  const [movePage, setMovePage] = useState(1);
+  const [moveCount, setMoveCount] = useState(0);
   const [notice, setNotice] = useState("");
   const status = current.is_active
     ? stockStatus(current.quantity, current.min_stock)
@@ -65,10 +68,20 @@ export function ProductDetail({
   }, [product]);
 
   useEffect(() => {
-    void listMovements(farmId, product.id)
-      .then(setMovements)
-      .catch(() => setMovements([]));
-  }, [farmId, product.id, current.updated_at]);
+    setMovePage(1);
+  }, [farmId, product.id]);
+
+  useEffect(() => {
+    void listMovements(farmId, product.id, movePage)
+      .then((data) => {
+        setMovements(data.results);
+        setMoveCount(data.count);
+      })
+      .catch(() => {
+        setMovements([]);
+        setMoveCount(0);
+      });
+  }, [farmId, product.id, current.updated_at, movePage]);
 
   return (
     <section className="inv-detail">
@@ -158,6 +171,7 @@ export function ProductDetail({
           })}
         </ul>
       )}
+      <ListPager page={movePage} count={moveCount} onPage={setMovePage} one="movimiento" many="movimientos" />
       </>
       ) : null}
     </section>
