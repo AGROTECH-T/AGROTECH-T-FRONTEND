@@ -1,9 +1,10 @@
 /**
- * Pantalla de un galpón.
+ * Pantalla de lotes de un galpón.
  *
- * Propósito: mostrar los datos del galpón y todos sus lotes, y desde aquí
- * crear, editar, cerrar o eliminar cada lote.
+ * Propósito: listar y administrar los lotes de este galpón, sin repetir
+ * la ficha que ya se vio en la lista de galpones.
  * Contexto: un galpón puede tener varios lotes; solo uno está abierto a la vez.
+ * Las medidas quedan detrás de Ver datos.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -13,14 +14,7 @@ import { deleteHouse, updateHouse } from "../services/galponApi.ts";
 import type { House, HouseDraft, Lot } from "../types/index.ts";
 import { HouseForm } from "./HouseForm.tsx";
 import { LotsSection } from "./LotsSection.tsx";
-import {
-  FEED_MODES,
-  GalponCard,
-  Guide,
-  houseStatus,
-  numberText,
-  Pill,
-} from "./galponUi.tsx";
+import { ExtraBlock, FEED_MODES, GalponCard, Guide, numberText } from "./galponUi.tsx";
 
 type Props = {
   farmId: number;
@@ -29,7 +23,6 @@ type Props = {
   canWrite: boolean;
   onOpenLot: (lotId: number) => void;
   onChanged: () => Promise<void>;
-  onBack: () => void;
   notify: (text: string, tone?: "ok" | "warn") => void;
 };
 
@@ -49,9 +42,9 @@ const GUIDE = {
 type Dato = { label: string; value: string };
 
 /**
- * Ficha y lotes del galpón.
+ * Lotes del galpón abierto.
  * @param props - Galpón, sus lotes, permiso y acciones.
- * @returns Datos del galpón, sus lotes y las ventanas de edición.
+ * @returns Guía, datos plegados y listado de lotes.
  */
 export function HouseWorkspace({
   farmId,
@@ -60,17 +53,13 @@ export function HouseWorkspace({
   canWrite,
   onOpenLot,
   onChanged,
-  onBack,
   notify,
 }: Readonly<Props>) {
   const [editing, setEditing] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  const status = houseStatus(house.status);
   const datos = datosRegistrados(house);
-  const abierto = lots.find((lot) => lot.status === "abierto") ?? null;
 
   const save = async (draft: HouseDraft) => {
     setSaving(true);
@@ -97,7 +86,6 @@ export function HouseWorkspace({
       notify(`Galpón “${house.name}” eliminado.`);
       setRemoving(false);
       await onChanged();
-      onBack();
     } catch (cause) {
       const text = message(cause, "No se pudo eliminar el galpón");
       setError(text);
@@ -112,64 +100,28 @@ export function HouseWorkspace({
     <div className="gp-layout">
       <Guide title={GUIDE.title} lead={GUIDE.lead} steps={GUIDE.steps} example={GUIDE.example} />
 
-      <article className="gp-house-head">
-        <div className="gp-house-head__top">
-          <div className="gp-house-head__main">
-            <span className="gp-house__eyebrow">Galpón</span>
-            <h2>{house.name}</h2>
-            <p>{house.location || "Sin ubicación registrada"}</p>
-          </div>
-
-          {canWrite ? (
-            <div className="gp-house-head__actions">
-              <button type="button" className="btn-primary" onClick={() => setEditing(true)}>
-                Editar galpón
-              </button>
-              <button type="button" className="btn-danger" onClick={() => setRemoving(true)}>
-                Eliminar galpón
-              </button>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="gp-house-head__facts">
-          <div>
-            <span>Estado</span>
-            <Pill label={status.label} tone={status.tone} />
-          </div>
-          <div>
-            <span>Aves vivas</span>
-            <strong>{abierto ? `${abierto.live_count} aves` : "Sin lote abierto"}</strong>
-          </div>
-          <div>
-            <span>Lote actual</span>
-            <strong>{abierto ? abierto.code : "Ninguno"}</strong>
-          </div>
-          <div>
-            <span>Historial</span>
-            <strong>{house.lots_count === 1 ? "1 lote" : `${house.lots_count} lotes`}</strong>
-          </div>
-        </div>
-      </article>
-
-      {error ? (
-        <p className="galpon__error" role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      <div className="gp-house-grid">
-        <LotsSection
-          farmId={farmId}
-          house={house}
-          lots={lots}
-          canWrite={canWrite}
-          onOpenLot={onOpenLot}
-          onChanged={onChanged}
-          notify={notify}
-        />
-
-        <GalponCard title="Datos del galpón" subtitle="Medidas, capacidad y alimento registrados.">
+      <ExtraBlock title="Datos del galpón">
+        {error ? (
+          <p className="galpon__error" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <GalponCard
+          title={house.name}
+          subtitle={house.location || "Sin ubicación"}
+          action={
+            canWrite ? (
+              <div className="gp-house-head__actions">
+                <button type="button" className="btn-secondary" onClick={() => setEditing(true)}>
+                  Editar galpón
+                </button>
+                <button type="button" className="btn-danger" onClick={() => setRemoving(true)}>
+                  Eliminar galpón
+                </button>
+              </div>
+            ) : null
+          }
+        >
           {datos.length ? (
             <dl className="gp-detail__facts">
               {datos.map((dato) => (
@@ -186,7 +138,17 @@ export function HouseWorkspace({
             </p>
           )}
         </GalponCard>
-      </div>
+      </ExtraBlock>
+
+      <LotsSection
+        farmId={farmId}
+        house={house}
+        lots={lots}
+        canWrite={canWrite}
+        onOpenLot={onOpenLot}
+        onChanged={onChanged}
+        notify={notify}
+      />
 
       {editing ? (
         <HouseForm

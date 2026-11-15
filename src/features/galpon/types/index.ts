@@ -111,6 +111,14 @@ export type LotEvent = {
   corrections: LotCorrection[];
 };
 
+export type EventPage = {
+  count: number;
+  page: number;
+  page_size: number;
+  kinds: Record<string, number>;
+  results: LotEvent[];
+};
+
 export type LotAlert = {
   id: number;
   lot_id: number;

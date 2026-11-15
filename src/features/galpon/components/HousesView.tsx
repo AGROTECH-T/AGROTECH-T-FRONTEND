@@ -109,9 +109,6 @@ export function HousesView({
     }
   };
 
-  const ocupados = houses.filter((house) => house.status === "ocupado").length;
-  const avesVivas = houses.reduce((total, house) => total + (house.live_count ?? 0), 0);
-
   const estados = useMemo(() => {
     const seen = new Set(houses.map((house) => house.status));
     return Object.entries(HOUSE_STATUS).filter(([id]) => seen.has(id));
@@ -160,16 +157,6 @@ export function HousesView({
         </Empty>
       ) : (
         <>
-          <p className="gp-glance">
-            <strong>{houses.length}</strong> galpones · <strong>{ocupados}</strong> ocupados
-            {avesVivas > 0 ? (
-              <>
-                {" "}
-                · <strong>{avesVivas}</strong> aves vivas
-              </>
-            ) : null}
-          </p>
-
           <div className="gp-toolbar">
             {canWrite ? (
               <button type="button" className="btn-primary gp-new" onClick={() => setCreating(true)}>

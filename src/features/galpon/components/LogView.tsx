@@ -1,97 +1,100 @@
 /**
  * Vista de bitácora.
  *
- * Propósito: registrar, corregir y borrar los hechos de un lote.
+ * Propósito: registrar, corregir y borrar los hechos de un lote en una
+ * tabla compacta. La nota larga se abre con Ver; el filtro cambia columnas.
  * Contexto: una observación no se presenta como medición ni como diagnóstico.
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfirmModal } from "../../inventario/components/ConfirmModal.tsx";
-import { correctEvent, createEvent, deleteEvent } from "../services/galponApi.ts";
+import { FormWindow } from "../../../components/ui/FormWindow.tsx";
+import {
+  correctEvent,
+  createEvent,
+  deleteEvent,
+  EVENT_PAGE_SIZE,
+  listEvents,
+} from "../services/galponApi.ts";
 import type { Lot, LotEvent } from "../types/index.ts";
 import { EventForm } from "./EventForm.tsx";
 import {
   ActionBtn,
-  ATTENTION,
-  dayLabel,
-  dayText,
   Empty,
   EVENT_KINDS,
   GalponCard,
   IconPencil,
   IconTrash,
-  eventTitle,
   kindLabel,
-  numberText,
-  timeText,
-  unitText,
 } from "./galponUi.tsx";
+import {
+  logCell,
+  logColumns,
+  logDateParts,
+  logDetail,
+  logDetailTitle,
+  type LogColumnId,
+} from "./logColumns.ts";
 
 type Props = {
   farmId: number;
   lot: Lot;
-  events: LotEvent[];
   canWrite: boolean;
   onSaved: () => Promise<void>;
   notify: (text: string, tone?: "ok" | "warn") => void;
 };
 
-type DayGroup = {
-  day: string;
-  label: string;
-  items: LotEvent[];
-};
-
-/**
- * Agrupa los registros por día para leer una bitácora larga.
- * @param events - Registros ya ordenados del más reciente al más antiguo.
- * @returns Grupos por día.
- */
-function groupByDay(events: LotEvent[]): DayGroup[] {
-  const groups: DayGroup[] = [];
-  for (const event of events) {
-    const day = dayText(event.occurred_at);
-    const current = groups.at(-1);
-    if (current && current.day === day) current.items.push(event);
-    else groups.push({ day, label: dayLabel(event.occurred_at), items: [event] });
-  }
-  return groups;
-}
-
 /**
  * Bitácora del lote con su formulario.
- * @param props - Lote, eventos y manejadores.
+ * @param props - Lote y manejadores.
  * @returns Tabla de registros con sus acciones.
  */
-export function LogView({ farmId, lot, events, canWrite, onSaved, notify }: Readonly<Props>) {
+export function LogView({ farmId, lot, canWrite, onSaved, notify }: Readonly<Props>) {
   const [filter, setFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState<LotEvent[]>([]);
+  const [count, setCount] = useState(0);
+  const [kinds, setKinds] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
   const [writing, setWriting] = useState<string | null>(null);
   const [editing, setEditing] = useState<LotEvent | null>(null);
   const [removing, setRemoving] = useState<LotEvent | null>(null);
+  const [looking, setLooking] = useState<LotEvent | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const counts = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const event of events) {
-      if (event.kind === "descarte") continue;
-      map.set(event.kind, (map.get(event.kind) ?? 0) + 1);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setRows([]);
+    setError("");
+    try {
+      const data = await listEvents(farmId, lot.id, { kind: filter, page });
+      setRows(data.results);
+      setCount(data.count);
+      setKinds(data.kinds);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "No se pudo cargar la bitácora");
+    } finally {
+      setLoading(false);
     }
-    return map;
-  }, [events]);
+  }, [farmId, lot.id, filter, page]);
 
-  const presentKinds = useMemo(
-    () => EVENT_KINDS.filter((kind) => counts.has(kind.id)),
-    [counts],
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const totalAll = useMemo(
+    () => Object.values(kinds).reduce((sum, value) => sum + value, 0),
+    [kinds],
   );
-
-  const visible = useMemo(() => {
-    const items = events.filter((event) => event.kind !== "descarte");
-    return filter ? items.filter((event) => event.kind === filter) : items;
-  }, [events, filter]);
-
-  const groups = useMemo(() => groupByDay(visible), [visible]);
+  const presentKinds = useMemo(
+    () => EVENT_KINDS.filter((kind) => (kinds[kind.id] ?? 0) > 0),
+    [kinds],
+  );
+  const pages = Math.max(1, Math.ceil(count / EVENT_PAGE_SIZE));
+  const columns = useMemo(() => logColumns(filter), [filter]);
+  const grid = columns.map((column) => column.width).join(" ");
 
   const abierto = lot.status === "abierto";
   const puedeAnotar = canWrite && abierto;
@@ -104,6 +107,7 @@ export function LogView({ farmId, lot, events, canWrite, onSaved, notify }: Read
   const save = async (body: Record<string, unknown>) => {
     setSaving(true);
     setError("");
+    const wasEdit = Boolean(editing);
     try {
       if (editing) {
         await correctEvent(farmId, editing.id, body);
@@ -115,6 +119,11 @@ export function LogView({ farmId, lot, events, canWrite, onSaved, notify }: Read
         setWriting(null);
       }
       await onSaved();
+      if (!wasEdit && page !== 1) {
+        setPage(1);
+      } else {
+        await load();
+      }
     } catch (cause) {
       const text = message(cause, "No se pudo guardar el registro");
       setError(text);
@@ -132,6 +141,11 @@ export function LogView({ farmId, lot, events, canWrite, onSaved, notify }: Read
       await deleteEvent(farmId, removing.id);
       notify("Registro eliminado y saldo del lote corregido.");
       setRemoving(null);
+      if (rows.length === 1 && page > 1) {
+        setPage((current) => current - 1);
+      } else {
+        await load();
+      }
       await onSaved();
     } catch (cause) {
       const text = message(cause, "No se pudo eliminar el registro");
@@ -147,17 +161,23 @@ export function LogView({ farmId, lot, events, canWrite, onSaved, notify }: Read
     <>
       <GalponCard
         title="Bitácora"
-        subtitle="Rondas, muertes, alimento y demás hechos del lote."
+        subtitle={`Lote ${lot.code}. Rondas, muertes, alimento y demás hechos.`}
         action={
           <div className="gp-log__tools">
             {presentKinds.length > 1 ? (
               <label className="gp-tool-field">
                 <span className="visually-hidden">Filtrar bitácora</span>
-                <select value={filter} onChange={(event) => setFilter(event.target.value)}>
-                  <option value="">Todos ({events.length})</option>
+                <select
+                  value={filter}
+                  onChange={(event) => {
+                    setPage(1);
+                    setFilter(event.target.value);
+                  }}
+                >
+                  <option value="">Todos ({totalAll})</option>
                   {presentKinds.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.label} ({counts.get(item.id)})
+                      {item.label} ({kinds[item.id]})
                     </option>
                   ))}
                 </select>
@@ -179,7 +199,9 @@ export function LogView({ farmId, lot, events, canWrite, onSaved, notify }: Read
           </p>
         ) : null}
 
-        {events.length === 0 ? (
+        {loading && rows.length === 0 ? (
+          <p className="gp-log__status">Cargando bitácora…</p>
+        ) : totalAll === 0 ? (
           <Empty
             title="Bitácora vacía"
             action={
@@ -193,86 +215,85 @@ export function LogView({ farmId, lot, events, canWrite, onSaved, notify }: Read
           >
             Empieza con una ronda: cuenta qué viste y qué hiciste en el lote.
           </Empty>
-        ) : visible.length === 0 ? (
-          <Empty action={<button type="button" className="btn-secondary" onClick={() => setFilter("")}>Ver todos</button>}>
+        ) : count === 0 ? (
+          <Empty
+            action={
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => {
+                  setPage(1);
+                  setFilter("");
+                }}
+              >
+                Ver todos
+              </button>
+            }
+          >
             No hay registros de ese tipo.
           </Empty>
         ) : (
-          <div className="gp-log">
-            <div className="gp-log__head" aria-hidden="true">
-              <span>Hora</span>
-              <span>Tipo</span>
-              <span>Cantidad</span>
-              <span>Quién</span>
-              <span>Nota</span>
-              <span>Acciones</span>
+          <>
+            <div className="gp-log" style={{ ["--gp-log-cols" as string]: grid }}>
+              <div className="gp-log__head" aria-hidden="true">
+                {columns.map((column) => (
+                  <span key={column.id}>{column.label}</span>
+                ))}
+              </div>
+              {rows.map((event) => (
+                <article key={event.id} className="gp-log__row">
+                  {columns.map((column) => (
+                    <LogCell
+                      key={column.id}
+                      column={column.id}
+                      label={column.label}
+                      event={event}
+                      canWrite={puedeAnotar}
+                      onLook={() => setLooking(event)}
+                      onEdit={() => {
+                        setError("");
+                        setEditing(event);
+                      }}
+                      onRemove={() => setRemoving(event)}
+                    />
+                  ))}
+                </article>
+              ))}
             </div>
-            {groups.map((group) => (
-              <section key={group.day} className="gp-log__group" aria-label={group.label}>
-                <h3 className="gp-log__day">{group.label}</h3>
-                {group.items.map((event) => {
-                  const attention = ATTENTION[event.attention] ?? ATTENTION.informativo;
-                  const value = event.observed_value
-                    ? `${numberText(event.observed_value)} ${unitText(event.unit, event.observed_value)}${event.estimated ? " est." : ""}`
-                    : "—";
-                  const tone =
-                    attention.tone === "alert"
-                      ? " is-alert"
-                      : attention.tone === "warn"
-                        ? " is-warn"
-                        : "";
-                  const who = [
-                    event.responsible,
-                    event.place,
-                    event.confirmed ? "confirmado" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" · ");
-                  const nota = [
-                    event.notes,
-                    event.corrections.length
-                      ? `Corregido ${event.corrections.length === 1 ? "1 vez" : `${event.corrections.length} veces`}`
-                      : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" · ");
-                  return (
-                    <article key={event.id} className={`gp-log__row${tone}`}>
-                      <time dateTime={event.occurred_at}>{timeText(event.occurred_at)}</time>
-                      <strong>{eventTitle(event.kind, event.payload)}</strong>
-                      <span className="gp-log__qty">{value}</span>
-                      <span className="gp-log__who" title={who}>
-                        {who}
-                      </span>
-                      <span className="gp-log__note" title={nota || undefined}>
-                        {nota || "—"}
-                      </span>
-                      {puedeAnotar ? (
-                        <div className="gp-log__actions">
-                          <ActionBtn
-                            label="Corregir"
-                            onClick={() => {
-                              setError("");
-                              setEditing(event);
-                            }}
-                          >
-                            <IconPencil />
-                          </ActionBtn>
-                          <ActionBtn label="Eliminar" danger onClick={() => setRemoving(event)}>
-                            <IconTrash />
-                          </ActionBtn>
-                        </div>
-                      ) : (
-                        <span className="gp-log__actions" />
-                      )}
-                    </article>
-                  );
-                })}
-              </section>
-            ))}
-          </div>
+            {pages > 1 ? (
+              <nav className="gp-log__pager" aria-label="Páginas de la bitácora">
+                <button type="button" className="btn-secondary" disabled={page <= 1} onClick={() => setPage((current) => current - 1)}>
+                  Anterior
+                </button>
+                <span>
+                  Página {page} de {pages} · {count} registros
+                </span>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  disabled={page >= pages}
+                  onClick={() => setPage((current) => current + 1)}
+                >
+                  Siguiente
+                </button>
+              </nav>
+            ) : null}
+          </>
         )}
       </GalponCard>
+
+      {looking ? (
+        <FormWindow title={logDetailTitle(looking)} onClose={() => setLooking(null)}>
+          <dl className="gp-detail__facts gp-log__detail">
+            {logDetail(looking).map((row) => (
+              <div key={row.label} className={row.label === "Nota" ? "gp-log__detail-note" : undefined}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </FormWindow>
+      ) : null}
 
       {writing !== null || editing ? (
         <EventForm
@@ -300,6 +321,84 @@ export function LogView({ farmId, lot, events, canWrite, onSaved, notify }: Read
         />
       ) : null}
     </>
+  );
+}
+
+type CellProps = {
+  column: LogColumnId;
+  label: string;
+  event: LotEvent;
+  canWrite: boolean;
+  onLook: () => void;
+  onEdit: () => void;
+  onRemove: () => void;
+};
+
+const BARE_COLUMNS = new Set<LogColumnId>(["fecha", "hora", "tipo", "acciones"]);
+
+/**
+ * Celda de la bitácora: dato recortado, pastilla de tipo o acciones.
+ * @param props - Columna, registro y acciones.
+ * @returns Contenido de la celda.
+ */
+function LogCell({ column, label, event, canWrite, onLook, onEdit, onRemove }: Readonly<CellProps>) {
+  const marked = BARE_COLUMNS.has(column) ? undefined : label;
+
+  if (column === "fecha") {
+    const parts = logDateParts(event.occurred_at);
+    return (
+      <div className="gp-log__date">
+        <strong>{parts.day}</strong>
+        {parts.weekday ? <small>{parts.weekday}</small> : null}
+      </div>
+    );
+  }
+
+  if (column === "tipo") {
+    return <span className={`gp-kind gp-kind--${event.kind}`}>{logCell("tipo", event)}</span>;
+  }
+
+  if (column === "nota") {
+    const note = logCell("nota", event);
+    return (
+      <span className="gp-log__note" data-label={marked} title={note === "—" ? undefined : note}>
+        {note}
+      </span>
+    );
+  }
+
+  if (column === "acciones") {
+    return (
+      <div className="gp-log__actions">
+        <button type="button" className="gp-log__ver" onClick={onLook}>
+          Ver
+        </button>
+        {canWrite ? (
+          <>
+            <ActionBtn label="Corregir" onClick={onEdit}>
+              <IconPencil />
+            </ActionBtn>
+            <ActionBtn label="Eliminar" danger onClick={onRemove}>
+              <IconTrash />
+            </ActionBtn>
+          </>
+        ) : null}
+      </div>
+    );
+  }
+
+  if (column === "hora") {
+    return (
+      <time dateTime={event.occurred_at} data-label={marked}>
+        {logCell("hora", event)}
+      </time>
+    );
+  }
+
+  return (
+    <span className={column === "cantidad" ? "gp-log__qty" : "gp-log__who"} data-label={marked}>
+      {logCell(column, event)}
+    </span>
   );
 }
 
