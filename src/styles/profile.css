@@ -21,7 +21,7 @@
   flex-shrink: 0;
   border-radius: 50%;
   color: var(--field);
-  background: var(--forest);
+  background: var(--leaf);
   font-weight: 700;
 }
 

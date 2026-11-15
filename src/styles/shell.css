@@ -59,7 +59,7 @@
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 16px;
-  background: var(--forest);
+  background: var(--leaf);
   box-shadow: var(--raised);
 }
 
@@ -89,7 +89,7 @@
   padding: 12px 14px;
   border: 0;
   border-radius: 18px;
-  color: var(--leaf);
+  color: var(--ink);
   background: transparent;
   font: inherit;
   font-weight: 600;
@@ -107,8 +107,8 @@
 }
 
 .side-nav__item.is-active {
-  color: var(--forest);
-  background: color-mix(in srgb, var(--mint) 70%, var(--foam));
+  color: var(--ink);
+  background: color-mix(in srgb, var(--mint) 80%, var(--card));
   box-shadow: var(--inset);
 }
 
@@ -304,6 +304,41 @@
   .account-button {
     width: auto;
     padding: 4px;
+  }
+}
+
+.section-bar {
+  display: none;
+}
+
+@media (max-width: 1080px) {
+  .section-bar {
+    display: flex;
+    gap: 8px;
+    margin: -8px 0 0;
+    padding: 2px 2px 4px;
+    overflow-x: auto;
+  }
+
+  .section-bar button {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 14px;
+    color: var(--ink);
+    background: var(--card);
+    box-shadow: var(--raised);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .section-bar button.is-on {
+    color: #fff;
+    background: var(--action);
   }
 }
 
