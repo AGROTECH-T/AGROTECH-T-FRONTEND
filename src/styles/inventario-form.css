@@ -10,7 +10,7 @@
   margin-bottom: 22px;
   padding: 28px 28px 24px;
   border-radius: 24px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   display: flex;
   flex-direction: column;
@@ -20,7 +20,7 @@
 
 .inv-form__title {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.2;
@@ -99,7 +99,7 @@
   align-items: center;
   padding: 14px;
   border-radius: 20px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   text-align: left;
 }
@@ -192,7 +192,7 @@
   gap: 10px;
   padding: 14px;
   border-radius: 18px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   text-align: left;
 }
@@ -225,7 +225,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--forest);
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -304,7 +304,7 @@
 .fh__table td {
   padding: 10px 8px;
   border-top: 1px solid var(--line);
-  color: var(--forest);
+  color: var(--ink);
   vertical-align: top;
 }
 
@@ -365,7 +365,7 @@
 
 .inv-status__name {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 0.92rem;
   font-weight: 700;
 }
@@ -462,7 +462,7 @@
   justify-self: start;
   padding: 4px 10px;
   border-radius: 999px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--paper);
   font-size: 0.82rem;
   font-weight: 700;
@@ -503,7 +503,7 @@
 .pv__info h3,
 .pv__history h3 {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
 }
 
 .pv__info p,
@@ -532,7 +532,7 @@
 
 .pv__info li strong,
 .adj__side strong {
-  color: var(--forest);
+  color: var(--ink);
 }
 
 .pv__history {
@@ -562,7 +562,7 @@
   padding: 8px 6px;
   border-top: 1px solid var(--line);
   text-align: left;
-  color: var(--forest);
+  color: var(--ink);
 }
 
 .give__head {
@@ -639,7 +639,7 @@
 }
 
 .adj__stocks strong {
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.4rem;
 }
 
@@ -655,7 +655,7 @@
 .adj__stocks input {
   width: 100%;
   border: 0;
-  color: var(--forest);
+  color: var(--ink);
   background: transparent;
   font: inherit;
   font-size: 1.4rem;
@@ -724,7 +724,7 @@
   height: 36px;
   border: 0;
   border-radius: 12px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--card);
   font-size: 1.4rem;
   cursor: pointer;
@@ -753,7 +753,7 @@
   margin: 0;
   padding: 24px;
   border-radius: 18px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--card);
 }
 

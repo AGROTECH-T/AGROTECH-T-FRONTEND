@@ -26,7 +26,7 @@
   overflow: hidden;
   padding: 34px 26px 28px;
   border-radius: 28px;
-  color: var(--forest);
+  color: var(--ink);
   text-align: center;
   background: linear-gradient(160deg, var(--card), var(--foam));
   box-shadow: var(--raised);
@@ -97,8 +97,8 @@
   margin-top: 22px;
   border: 0;
   border-radius: 18px;
-  color: var(--field);
-  background: var(--forest);
+  color: #fff;
+  background: var(--action);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -107,6 +107,7 @@
 }
 
 .profile-identity__edit:hover {
+  background: var(--action-deep);
   transform: translateY(-1px);
   box-shadow: 0 12px 22px rgba(20, 43, 27, 0.34);
 }
@@ -137,7 +138,7 @@
 
 .profile-section__title {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.15rem;
   font-weight: 700;
 }
@@ -146,7 +147,7 @@
 .profile-form {
   padding: 26px 28px;
   border-radius: 28px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
 }
 
@@ -202,7 +203,7 @@
 }
 
 .profile-field__value {
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1rem;
   font-weight: 600;
   word-break: break-word;
@@ -237,7 +238,7 @@
   padding: 10px 20px;
   border: 0;
   border-radius: 18px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--foam);
   font: inherit;
   font-weight: 600;

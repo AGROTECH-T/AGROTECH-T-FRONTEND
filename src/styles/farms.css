@@ -49,8 +49,8 @@
   padding: 16px 18px;
   border: 0;
   border-radius: 22px;
-  color: var(--forest);
-  background: var(--surface);
+  color: var(--ink);
+  background: var(--tint);
   box-shadow: var(--raised);
   font: inherit;
   text-align: left;
@@ -75,14 +75,14 @@
 .farm-state {
   padding: 36px 28px;
   border-radius: 24px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   text-align: center;
 }
 
 .farm-empty__title {
   margin: 0 0 8px;
-  color: var(--forest);
+  color: var(--ink);
   font-weight: 700;
 }
 
