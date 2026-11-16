@@ -1,8 +1,8 @@
 /**
- * Validación del código sobre el cultivo.
+ * Validación del código.
  *
- * Propósito: cristal, luces y casillas que avanzan solas.
- * Contexto: el fondo es el campo y la tarjeta flota encima.
+ * Propósito: casillas que avanzan solas sobre una tarjeta limpia.
+ * Contexto: sin fotografía de fondo, para aligerar la pantalla.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -13,42 +13,21 @@
   display: grid;
   place-items: center;
   overflow: hidden;
+  background: rgba(8, 24, 14, 0.55);
+  backdrop-filter: blur(6px);
 }
-.otp-scene > img {
-  position: absolute;
-  inset: -6%;
-  width: 112%;
-  height: 112%;
-  object-fit: cover;
-  object-position: center 38%;
-  animation: otp-drift 24s ease-in-out infinite alternate;
-}
-.otp-fly {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #e8ff8a;
-  box-shadow: 0 0 18px 8px rgba(210, 255, 90, 0.65);
-  animation: otp-fly 7s ease-in-out infinite;
-}
-.otp-fly:nth-child(2) { top: 16%; left: 14%; }
-.otp-fly:nth-child(3) { top: 28%; right: 18%; animation-delay: -2s; }
-.otp-fly:nth-child(4) { bottom: 22%; left: 24%; animation-delay: -4s; }
-.otp-fly:nth-child(5) { top: 62%; right: 12%; animation-delay: -1s; }
-.otp-fly:nth-child(6) { bottom: 14%; right: 30%; animation-delay: -3s; }
 .otp-card {
   position: relative;
   display: flex;
   flex-direction: column;
   width: min(440px, calc(100% - 28px));
   padding: 28px 20px 22px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.42);
   border-radius: 28px;
   color: #f4f7ef;
-  background: rgba(8, 28, 16, 0.46);
+  background: rgba(8, 28, 16, 0.22);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(22px);
   animation: otp-rise 0.7s ease both;
 }
 .otp-card h2 { color: #f4f7ef; font-size: 1.7rem; }
@@ -115,14 +94,6 @@
 .otp-next { margin-top: 16px; animation: otp-rise 0.45s ease both; }
 .otp-card .field > label, .otp-card .guide li { color: #e7f1e3; }
 .otp-card .solid { margin-top: 12px; }
-@keyframes otp-drift {
-  from { transform: scale(1) translate3d(0, 0, 0); }
-  to { transform: scale(1.08) translate3d(-2%, -1%, 0); }
-}
-@keyframes otp-fly {
-  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.35; }
-  50% { transform: translate3d(18px, -28px, 0); opacity: 1; }
-}
 @keyframes otp-rise {
   from { opacity: 0; transform: translateY(18px) scale(0.98); }
   to { opacity: 1; transform: none; }
