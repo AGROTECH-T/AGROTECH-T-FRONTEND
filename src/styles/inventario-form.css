@@ -10,7 +10,7 @@
   margin-bottom: 22px;
   padding: 28px 28px 24px;
   border-radius: 24px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   display: flex;
   flex-direction: column;
@@ -20,7 +20,7 @@
 
 .inv-form__title {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.35rem;
   font-weight: 700;
   line-height: 1.2;
@@ -30,7 +30,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  color: var(--leaf);
+  color: var(--ink);
   font-weight: 600;
 }
 
@@ -85,7 +85,7 @@
 
 .inv-form--create .inv-form__field {
   text-align: left;
-  color: var(--leaf);
+  color: var(--ink);
 }
 
 .inv-form--create .inv-form__actions {
@@ -99,7 +99,7 @@
   align-items: center;
   padding: 14px;
   border-radius: 20px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   text-align: left;
 }
@@ -155,7 +155,7 @@
   padding: 8px 12px;
   border: 0;
   border-radius: 12px;
-  color: var(--leaf);
+  color: var(--ink);
   background: var(--field);
   font: inherit;
   font-size: 0.85rem;
@@ -192,7 +192,7 @@
   gap: 10px;
   padding: 14px;
   border-radius: 18px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   text-align: left;
 }
@@ -217,7 +217,7 @@
 
 .inv-detail__stock {
   margin: 0;
-  color: var(--leaf);
+  color: var(--ink);
   font-size: 1.05rem;
 }
 
@@ -225,7 +225,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--forest);
+  color: var(--ink);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -251,7 +251,7 @@
   padding: 8px 16px;
   border: 0;
   border-radius: 999px;
-  color: var(--moss);
+  color: var(--ink);
   background: var(--field);
   box-shadow: var(--inset);
   font: inherit;
@@ -304,7 +304,7 @@
 .fh__table td {
   padding: 10px 8px;
   border-top: 1px solid var(--line);
-  color: var(--forest);
+  color: var(--ink);
   vertical-align: top;
 }
 
@@ -312,7 +312,7 @@
   display: inline-block;
   padding: 2px 10px;
   border-radius: 999px;
-  color: var(--leaf);
+  color: var(--ink);
   background: var(--field);
   font-size: 0.8rem;
   font-weight: 700;
@@ -330,12 +330,23 @@
 
 .fh__note {
   max-width: 260px;
-  color: var(--moss);
+  color: var(--ink);
 }
 
 @media (max-width: 720px) {
   .fh__filters {
     grid-template-columns: 1fr;
+  }
+
+  .inv-form__actions,
+  .farm-form__actions {
+    justify-content: stretch;
+  }
+
+  .inv-form__actions .btn-primary,
+  .inv-form__actions .btn-secondary,
+  .inv-form__actions .btn-danger {
+    flex: 1 1 auto;
   }
 }
 
@@ -365,7 +376,7 @@
 
 .inv-status__name {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 0.92rem;
   font-weight: 700;
 }
@@ -462,7 +473,7 @@
   justify-self: start;
   padding: 4px 10px;
   border-radius: 999px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--paper);
   font-size: 0.82rem;
   font-weight: 700;
@@ -485,7 +496,7 @@
   padding: 6px 10px;
   border: 0;
   border-radius: 12px;
-  color: var(--leaf);
+  color: var(--ink);
   background: var(--field);
   font: inherit;
   font-size: 0.82rem;
@@ -503,7 +514,7 @@
 .pv__info h3,
 .pv__history h3 {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
 }
 
 .pv__info p,
@@ -527,12 +538,12 @@
 }
 
 .pv__info li span {
-  color: var(--moss);
+  color: var(--ink);
 }
 
 .pv__info li strong,
 .adj__side strong {
-  color: var(--forest);
+  color: var(--ink);
 }
 
 .pv__history {
@@ -543,6 +554,7 @@
 .give .inv-form__actions,
 .adj .inv-form__actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -562,7 +574,7 @@
   padding: 8px 6px;
   border-top: 1px solid var(--line);
   text-align: left;
-  color: var(--forest);
+  color: var(--ink);
 }
 
 .give__head {
@@ -608,7 +620,7 @@
 }
 
 .give__amount span {
-  color: var(--moss);
+  color: var(--ink);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -639,7 +651,7 @@
 }
 
 .adj__stocks strong {
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.4rem;
 }
 
@@ -655,7 +667,7 @@
 .adj__stocks input {
   width: 100%;
   border: 0;
-  color: var(--forest);
+  color: var(--ink);
   background: transparent;
   font: inherit;
   font-size: 1.4rem;
@@ -675,7 +687,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--leaf);
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -724,7 +736,7 @@
   height: 36px;
   border: 0;
   border-radius: 12px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--card);
   font-size: 1.4rem;
   cursor: pointer;
@@ -753,7 +765,7 @@
   margin: 0;
   padding: 24px;
   border-radius: 18px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--card);
 }
 
@@ -762,5 +774,10 @@
   .adj,
   .adj__stocks {
     grid-template-columns: 1fr;
+  }
+
+  .give__note {
+    min-width: 0;
+    width: 100%;
   }
 }

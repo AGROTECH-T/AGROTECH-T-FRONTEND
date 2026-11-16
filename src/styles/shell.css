@@ -179,6 +179,31 @@
   flex: 1;
 }
 
+.section-sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.section-sub__item {
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 14px;
+  color: var(--ink);
+  background: var(--card);
+  box-shadow: var(--raised);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.section-sub__item.is-on {
+  color: var(--field);
+  background: var(--forest);
+  box-shadow: inset 4px 4px 10px rgba(0, 0, 0, 0.28), 6px 6px 14px rgba(20, 43, 27, 0.25);
+}
+
 /* Adaptación del marco -------------------------------------------------- */
 
 @media (max-width: 1080px) {

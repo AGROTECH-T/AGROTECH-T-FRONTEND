@@ -26,7 +26,7 @@ function leadDeTab(tab: TabId): string {
   if (tab === "administradores") {
     return "Crea al administrador o nombra a una cuenta que ya se registró.";
   }
-  return "Crea usuarios, asigna su rol y suma permisos adicionales.";
+  return "Crea cuentas, elige el rol en cada finca y suma permisos extra.";
 }
 
 /**

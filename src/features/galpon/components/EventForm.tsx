@@ -281,14 +281,6 @@ export function EventForm({
                 </select>
               </Field>
             ) : null}
-            <Field label="Lugar">
-              <input
-                value={draft.place}
-                onChange={edit("place")}
-                placeholder="Ej. Lado norte"
-                maxLength={80}
-              />
-            </Field>
           </div>
         </fieldset>
 

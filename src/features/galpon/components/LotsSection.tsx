@@ -2,7 +2,7 @@
  * Lotes de un galpón.
  *
  * Propósito: crear y administrar los lotes que han entrado a este galpón.
- * Contexto: un galpón conserva todos sus lotes; puede tener varios abiertos.
+ * Contexto: un galpón conserva el historial; solo un lote puede estar activo.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -67,6 +67,7 @@ export function LotsSection({
   const [error, setError] = useState("");
 
   const abierto = lots.find((lot) => lot.status === "abierto") ?? null;
+  const puedeCrear = canWrite && abierto == null;
   const cerrados = lots.filter((lot) => lot.status === "cerrado").length;
   const resumenLotes =
     lots.length === 0
@@ -172,7 +173,7 @@ export function LotsSection({
             : `${resumenLotes}. Aquí queda el historial de todos sus lotes.`
         }
         action={
-          canWrite ? (
+          puedeCrear ? (
             <button
               type="button"
               className="btn-primary gp-new"
@@ -216,43 +217,49 @@ export function LotsSection({
             Crea el primer lote cuando lleguen las aves a este galpón.
           </Empty>
         ) : (
-          <ul className="gp-list">
-            <li className="gp-list__head" aria-hidden="true">
-              <span>Lote</span>
-              <span>Estado</span>
-              <span>Aves vivas</span>
-              <span>Acciones</span>
-            </li>
+          <div className="gp-houses">
             {ordenados.map((lot) => {
               const status = lotStatus(lot.status);
               const sobrevive =
                 lot.received > 0 ? Math.round((lot.live_count / lot.received) * 100) : 0;
               return (
-                <li
+                <article
                   key={lot.id}
-                  className={lot.status === "abierto" ? "gp-row is-open" : "gp-row"}
+                  className={lot.status === "abierto" ? "gp-house is-open" : "gp-house"}
                 >
-                  <div className="gp-row__name">
-                    <strong>{lot.code}</strong>
-                    <small>
-                      {ageText(lot.age_days)} · {stageLabel(lot.stage)}
-                    </small>
-                  </div>
-                  <Pill label={status.label} tone={status.tone} />
-                  <div className="gp-row__cycle">
-                    <strong>
-                      {lot.live_count} <span>de {lot.received}</span>
-                    </strong>
-                    <BalanceBar alive={lot.live_count} received={lot.received} />
-                    <small>{sobrevive}% vivo</small>
-                  </div>
-                  <div className="gp-row__actions">
-                    <button
-                      type="button"
-                      className="btn-primary gp-btn--row"
-                      onClick={() => onOpenLot(lot.id)}
-                    >
-                      Abrir
+                  <header className="gp-house__head">
+                    <div>
+                      <span className="gp-house__eyebrow">
+                        {ageText(lot.age_days)} · {stageLabel(lot.stage)}
+                      </span>
+                      <h3>{lot.code}</h3>
+                    </div>
+                    <Pill label={status.label} tone={status.tone} />
+                  </header>
+
+                  <dl className="gp-house__facts">
+                    <div>
+                      <dt>Aves vivas</dt>
+                      <dd>
+                        {lot.live_count} de {lot.received}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Supervivencia</dt>
+                      <dd className="gp-lot__rate">
+                        <BalanceBar alive={lot.live_count} received={lot.received} />
+                        <span>{sobrevive}% vivo</span>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Etapa</dt>
+                      <dd>{stageLabel(lot.stage)}</dd>
+                    </div>
+                  </dl>
+
+                  <footer className="gp-house__actions">
+                    <button type="button" className="btn-primary" onClick={() => onOpenLot(lot.id)}>
+                      Abrir lote
                     </button>
                     {canWrite ? (
                       <>
@@ -268,6 +275,13 @@ export function LotsSection({
                         <ActionBtn
                           label={lot.status === "cerrado" ? "Reabrir" : "Cerrar"}
                           onClick={() => {
+                            if (lot.status === "cerrado" && abierto) {
+                              notify(
+                                "Este galpón ya tiene un lote activo. Ciérralo antes de reabrir otro.",
+                                "warn",
+                              );
+                              return;
+                            }
                             setError("");
                             setClosing(lot);
                           }}
@@ -279,11 +293,11 @@ export function LotsSection({
                         </ActionBtn>
                       </>
                     ) : null}
-                  </div>
-                </li>
+                  </footer>
+                </article>
               );
             })}
-          </ul>
+          </div>
         )}
       </GalponCard>
 

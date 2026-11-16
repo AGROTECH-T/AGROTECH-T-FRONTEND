@@ -1,8 +1,10 @@
 /**
  * Tokens visuales de AGROTECH-T.
  *
- * Propósito: fijar la paleta verde y las sombras neomórficas.
- * Contexto: una sola tonalidad, del negro verde al menta claro.
+ * Propósito: barra verde estable, panel blanco, letras negras y
+ * botones naranja.
+ * Contexto: el menú lateral conserva su verde; el contenido usa el
+ * blanco de Galpón.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -11,18 +13,24 @@
   --forest: #142b1b;
   --leaf: #2c4f31;
   --moss: #49724a;
-  --sage: #819f7c;
+  --sage: #5a5f5c;
   --mist: #a4b99e;
   --foam: #c0d9b8;
   --mint: #c4e8c9;
   --paper: #c0d9b8;
   --surface: #d2ddcd;
-  --card: #e7f1e3;
+  --card: #ffffff;
+  --tint: #e7f3ee;
   --field: #f4f8f2;
   --line: #b7c9b2;
+  --action: #f28c26;
+  --action-deep: #d97816;
+  --accent: #fde4c4;
   --danger: #b3261e;
   --danger-deep: #8c1d18;
   --danger-soft: #f3d4d0;
+  --ash: #6b706e;
+  --ash-deep: #585d5b;
   --light: rgba(255, 255, 255, 0.55);
   --shade: rgba(20, 43, 27, 0.2);
   --raised: 8px 8px 16px var(--shade), -5px -5px 12px var(--light);

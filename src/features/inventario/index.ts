@@ -6,3 +6,4 @@
  */
 
 export { InventarioPanel } from "./components/InventarioPanel.tsx";
+export type { StockView } from "./components/InventarioPanel.tsx";

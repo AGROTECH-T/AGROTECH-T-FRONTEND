@@ -11,6 +11,7 @@ import { displayQuantity } from "../services/equivalence.ts";
 import { lendProduct, listLoans, returnLoan, downloadLoanHistory } from "../services/inventoryApi.ts";
 import type { Product, ProductLoan } from "../types/index.ts";
 import { ConfirmModal } from "./ConfirmModal.tsx";
+import { ListPager } from "./ListPager.tsx";
 
 type Done = (product: Product) => void;
 
@@ -139,6 +140,8 @@ export function ReturnWindow({
   onDone: Done;
 }>) {
   const [rows, setRows] = useState<ProductLoan[]>([]);
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
   const [amounts, setAmounts] = useState<Record<number, string>>({});
   const [notes, setNotes] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(true);
@@ -147,16 +150,20 @@ export function ReturnWindow({
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
-    void listLoans(farmId, product.id)
-      .then((items) => {
-        setRows(items);
-        setAmounts(Object.fromEntries(items.map((item) => [item.id, displayQuantity(item.pending, product.unit_nature)])));
+    void listLoans(farmId, product.id, page)
+      .then((data) => {
+        setRows(data.results);
+        setCount(data.count);
+        setAmounts((current) => ({
+          ...current,
+          ...Object.fromEntries(data.results.map((item) => [item.id, current[item.id] ?? displayQuantity(item.pending, product.unit_nature)])),
+        }));
       })
       .catch((cause) => {
         setError(cause instanceof Error ? cause.message : "No se pudieron cargar los préstamos");
       })
       .finally(() => setLoading(false));
-  }, [farmId, product.id, product.unit_nature]);
+  }, [farmId, product.id, product.unit_nature, page]);
 
   const giveBack = async (loan: ProductLoan) => {
     const quantity = (amounts[loan.id] ?? "").trim();
@@ -199,7 +206,7 @@ export function ReturnWindow({
           </button>
         </div>
         {loading ? <p className="panel__lead">Cargando préstamos...</p> : null}
-        {!loading && rows.length === 0 ? <p className="panel__lead">Nadie tiene este producto prestado.</p> : null}
+        {!loading && count === 0 ? <p className="panel__lead">Nadie tiene este producto prestado.</p> : null}
         {rows.length > 0 ? (
           <div className="give__table">
             <table>
@@ -248,6 +255,7 @@ export function ReturnWindow({
             </table>
           </div>
         ) : null}
+        <ListPager page={page} count={count} onPage={setPage} one="préstamo" many="préstamos" />
         {error ? <p className="inv-form__error" role="alert">{error}</p> : null}
         <div className="inv-form__actions give__actions">
           <button type="button" className="btn-danger" onClick={onClose} disabled={pendingId != null}>Cancelar</button>

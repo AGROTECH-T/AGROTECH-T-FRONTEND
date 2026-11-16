@@ -7,6 +7,7 @@
  */
 
 .panel {
+  min-width: 0;
   min-height: calc(100vh - 140px);
   padding: 32px 36px;
   border-radius: 28px;
@@ -21,7 +22,7 @@
 
 .panel__kicker {
   margin: 0 0 6px;
-  color: var(--moss);
+  color: var(--ink);
   font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.2;
@@ -29,7 +30,8 @@
 
 .panel__title {
   margin: 0 0 8px;
-  color: var(--forest);
+  overflow-wrap: anywhere;
+  color: var(--ink);
   font-size: 1.85rem;
   font-weight: 700;
   line-height: 1.15;
@@ -57,12 +59,16 @@
   padding: 10px 18px;
   border: 0;
   border-radius: 18px;
-  color: var(--field);
-  background: var(--forest);
+  color: #fff;
+  background: var(--action);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--raised);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--action-deep);
 }
 
 .btn-primary:disabled {
@@ -78,8 +84,8 @@
   padding: 10px 18px;
   border: 0;
   border-radius: 18px;
-  color: var(--leaf);
-  background: var(--surface);
+  color: var(--ink);
+  background: var(--card);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -136,7 +142,7 @@
 
 .form-window__head h2 {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.15rem;
 }
 
@@ -145,7 +151,7 @@
   height: 34px;
   border: 0;
   border-radius: 12px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--field);
   font-size: 1.3rem;
   line-height: 1;
@@ -177,13 +183,29 @@
   box-shadow: none;
 }
 
-.screen-back {
+.screen-back,
+.btn-secondary.screen-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: fit-content;
   min-height: 44px;
   margin-bottom: 16px;
   padding: 10px 18px;
   gap: 8px;
+  border: 0;
   border-radius: 18px;
+  color: #f4f6f5;
+  background: var(--ash);
+  box-shadow: 4px 4px 10px rgba(20, 43, 27, 0.16), -3px -3px 8px rgba(255, 255, 255, 0.55);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.screen-back:hover:not(:disabled),
+.btn-secondary.screen-back:hover:not(:disabled) {
+  background: var(--ash-deep);
 }
 
 .screen-back__arrow {
@@ -222,4 +244,31 @@
 .btn-danger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+@media (max-width: 820px) {
+  .panel {
+    min-height: 0;
+    padding: 20px 16px;
+    border-radius: 22px;
+  }
+
+  .panel__header {
+    margin-bottom: 18px;
+  }
+
+  .panel__title {
+    font-size: 1.45rem;
+  }
+
+  .panel--home .panel__title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 440px) {
+  .panel {
+    padding: 16px 12px;
+    border-radius: 18px;
+  }
 }

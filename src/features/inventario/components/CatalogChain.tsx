@@ -16,7 +16,7 @@ type Props = {
 };
 
 /**
- * Tres filas: medida, cómo se llama y grupo.
+ * Tres filas: medida, unidad y grupo.
  * @param props - Finca y aviso al guardar.
  * @returns Hoja de alta.
  */
@@ -160,7 +160,7 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
       {gaps.measureName || gaps.symbol ? <p className="field-miss">{gaps.measureName || gaps.symbol}</p> : null}
 
       <div className="cat-chain__row cat-chain__row--open">
-        <strong>¿Cómo lo llamas?</strong>
+        <strong>¿Qué unidad es?</strong>
         <div className="cat-chain__fields">
           <input
             value={countName}

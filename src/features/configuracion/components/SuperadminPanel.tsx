@@ -1,15 +1,16 @@
 /**
  * Panel del superadmin.
  *
- * Propósito: crear administradores y nombrar cuentas que ya se registraron.
+ * Propósito: crear administradores y nombrar o quitar cuentas registradas.
  * Contexto: esas cuentas pasan a tener todos los permisos de la plataforma.
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
+import { ConfirmModal } from "../../inventario/components/ConfirmModal.tsx";
 import { PasswordGuide } from "../../auth/components/PasswordGuide.tsx";
 import {
   digitsMessage,
@@ -19,9 +20,13 @@ import {
   reviewField,
 } from "../../auth/services/fieldRules.ts";
 import {
+  ADMIN_PAGE_SIZE,
   crearAdministrador,
   fetchAdministradores,
+  filtrarCuentas,
+  paginaCuentas,
   promoverAdministrador,
+  quitarAdministrador,
   type CuentaPlataforma,
   type NuevoAdministrador,
 } from "../services/administradores.ts";
@@ -34,6 +39,11 @@ const VACIO: NuevoAdministrador = {
   phone: "",
   password: "",
 };
+
+type Confirmacion =
+  | { tipo: "promover"; cuenta: CuentaPlataforma }
+  | { tipo: "quitar"; cuenta: CuentaPlataforma }
+  | null;
 
 /**
  * Listado de pendientes, administradores y alta.
@@ -48,6 +58,7 @@ export function SuperadminPanel() {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
+  const [confirmacion, setConfirmacion] = useState<Confirmacion>(null);
   const notices = useNotices();
 
   useEffect(() => {
@@ -74,17 +85,41 @@ export function SuperadminPanel() {
     setHuecos((actual) => ({ ...actual, [campo]: "" }));
   }
 
-  async function promover(userId: number) {
+  async function promover(cuenta: CuentaPlataforma) {
     setGuardando(true);
     setError("");
     try {
-      const ficha = await promoverAdministrador(userId);
-      setPendientes((lista) => lista.filter((item) => item.id !== userId));
+      const ficha = await promoverAdministrador(cuenta.id);
+      setPendientes((lista) => lista.filter((item) => item.id !== cuenta.id));
       setAdministradores((lista) => [...lista, ficha].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")));
+      notices.push([`${ficha.nombre} ya es administrador.`], "ok");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "No se pudo nombrar al administrador");
+      const text = cause instanceof Error ? cause.message : "No se pudo nombrar al administrador";
+      setError(text);
+      notices.push([text], "warn");
     } finally {
       setGuardando(false);
+      setConfirmacion(null);
+    }
+  }
+
+  async function quitar(cuenta: CuentaPlataforma) {
+    setGuardando(true);
+    setError("");
+    try {
+      const ficha = await quitarAdministrador(cuenta.id);
+      setAdministradores((lista) => lista.filter((item) => item.id !== cuenta.id));
+      setPendientes((lista) =>
+        [...lista, ficha].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")),
+      );
+      notices.push([`Se quitó el permiso de administrador a ${ficha.nombre}.`], "ok");
+    } catch (cause) {
+      const text = cause instanceof Error ? cause.message : "No se pudo quitar el administrador";
+      setError(text);
+      notices.push([text], "warn");
+    } finally {
+      setGuardando(false);
+      setConfirmacion(null);
     }
   }
 
@@ -117,8 +152,11 @@ export function SuperadminPanel() {
       setAdministradores((lista) => [...lista, ficha].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")));
       setDatos(VACIO);
       setCrear(false);
+      notices.push([`Administrador ${ficha.nombre} creado.`], "ok");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "No se pudo crear el administrador");
+      const text = cause instanceof Error ? cause.message : "No se pudo crear el administrador";
+      setError(text);
+      notices.push([text], "warn");
     } finally {
       setGuardando(false);
     }
@@ -175,16 +213,38 @@ export function SuperadminPanel() {
         titulo="Cuentas en espera"
         vacio="Nadie está esperando. Las personas que se registren aparecen aquí."
         filas={pendientes}
-        accion="Nombrar administrador"
-        onAccion={promover}
+        accionPromover
+        onPromover={(cuenta) => setConfirmacion({ tipo: "promover", cuenta })}
         ocupado={guardando}
       />
       <TablaCuentas
         titulo="Administradores"
         vacio="Todavía no has nombrado administradores."
         filas={administradores}
+        accionQuitar
+        onQuitar={(cuenta) => setConfirmacion({ tipo: "quitar", cuenta })}
         ocupado={guardando}
       />
+
+      {confirmacion?.tipo === "promover" ? (
+        <ConfirmModal
+          text={`¿Nombrar administrador a ${confirmacion.cuenta.nombre}? Podrá crear fincas, trabajadores y usar todos los módulos.`}
+          confirmLabel="Sí, nombrar"
+          closeLabel="No, volver"
+          onConfirm={() => void promover(confirmacion.cuenta)}
+          onClose={() => setConfirmacion(null)}
+        />
+      ) : null}
+
+      {confirmacion?.tipo === "quitar" ? (
+        <ConfirmModal
+          text={`¿Quitar el permiso de administrador a ${confirmacion.cuenta.nombre}? Dejará de poder crear fincas y trabajadores.`}
+          confirmLabel="Sí, quitar"
+          closeLabel="No, volver"
+          onConfirm={() => void quitar(confirmacion.cuenta)}
+          onClose={() => setConfirmacion(null)}
+        />
+      ) : null}
     </section>
   );
 }
@@ -193,52 +253,126 @@ type TablaProps = {
   titulo: string;
   vacio: string;
   filas: CuentaPlataforma[];
-  accion?: string;
-  onAccion?: (id: number) => void;
+  accionPromover?: boolean;
+  accionQuitar?: boolean;
+  onPromover?: (cuenta: CuentaPlataforma) => void;
+  onQuitar?: (cuenta: CuentaPlataforma) => void;
   ocupado: boolean;
 };
 
-function TablaCuentas({ titulo, vacio, filas, accion, onAccion, ocupado }: Readonly<TablaProps>) {
+/**
+ * Tabla con búsqueda y páginas de 5.
+ * @param props - Filas y acciones.
+ * @returns Bloque de cuentas.
+ */
+function TablaCuentas({
+  titulo,
+  vacio,
+  filas,
+  accionPromover = false,
+  accionQuitar = false,
+  onPromover,
+  onQuitar,
+  ocupado,
+}: Readonly<TablaProps>) {
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const filtradas = useMemo(() => filtrarCuentas(filas, query), [filas, query]);
+  const pages = Math.max(1, Math.ceil(filtradas.length / ADMIN_PAGE_SIZE));
+  const visibles = useMemo(() => paginaCuentas(filtradas, Math.min(page, pages)), [filtradas, page, pages]);
+  const conAccion = accionPromover || accionQuitar;
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, filas.length]);
+
   return (
-    <div className="config-people__table">
-      <h2 className="config-note">{titulo}</h2>
-      {filas.length === 0 ? <p className="config-note">{vacio}</p> : null}
-      {filas.length > 0 ? (
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Usuario</th>
-              <th scope="col">Documento</th>
-              <th scope="col">Estado</th>
-              {accion ? <th scope="col">Acción</th> : null}
-            </tr>
-          </thead>
-          <tbody>
-            {filas.map((item) => (
-              <tr key={item.id}>
-                <th scope="row">
-                  <strong>{item.nombre}</strong>
-                  <span>{item.correo || "Sin correo"}</span>
-                </th>
-                <td>{item.identification}</td>
-                <td className={item.activo ? "is-on" : "is-off"}>{item.activo ? "Activo" : "Inactivo"}</td>
-                {accion && onAccion ? (
-                  <td>
-                    <button
-                      type="button"
-                      className="config-people__link"
-                      disabled={ocupado}
-                      onClick={() => onAccion(item.id)}
-                    >
-                      {accion}
-                    </button>
-                  </td>
-                ) : null}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : null}
+    <div className="config-people__block">
+      <header className="config-people__block-head">
+        <h2>{titulo}</h2>
+        <label className="config-people__search">
+          <span className="visually-hidden">Buscar en {titulo}</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Buscar por nombre o documento"
+          />
+        </label>
+      </header>
+
+      {filtradas.length === 0 ? (
+        <p className="config-people__empty">{query.trim() ? "Nadie coincide con esa búsqueda." : vacio}</p>
+      ) : (
+        <>
+          <div className="config-people__table">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Usuario</th>
+                  <th scope="col">Documento</th>
+                  <th scope="col">Estado</th>
+                  {conAccion ? <th scope="col">Acción</th> : null}
+                </tr>
+              </thead>
+              <tbody>
+                {visibles.map((item) => (
+                  <tr key={item.id}>
+                    <th scope="row">
+                      <strong>{item.nombre}</strong>
+                      <span>{item.correo || "Sin correo"}</span>
+                    </th>
+                    <td>{item.identification}</td>
+                    <td className={item.activo ? "is-on" : "is-off"}>{item.activo ? "Activo" : "Inactivo"}</td>
+                    {conAccion ? (
+                      <td>
+                        {accionPromover && onPromover ? (
+                          <button
+                            type="button"
+                            className="config-people__link"
+                            disabled={ocupado}
+                            onClick={() => onPromover(item)}
+                          >
+                            Nombrar administrador
+                          </button>
+                        ) : null}
+                        {accionQuitar && onQuitar ? (
+                          <button
+                            type="button"
+                            className="config-people__link is-danger"
+                            disabled={ocupado}
+                            onClick={() => onQuitar(item)}
+                          >
+                            Quitar administrador
+                          </button>
+                        ) : null}
+                      </td>
+                    ) : null}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {pages > 1 ? (
+            <nav className="config-people__pager" aria-label={`Páginas de ${titulo}`}>
+              <button type="button" className="btn-secondary" disabled={page <= 1} onClick={() => setPage((n) => n - 1)}>
+                Anterior
+              </button>
+              <span>
+                Página {page} de {pages} · {filtradas.length} cuentas
+              </span>
+              <button
+                type="button"
+                className="btn-secondary"
+                disabled={page >= pages}
+                onClick={() => setPage((n) => n + 1)}
+              >
+                Siguiente
+              </button>
+            </nav>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }

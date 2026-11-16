@@ -1,7 +1,7 @@
 /**
  * Catálogo en un solo lugar.
  *
- * Propósito: entender de inmediato medida, forma de contar y categoría.
+ * Propósito: entender de inmediato medida, unidad y categoría.
  * Contexto: el ejemplo con un bulto explica cómo se conectan los tres pasos.
  * @author Cristian Deysdayr Jimenez
  */
@@ -51,11 +51,11 @@ const STEPS: Step[] = [
   },
   {
     id: "cuentas",
-    title: "Cómo lo cuentas",
+    title: "Unidad",
     hint: "Bulto, caja, kilo suelto",
     detail: "Es como sale del depósito. Un bulto puede traer varios kilos.",
-    one: "forma de contar",
-    many: "formas de contar",
+    one: "unidad",
+    many: "unidades",
   },
   {
     id: "grupos",
@@ -203,7 +203,7 @@ export function CatalogHub({
         <section className="cat-add" aria-labelledby="catalogo-add-title">
           <header className="cat-add__head">
             <h2 id="catalogo-add-title">Agregar algo nuevo</h2>
-            <p>Puedes crear la medida, la forma de contar y la categoría en una sola vez.</p>
+            <p>Puedes crear la medida, la unidad y la categoría en una sola vez.</p>
           </header>
           <CatalogChain farmId={farmId} onNotice={onNotice} onSaved={() => setRevision((current) => current + 1)} />
         </section>
