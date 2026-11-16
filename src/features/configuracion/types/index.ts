@@ -50,6 +50,8 @@ export type MembresiaAsignada = {
   farm_id: number;
   farm_name: string;
   role: RolId;
+  /** Códigos efectivos en el listado corto. */
+  permisos?: string[];
   permisos_efectivos?: PermisoAsignable[];
   permisos_directos?: PermisoAsignable[];
 };
