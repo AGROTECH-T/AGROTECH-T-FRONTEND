@@ -54,7 +54,6 @@ const ALL: LogColumn[] = [
   COL.fecha,
   COL.hora,
   COL.tipo,
-  COL.cantidad,
   COL.quien,
   COL.nota,
   COL.acciones,
