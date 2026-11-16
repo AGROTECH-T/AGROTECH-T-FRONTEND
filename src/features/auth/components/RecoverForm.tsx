@@ -7,6 +7,7 @@
  */
 
 import { useState } from "react";
+import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { postJson } from "../../../services/api/client.ts";
@@ -109,6 +110,7 @@ export function RecoverForm({ onDone, onBack }: Readonly<Props>) {
       }}
       aria-labelledby="recover-title"
     >
+      {onBack ? <BackButton onClick={onBack} /> : null}
       <h2 id="recover-title">Recuperar acceso</h2>
       <TextField id="recover-id" label="N.º de identificación" icon="user" placeholder="1234567890" value={identification} autoComplete="username" message={gap} onChange={(value) => { setIdentification(value); setGap(""); }} />
       <fieldset className="choices">
@@ -118,7 +120,6 @@ export function RecoverForm({ onDone, onBack }: Readonly<Props>) {
         <label><input type="radio" name="method" checked={method === "sms"} onChange={() => setMethod("sms")} /> Mensaje de texto</label>
       </fieldset>
       <button type="submit" className="solid" disabled={pending}>Enviar código</button>
-      {onBack ? <button type="button" className="screen-back" onClick={onBack}>Volver atrás</button> : null}
       <NoticeStack items={notices.items} onClose={notices.close} />
     </form>
   );
