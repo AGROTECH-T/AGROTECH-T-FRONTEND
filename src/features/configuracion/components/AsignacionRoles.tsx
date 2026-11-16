@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useMemo, useState } from "react";
+import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { inicialesPersona, ROL_NOMBRE } from "../services/catalogo.ts";
 import {
   agregarPermiso,
@@ -36,9 +37,12 @@ export function AsignacionRoles() {
   const [vista, setVista] = useState<Vista>("lista");
   const [persona, setPersona] = useState<UsuarioAsignado | null>(null);
   const [busqueda, setBusqueda] = useState("");
+  const [filtroRol, setFiltroRol] = useState("");
+  const [filtroPermiso, setFiltroPermiso] = useState("");
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
   const [cargando, setCargando] = useState(true);
+  const notices = useNotices();
 
   useEffect(() => {
     let activo = true;
@@ -63,11 +67,25 @@ export function AsignacionRoles() {
 
   const visibles = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
-    if (!texto) return usuarios;
-    return usuarios.filter((item) =>
-      `${item.nombre} ${item.identification} ${item.correo}`.toLowerCase().includes(texto),
-    );
-  }, [busqueda, usuarios]);
+    return usuarios.filter((item) => {
+      if (texto && !`${item.nombre} ${item.identification} ${item.correo}`.toLowerCase().includes(texto)) {
+        return false;
+      }
+      if (filtroRol && !item.membresias.some((membresia) => membresia.role === filtroRol)) {
+        return false;
+      }
+      if (filtroPermiso) {
+        const tiene = item.membresias.some((membresia) => {
+          if (membresia.permisos?.includes(filtroPermiso)) return true;
+          if (membresia.permisos_efectivos?.some((permiso) => permiso.id === filtroPermiso)) return true;
+          if (membresia.permisos_directos?.some((permiso) => permiso.id === filtroPermiso)) return true;
+          return false;
+        });
+        if (!tiene) return false;
+      }
+      return true;
+    });
+  }, [busqueda, filtroPermiso, filtroRol, usuarios]);
 
   async function abrir(userId: number) {
     setGuardando(true);
@@ -82,15 +100,18 @@ export function AsignacionRoles() {
     }
   }
 
-  async function guardar(accion: () => Promise<UsuarioAsignado>, avisoError: string) {
+  async function guardar(accion: () => Promise<UsuarioAsignado>, avisoError: string, avisoOk: string) {
     setGuardando(true);
     setError("");
     try {
       const actualizada = await accion();
       setPersona(actualizada);
       setUsuarios((lista) => lista.map((item) => (item.id === actualizada.id ? { ...item, ...actualizada } : item)));
+      notices.push([avisoOk], "ok");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : avisoError);
+      const text = cause instanceof Error ? cause.message : avisoError;
+      setError(text);
+      notices.push([text], "warn");
     } finally {
       setGuardando(false);
     }
@@ -103,6 +124,7 @@ export function AsignacionRoles() {
       const creada = await crearUsuario(datos);
       setUsuarios((lista) => [...lista, creada].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")));
       setVista("lista");
+      notices.push([`Usuario ${creada.nombre} creado.`], "ok");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "No se pudo crear el usuario");
     } finally {
@@ -123,6 +145,7 @@ export function AsignacionRoles() {
   if (vista === "detalle" && persona) {
     return (
       <section>
+        <NoticeStack items={notices.items} onClose={notices.close} />
         {error ? <p className="config-assign__error">{error}</p> : null}
         <DetallePermisos
           persona={persona}
@@ -132,20 +155,33 @@ export function AsignacionRoles() {
             setError("");
             setVista("lista");
           }}
-          onRol={(farmId, role: RolId) => void guardar(() => cambiarRol(persona.id, farmId, role), "No se pudo cambiar el rol")}
-          onEstado={(activo) => void guardar(() => cambiarEstado(persona.id, activo), "No se pudo cambiar el estado")}
-          onAgregar={(farmId, permission) => void guardar(() => agregarPermiso(persona.id, farmId, permission), "No se pudo añadir el permiso")}
-          onQuitar={(farmId, permission) => void guardar(() => quitarPermiso(persona.id, farmId, permission), "No se pudo quitar el permiso")}
+          onRol={(farmId, role: RolId) =>
+            void guardar(() => cambiarRol(persona.id, farmId, role), "No se pudo cambiar el rol", "Rol actualizado.")
+          }
+          onEstado={(activo) =>
+            void guardar(
+              () => cambiarEstado(persona.id, activo),
+              "No se pudo cambiar el estado",
+              activo ? "Usuario activado." : "Usuario inactivado.",
+            )
+          }
+          onAgregar={(farmId, permission) =>
+            void guardar(() => agregarPermiso(persona.id, farmId, permission), "No se pudo añadir el permiso", "Permiso añadido.")
+          }
+          onQuitar={(farmId, permission) =>
+            void guardar(() => quitarPermiso(persona.id, farmId, permission), "No se pudo quitar el permiso", "Permiso quitado.")
+          }
         />
       </section>
     );
   }
 
   const sinResultados = visibles.length === 0;
-  const buscando = busqueda.trim().length > 0;
+  const buscando = busqueda.trim().length > 0 || filtroRol !== "" || filtroPermiso !== "";
 
   return (
     <section className="config-crew" aria-label="Personas de tus fincas">
+      <NoticeStack items={notices.items} onClose={notices.close} />
       <div className="config-crew__toolbar">
         <label className="config-crew__search">
           Buscar persona
@@ -155,6 +191,28 @@ export function AsignacionRoles() {
             onChange={(event) => setBusqueda(event.target.value)}
             placeholder="Nombre, documento o correo"
           />
+        </label>
+        <label className="config-crew__filter">
+          Rol
+          <select value={filtroRol} onChange={(event) => setFiltroRol(event.target.value)}>
+            <option value="">Todos los roles</option>
+            {(catalogo?.roles ?? []).map((rol) => (
+              <option key={rol.id} value={rol.id}>
+                {rol.nombre}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="config-crew__filter">
+          Permiso
+          <select value={filtroPermiso} onChange={(event) => setFiltroPermiso(event.target.value)}>
+            <option value="">Todos los permisos</option>
+            {(catalogo?.asignables ?? []).map((permiso) => (
+              <option key={permiso.id} value={permiso.id}>
+                {permiso.nombre}
+              </option>
+            ))}
+          </select>
         </label>
         <button type="button" className="btn-primary config-crew__create" onClick={() => setVista("crear")}>
           Crear usuario
@@ -192,7 +250,7 @@ export function AsignacionRoles() {
           <h2>{buscando ? "Nadie coincide" : "Aún no hay usuarios"}</h2>
           <p>
             {buscando
-              ? "Prueba con otro nombre, documento o correo."
+              ? "Prueba con otro nombre, documento, rol o permiso."
               : "Crea el primero para asignarle un rol en tus fincas."}
           </p>
         </div>
