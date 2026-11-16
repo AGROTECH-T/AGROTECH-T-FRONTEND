@@ -40,12 +40,11 @@ function sample(partial: Partial<LotEvent> = {}): LotEvent {
 }
 
 describe("logColumns", () => {
-  it("en Todos muestra fecha, tipo, cantidad, quién y nota", () => {
+  it("en Todos no muestra cantidad; solo campos comunes", () => {
     expect(logColumns("").map((column) => column.id)).toEqual([
       "fecha",
       "hora",
       "tipo",
-      "cantidad",
       "quien",
       "nota",
       "acciones",
