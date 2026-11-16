@@ -1,8 +1,7 @@
 /**
- * Buscador de una pestaña del catálogo.
+ * Campo de búsqueda del catálogo.
  *
- * Propósito: filtrar la lista de la pestaña abierta.
- * Contexto: medida, unidad y categoría usan el mismo control.
+ * Propósito: el mismo buscador de inventario, en cada lista del catálogo.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -14,20 +13,22 @@ type Props = {
 };
 
 /**
- * Campo de búsqueda del catálogo.
- * @param props - Valor, cambio y textos.
- * @returns Buscador.
+ * Buscador de una lista del catálogo.
+ * @param props - Texto, cambio y copy de esa lista.
+ * @returns Campo de búsqueda.
  */
 export function CatalogSearch({ value, onChange, label, placeholder }: Readonly<Props>) {
   return (
-    <label className="cat-search">
-      <span className="visually-hidden">{label}</span>
-      <input
-        type="search"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-      />
-    </label>
+    <div className="inv-bar">
+      <label className="inventario-search">
+        <span className="visually-hidden">{label}</span>
+        <input
+          type="search"
+          placeholder={placeholder}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+    </div>
   );
 }

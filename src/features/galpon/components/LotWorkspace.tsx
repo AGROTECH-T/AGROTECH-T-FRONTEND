@@ -78,6 +78,8 @@ export function LotWorkspace({
 
   const status = lotStatus(lot.status);
   const abierto = lot.status === "abierto";
+  const occupiedByOther =
+    !abierto && house?.open_lot_id != null && house.open_lot_id !== lot.id;
   const datos = datosRegistrados(lot, house);
 
   const save = async (draft: LotDraft) => {
@@ -163,8 +165,9 @@ export function LotWorkspace({
 
       {!abierto ? (
         <Note>
-          Este lote está cerrado. Sus cifras y su bitácora se conservan; para anotar de nuevo,
-          reábrelo.
+          {occupiedByOther
+            ? "Este lote está cerrado. El galpón ya tiene un lote activo; ciérralo antes de reabrir este."
+            : "Este lote está cerrado. Sus cifras y su bitácora se conservan; para anotar de nuevo, reábrelo."}
         </Note>
       ) : null}
 
@@ -185,7 +188,20 @@ export function LotWorkspace({
                 <button type="button" className="btn-secondary" onClick={() => setEditing(true)}>
                   Editar lote
                 </button>
-                <button type="button" className="btn-primary" onClick={() => setClosing(true)}>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={() => {
+                    if (occupiedByOther) {
+                      notify(
+                        "Este galpón ya tiene un lote activo. Ciérralo antes de reabrir otro.",
+                        "warn",
+                      );
+                      return;
+                    }
+                    setClosing(true);
+                  }}
+                >
                   {abierto ? "Cerrar lote" : "Reabrir lote"}
                 </button>
                 <button type="button" className="btn-danger" onClick={() => setRemoving(true)}>

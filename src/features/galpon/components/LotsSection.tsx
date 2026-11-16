@@ -2,7 +2,7 @@
  * Lotes de un galpón.
  *
  * Propósito: crear y administrar los lotes que han entrado a este galpón.
- * Contexto: un galpón conserva todos sus lotes; solo uno puede estar abierto.
+ * Contexto: un galpón conserva el historial; solo un lote puede estar activo.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -170,9 +170,7 @@ export function LotsSection({
         subtitle={
           lots.length === 0
             ? resumenLotes
-            : `${resumenLotes}. Aquí queda el historial de todos sus lotes.${
-                abierto && canWrite ? " Cierra el lote abierto para crear otro." : ""
-              }`
+            : `${resumenLotes}. Aquí queda el historial de todos sus lotes.`
         }
         action={
           puedeCrear ? (
@@ -201,7 +199,7 @@ export function LotsSection({
           <Empty
             title="Sin lotes todavía"
             action={
-              puedeCrear ? (
+              canWrite ? (
                 <button
                   type="button"
                   className="btn-primary gp-new"
@@ -274,17 +272,22 @@ export function LotsSection({
                         >
                           <IconPencil />
                         </ActionBtn>
-                        {lot.status === "abierto" || abierto == null ? (
-                          <ActionBtn
-                            label={lot.status === "cerrado" ? "Reabrir" : "Cerrar"}
-                            onClick={() => {
-                              setError("");
-                              setClosing(lot);
-                            }}
-                          >
-                            {lot.status === "cerrado" ? <IconUnlock /> : <IconLock />}
-                          </ActionBtn>
-                        ) : null}
+                        <ActionBtn
+                          label={lot.status === "cerrado" ? "Reabrir" : "Cerrar"}
+                          onClick={() => {
+                            if (lot.status === "cerrado" && abierto) {
+                              notify(
+                                "Este galpón ya tiene un lote activo. Ciérralo antes de reabrir otro.",
+                                "warn",
+                              );
+                              return;
+                            }
+                            setError("");
+                            setClosing(lot);
+                          }}
+                        >
+                          {lot.status === "cerrado" ? <IconUnlock /> : <IconLock />}
+                        </ActionBtn>
                         <ActionBtn label="Eliminar" danger onClick={() => setRemoving(lot)}>
                           <IconTrash />
                         </ActionBtn>

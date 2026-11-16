@@ -13,7 +13,7 @@
   --forest: #142b1b;
   --leaf: #2c4f31;
   --moss: #49724a;
-  --sage: #819f7c;
+  --sage: #5a5f5c;
   --mist: #a4b99e;
   --foam: #c0d9b8;
   --mint: #c4e8c9;
@@ -25,12 +25,12 @@
   --line: #b7c9b2;
   --action: #f28c26;
   --action-deep: #d97816;
-  --ash: #6b706e;
-  --ash-deep: #585d5b;
   --accent: #fde4c4;
   --danger: #b3261e;
   --danger-deep: #8c1d18;
   --danger-soft: #f3d4d0;
+  --ash: #6b706e;
+  --ash-deep: #585d5b;
   --light: rgba(255, 255, 255, 0.55);
   --shade: rgba(20, 43, 27, 0.2);
   --raised: 8px 8px 16px var(--shade), -5px -5px 12px var(--light);

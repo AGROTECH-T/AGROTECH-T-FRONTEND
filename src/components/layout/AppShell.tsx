@@ -8,7 +8,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import type { Account } from "../../features/auth/types/index.ts";
-import { SectionBar } from "./SectionBar.tsx";
+import { SectionSubnav } from "./SectionSubnav.tsx";
 import { SideNav } from "./SideNav.tsx";
 import { TopBar } from "./TopBar.tsx";
 import type { AppSection } from "./navTypes.ts";
@@ -64,7 +64,9 @@ export function AppShell({ account, section, view, onNavigate, onLogout, childre
       />
       <div className="app-shell__column">
         <TopBar account={account} onNavigate={onNavigate} onLogout={onLogout} />
-        <SectionBar section={section} view={view} onNavigate={onNavigate} />
+        {expanded ? null : (
+          <SectionSubnav section={section} view={view} onNavigate={onNavigate} />
+        )}
         <main className="app-shell__main">{children}</main>
       </div>
     </div>
