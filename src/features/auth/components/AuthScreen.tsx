@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { logout } from "../services/account.ts";
 import { clearToken, readToken } from "../services/session.ts";
 import type { Account, Mode } from "../types/index.ts";
@@ -24,7 +24,12 @@ export function AuthScreen() {
   const [mode, setMode] = useState<Mode>("signin");
   const [notice, setNotice] = useState("");
   const [account, setAccount] = useState<Account | null>(null);
-  const formFirst = mode === "signup";
+
+  useEffect(() => {
+    if (account) return;
+    document.body.classList.add("is-auth");
+    return () => document.body.classList.remove("is-auth");
+  }, [account]);
 
   const leave = async () => {
     const token = readToken();
@@ -41,11 +46,16 @@ export function AuthScreen() {
   }
 
   let form = (
-    <SignInForm notice={notice} onForgot={() => setMode("recover")} onSuccess={setAccount} />
+    <SignInForm
+      notice={notice}
+      onForgot={() => setMode("recover")}
+      onSignUp={() => setMode("signup")}
+      onSuccess={setAccount}
+    />
   );
   if (mode === "signup") {
     form = (
-      <SignUpForm onSuccess={setAccount} />
+      <SignUpForm onSignIn={() => setMode("signin")} onSuccess={setAccount} />
     );
   } else if (mode === "recover") {
     form = (
@@ -60,18 +70,17 @@ export function AuthScreen() {
   }
 
   const welcome = (
-    <WelcomeSide
-      mode={mode === "signup" ? "signup" : "signin"}
-      onSwitch={() => setMode(mode === "signup" ? "signin" : "signup")}
-    />
+    <WelcomeSide mode={mode === "signup" ? "signup" : "signin"} />
   );
 
   return (
-    <main className={formFirst ? "shell signin" : "shell signup"}>
+    <main className="shell">
       <div className="blob blob-a" aria-hidden="true" />
       <div className="blob blob-b" aria-hidden="true" />
-      {formFirst ? form : welcome}
-      {formFirst ? welcome : form}
+      <div className={mode === "signup" ? "auth-card is-signup" : "auth-card is-signin"}>
+        <div className="auth-slot auth-slot--form">{form}</div>
+        <div className="auth-slot auth-slot--welcome">{welcome}</div>
+      </div>
     </main>
   );
 }

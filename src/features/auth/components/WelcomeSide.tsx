@@ -1,7 +1,7 @@
 /**
  * Panel de bienvenida con la fotografía del cultivo.
  *
- * Propósito: invitar a cambiar entre ingresar y crear cuenta.
+ * Propósito: acompañar el formulario con el mensaje de la finca.
  * Contexto: lado opuesto al formulario, en la misma tonalidad.
  * @author Cristian Deysdayr Jimenez
  */
@@ -11,32 +11,27 @@ import type { Mode } from "../types/index.ts";
 
 type Props = {
   mode: Mode;
-  onSwitch: () => void;
 };
 
 /**
- * Muestra el mensaje y el botón que cambia de panel.
- * @param props - Modo visible y acción de cambio.
+ * Muestra el mensaje según el formulario visible.
+ * @param props - Modo visible de la pantalla.
  * @returns Sección de bienvenida.
  */
-export function WelcomeSide({ mode, onSwitch }: Readonly<Props>) {
+export function WelcomeSide({ mode }: Readonly<Props>) {
   const signingIn = mode === "signin";
-  const title = signingIn ? "Hola" : "Bienvenido";
+  const title = signingIn ? "Tu finca, en un solo lugar" : "Empieza con orden";
   const copy = signingIn
-    ? "Registra tu cuenta y empieza a cuidar la producción desde un solo lugar."
-    : "Ingresa para seguir el trabajo de tu finca con la misma calma."
-  const action = signingIn ? "Crear cuenta" : "Ingresar";
+    ? "AGROTECH-T resuelve el desorden de la finca: inventario, galpones y bitácora juntos, con datos al día para no perder stock, aves ni registros."
+    : "Crea tu cuenta y resuelve desde hoy el control de inventario, galpones y bitácora, sin planillas dispersas.";
 
   return (
-    <section className="panel welcome" aria-labelledby="welcome-title">
+    <section className="welcome" aria-labelledby="welcome-title">
       <img src={campo} alt="Plántula verde en un cultivo al amanecer" />
       <div className="welcome-copy">
         <p className="brand">AGROTECH-T</p>
         <h1 id="welcome-title">{title}</h1>
         <p>{copy}</p>
-        <button type="button" className="ghost" onClick={onSwitch}>
-          {action}
-        </button>
       </div>
     </section>
   );
