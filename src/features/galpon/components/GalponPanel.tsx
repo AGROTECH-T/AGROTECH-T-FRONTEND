@@ -13,13 +13,8 @@ import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { listFarms } from "../../farms/services/farmsApi.ts";
 import type { Farm, FarmRole } from "../../farms/types/index.ts";
-import {
-  getLot,
-  listEvents,
-  listHouses,
-  listLots,
-} from "../services/galponApi.ts";
-import type { House, Lot, LotEvent } from "../types/index.ts";
+import { getLot, listHouses, listLots } from "../services/galponApi.ts";
+import type { House, Lot } from "../types/index.ts";
 import { HouseWorkspace } from "./HouseWorkspace.tsx";
 import { HousesView } from "./HousesView.tsx";
 import { LotWorkspace } from "./LotWorkspace.tsx";
@@ -46,7 +41,6 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
   const [houseId, setHouseId] = useState<number | null>(null);
   const [lotId, setLotId] = useState<number | null>(null);
   const [detail, setDetail] = useState<Lot | null>(null);
-  const [events, setEvents] = useState<LotEvent[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const notices = useNotices();
@@ -55,7 +49,7 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
     (text: string, tone: "ok" | "warn" = "ok") => {
       notices.push([text], tone);
     },
-    [notices],
+    [notices.push],
   );
 
   const farm = farms.find((item) => item.id === farmId) ?? null;
@@ -64,6 +58,16 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
   const house = houseId == null ? null : houses.find((item) => item.id === houseId) ?? null;
   const houseLots = houseId == null ? [] : lots.filter((item) => item.house_id === houseId);
   const lot = detail?.id === lotId ? detail : null;
+  const heading =
+    lot != null ? `Bitácora · ${lot.code}` : lotId != null ? "Bitácora" : house ? "Lotes" : "Galpón";
+  const lead =
+    lot != null
+      ? `Anota la bitácora del lote ${lot.code} y revisa sus indicadores.`
+      : lotId != null
+        ? "Anota la bitácora y revisa los indicadores de este lote."
+        : house
+          ? "Lotes de este galpón. Abre uno para anotar su bitácora."
+          : "Galpones, lotes y bitácora del engorde. Abre un galpón para trabajar sus lotes.";
 
   const reload = useCallback(async (id: number) => {
     const [nextHouses, nextLots] = await Promise.all([listHouses(id), listLots(id)]);
@@ -73,12 +77,7 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
 
   const refreshLot = useCallback(async () => {
     if (farmId == null || lotId == null) return;
-    const [nextLot, nextEvents] = await Promise.all([
-      getLot(farmId, lotId),
-      listEvents(farmId, lotId),
-    ]);
-    setDetail(nextLot);
-    setEvents(nextEvents);
+    setDetail(await getLot(farmId, lotId));
   }, [farmId, lotId]);
 
   useEffect(() => {
@@ -109,7 +108,6 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
   useEffect(() => {
     if (lotId == null) {
       setDetail(null);
-      setEvents([]);
       return;
     }
     setError("");
@@ -143,7 +141,6 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
     setHouseId(null);
     setLotId(null);
     setDetail(null);
-    setEvents([]);
   };
 
   const afterChange = async () => {
@@ -164,11 +161,9 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
         <header className="panel__header galpon__head">
           <div className="galpon__head-main">
             <h1 id="galpon-title" className="panel__title">
-              Galpón
+              {heading}
             </h1>
-            <p className="panel__lead">
-              Galpones, lotes y bitácora del engorde. Abre un galpón para trabajar sus lotes.
-            </p>
+            <p className="panel__lead">{lead}</p>
           </div>
 
           {farm ? (
@@ -245,7 +240,6 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
                 canWrite={canWrite}
                 onOpenLot={openLot}
                 onChanged={() => reload(farmId)}
-                onBack={backToList}
                 notify={notify}
               />
             ) : null}
@@ -256,7 +250,6 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
                   farmId={farmId}
                   house={house}
                   lot={lot}
-                  events={events}
                   canWrite={canWrite}
                   onChanged={afterChange}
                   onDeleted={async () => {

@@ -1,8 +1,8 @@
 /**
  * Pantalla de un lote.
  *
- * Propósito: reunir los datos del lote, sus indicadores y su bitácora, y
- * permitir corregirlo, cerrarlo, reabrirlo o eliminarlo.
+ * Propósito: anotar la bitácora del lote. Los datos e indicadores quedan
+ * detrás de un botón, para no saturar la pantalla.
  * Contexto: el lote vive dentro de un galpón y solo se anota mientras está
  * abierto.
  * @author Cristian Deysdayr Jimenez
@@ -12,13 +12,14 @@ import { useState } from "react";
 import { ConfirmModal } from "../../inventario/components/ConfirmModal.tsx";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { closeLot, deleteLot, reopenLot, updateLot } from "../services/galponApi.ts";
-import type { House, Lot, LotDraft, LotEvent } from "../types/index.ts";
+import type { House, Lot, LotDraft } from "../types/index.ts";
 import { BoardView } from "./BoardView.tsx";
 import { LogView } from "./LogView.tsx";
 import { LotForm } from "./LotForm.tsx";
 import {
   ageText,
   dayText,
+  ExtraBlock,
   Field,
   GalponCard,
   Guide,
@@ -33,7 +34,6 @@ type Props = {
   farmId: number;
   house: House | null;
   lot: Lot;
-  events: LotEvent[];
   canWrite: boolean;
   onChanged: () => Promise<void>;
   onDeleted: () => Promise<void>;
@@ -42,11 +42,11 @@ type Props = {
 
 const GUIDE = {
   title: "Cómo se usa un lote",
-  lead: "Anota la bitácora aquí. Los indicadores quedan debajo, si los necesitas.",
+  lead: "Anota la bitácora aquí. Los datos e indicadores se abren solo si los pides.",
   steps: [
-    "Aquí ves cuántas aves siguen vivas, su edad y lo que falta registrar.",
-    "Anota en la bitácora cada ronda, muerte, peso, alimento o novedad.",
+    "Registra cada ronda, muerte, peso, alimento o novedad en la bitácora.",
     "Si un registro quedó mal, usa Corregir: el valor anterior se conserva.",
+    "Los datos del lote y sus indicadores están en Ver datos, por si los necesitas.",
     "Cuando salgan todas las aves, cierra el lote. Si te equivocaste, puedes reabrirlo.",
   ],
   example:
@@ -57,14 +57,13 @@ type Dato = { label: string; value: string };
 
 /**
  * Página del lote con sus acciones.
- * @param props - Lote, sus eventos y manejadores.
- * @returns Cabecera, indicadores, bitácora y ventanas de edición.
+ * @param props - Lote y manejadores.
+ * @returns Bitácora al frente y datos opcionales plegados.
  */
 export function LotWorkspace({
   farmId,
   house,
   lot,
-  events,
   canWrite,
   onChanged,
   onDeleted,
@@ -79,6 +78,8 @@ export function LotWorkspace({
 
   const status = lotStatus(lot.status);
   const abierto = lot.status === "abierto";
+  const occupiedByOther =
+    !abierto && house?.open_lot_id != null && house.open_lot_id !== lot.id;
   const datos = datosRegistrados(lot, house);
 
   const save = async (draft: LotDraft) => {
@@ -156,58 +157,6 @@ export function LotWorkspace({
     <div className="gp-layout">
       <Guide title={GUIDE.title} lead={GUIDE.lead} steps={GUIDE.steps} example={GUIDE.example} />
 
-      <article className="gp-house-head">
-        <div className="gp-house-head__top">
-          <div className="gp-house-head__main">
-            <span className="gp-house__eyebrow">Lote</span>
-            <h2>{lot.code}</h2>
-            <p>
-              {lot.house_name}
-              {lot.supplier ? ` · ${lot.supplier}` : " · proveedor sin registrar"}
-            </p>
-          </div>
-
-          {canWrite ? (
-            <div className="gp-house-head__actions">
-              <button type="button" className="btn-secondary" onClick={() => setEditing(true)}>
-                Editar lote
-              </button>
-              <button type="button" className="btn-primary" onClick={() => setClosing(true)}>
-                {abierto ? "Cerrar lote" : "Reabrir lote"}
-              </button>
-              <button type="button" className="btn-danger" onClick={() => setRemoving(true)}>
-                Eliminar lote
-              </button>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="gp-house-head__facts">
-          <div>
-            <span>Estado</span>
-            <Pill label={status.label} tone={status.tone} />
-          </div>
-          <div>
-            <span>Aves vivas</span>
-            <strong>
-              {lot.live_count} de {lot.received}
-            </strong>
-          </div>
-          <div>
-            <span>Edad</span>
-            <strong>{ageText(lot.age_days)}</strong>
-          </div>
-          <div>
-            <span>Etapa</span>
-            <strong>{stageLabel(lot.stage)}</strong>
-          </div>
-          <div>
-            <span>Llegada</span>
-            <strong>{dayText(lot.arrived_at)}</strong>
-          </div>
-        </div>
-      </article>
-
       {error ? (
         <p className="galpon__error" role="alert">
           {error}
@@ -216,36 +165,103 @@ export function LotWorkspace({
 
       {!abierto ? (
         <Note>
-          Este lote está cerrado. Sus cifras y su bitácora se conservan; para anotar de nuevo,
-          reábrelo.
+          {occupiedByOther
+            ? "Este lote está cerrado. El galpón ya tiene un lote activo; ciérralo antes de reabrir este."
+            : "Este lote está cerrado. Sus cifras y su bitácora se conservan; para anotar de nuevo, reábrelo."}
         </Note>
       ) : null}
 
-      <div className="gp-house-grid gp-house-grid--fill">
-        <BoardView lot={lot} />
+      <ExtraBlock title="Datos e indicadores del lote">
+        <article className="gp-house-head">
+          <div className="gp-house-head__top">
+            <div className="gp-house-head__main">
+              <span className="gp-house__eyebrow">Lote</span>
+              <h2>{lot.code}</h2>
+              <p>
+                {lot.house_name}
+                {lot.supplier ? ` · ${lot.supplier}` : " · proveedor sin registrar"}
+              </p>
+            </div>
 
-        <GalponCard title="Datos del lote" subtitle="Recepción y datos registrados.">
-          {datos.length ? (
-            <dl className="gp-detail__facts">
-              {datos.map((dato) => (
-                <div key={dato.label}>
-                  <dt>{dato.label}</dt>
-                  <dd>{dato.value}</dd>
-                </div>
-              ))}
-            </dl>
-          ) : (
-            <p className="gp-detail__empty">
-              Este lote todavía no tiene datos de recepción. Con Editar lote puedes agregarlos.
-            </p>
-          )}
-        </GalponCard>
-      </div>
+            {canWrite ? (
+              <div className="gp-house-head__actions">
+                <button type="button" className="btn-secondary" onClick={() => setEditing(true)}>
+                  Editar lote
+                </button>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={() => {
+                    if (occupiedByOther) {
+                      notify(
+                        "Este galpón ya tiene un lote activo. Ciérralo antes de reabrir otro.",
+                        "warn",
+                      );
+                      return;
+                    }
+                    setClosing(true);
+                  }}
+                >
+                  {abierto ? "Cerrar lote" : "Reabrir lote"}
+                </button>
+                <button type="button" className="btn-danger" onClick={() => setRemoving(true)}>
+                  Eliminar lote
+                </button>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="gp-house-head__facts">
+            <div>
+              <span>Estado</span>
+              <Pill label={status.label} tone={status.tone} />
+            </div>
+            <div>
+              <span>Aves vivas</span>
+              <strong>
+                {lot.live_count} de {lot.received}
+              </strong>
+            </div>
+            <div>
+              <span>Edad</span>
+              <strong>{ageText(lot.age_days)}</strong>
+            </div>
+            <div>
+              <span>Etapa</span>
+              <strong>{stageLabel(lot.stage)}</strong>
+            </div>
+            <div>
+              <span>Llegada</span>
+              <strong>{dayText(lot.arrived_at)}</strong>
+            </div>
+          </div>
+        </article>
+
+        <div className="gp-house-grid gp-house-grid--fill">
+          <BoardView lot={lot} />
+
+          <GalponCard title="Datos del lote" subtitle="Recepción y datos registrados.">
+            {datos.length ? (
+              <dl className="gp-detail__facts">
+                {datos.map((dato) => (
+                  <div key={dato.label}>
+                    <dt>{dato.label}</dt>
+                    <dd>{dato.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p className="gp-detail__empty">
+                Este lote todavía no tiene datos de recepción. Con Editar lote puedes agregarlos.
+              </p>
+            )}
+          </GalponCard>
+        </div>
+      </ExtraBlock>
 
       <LogView
         farmId={farmId}
         lot={lot}
-        events={events}
         canWrite={canWrite}
         onSaved={onChanged}
         notify={notify}
@@ -326,7 +342,7 @@ export function LotWorkspace({
 
       {removing ? (
         <ConfirmModal
-          text={`¿Eliminar el lote ${lot.code}? Se borran también sus ${events.length} registros de bitácora y su saldo. Esto no se puede deshacer.`}
+          text={`¿Eliminar el lote ${lot.code}? Se borran también su bitácora y su saldo. Esto no se puede deshacer.`}
           confirmLabel="Sí, eliminar"
           closeLabel="No, volver"
           onConfirm={() => void remove()}

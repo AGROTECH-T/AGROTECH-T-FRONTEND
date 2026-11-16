@@ -105,12 +105,18 @@ export type Movement = {
   created_at: string;
 };
 
-export type MovementPage = {
+export type Page<T> = {
   count: number;
   page: number;
   page_size: number;
-  results: Movement[];
+  results: T[];
 };
+
+export type MovementPage = Page<Movement>;
+
+export type ProductPage = Page<Product>;
+
+export type LoanPage = Page<ProductLoan>;
 
 export type ProductDraft = {
   name: string;

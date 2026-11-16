@@ -8,13 +8,15 @@
 
 .farm-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 14px;
   margin-bottom: 22px;
 }
 
 .farm-search {
-  flex: 1;
+  flex: 1 1 180px;
+  min-width: 0;
 }
 
 .farm-search input,
@@ -42,15 +44,17 @@
 
 .farm-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   width: 100%;
+  min-width: 0;
   padding: 16px 18px;
   border: 0;
   border-radius: 22px;
-  color: var(--forest);
-  background: var(--surface);
+  color: var(--ink);
+  background: var(--tint);
   box-shadow: var(--raised);
   font: inherit;
   text-align: left;
@@ -62,11 +66,13 @@
 }
 
 .farm-row__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-weight: 700;
 }
 
 .farm-row__role {
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.92rem;
   font-weight: 600;
 }
@@ -75,14 +81,14 @@
 .farm-state {
   padding: 36px 28px;
   border-radius: 24px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   text-align: center;
 }
 
 .farm-empty__title {
   margin: 0 0 8px;
-  color: var(--forest);
+  color: var(--ink);
   font-weight: 700;
 }
 

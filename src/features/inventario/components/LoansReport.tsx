@@ -7,10 +7,12 @@
  */
 
 import { useEffect, useState } from "react";
+import { slicePage } from "../services/paging.ts";
 import { downloadLoanReport, getLoanReport } from "../services/inventoryApi.ts";
 import { formatWhen } from "../services/reportFormat.ts";
 import { defaultRange } from "../services/reportRange.ts";
 import type { LoanReport as LoanReportData } from "../types/index.ts";
+import { ListPager } from "./ListPager.tsx";
 import { ReportShell, ReportStat } from "./ReportShell.tsx";
 import { useProductOptions } from "./useReportOptions.ts";
 
@@ -41,6 +43,7 @@ export function LoansReport({ farmId, onBack }: Readonly<Props>) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [page, setPage] = useState(1);
   const products = useProductOptions(farmId);
 
   useEffect(() => {
@@ -64,6 +67,10 @@ export function LoansReport({ farmId, onBack }: Readonly<Props>) {
     };
   }, [farmId, from, to, status, person, product]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [farmId, from, to, status, person, product]);
+
   const download = async () => {
     setDownloading(true);
     setError("");
@@ -77,6 +84,7 @@ export function LoansReport({ farmId, onBack }: Readonly<Props>) {
   };
 
   const rows = data?.rows ?? [];
+  const visible = slicePage(rows, page);
   const people = data?.people ?? [];
 
   return (
@@ -173,7 +181,7 @@ export function LoansReport({ farmId, onBack }: Readonly<Props>) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {visible.map((row) => (
               <tr key={row.id}>
                 <td>{formatWhen(row.when)}</td>
                 <td>{row.person}</td>
@@ -194,6 +202,7 @@ export function LoansReport({ farmId, onBack }: Readonly<Props>) {
           </tbody>
         </table>
       </div>
+      <ListPager page={page} count={rows.length} onPage={setPage} one="préstamo" many="préstamos" />
     </ReportShell>
   );
 }

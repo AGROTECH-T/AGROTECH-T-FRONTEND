@@ -6,6 +6,8 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { BackButton } from "../../../components/ui/BackButton.tsx";
+
 export type ReportView = "ajustes" | "prestamos" | "pedido";
 
 type Props = {
@@ -42,9 +44,7 @@ const REPORTS: { id: ReportView; title: string; lead: string; action: string }[]
 export function ReportsHub({ onOpen, onBack }: Readonly<Props>) {
   return (
     <section className="panel" aria-labelledby="reportes-title">
-      <button type="button" className="btn-secondary screen-back" onClick={onBack}>
-        ← Volver al inventario
-      </button>
+      <BackButton onClick={onBack} />
       <header className="panel__header">
         <h1 id="reportes-title" className="panel__title">
           Más reportes

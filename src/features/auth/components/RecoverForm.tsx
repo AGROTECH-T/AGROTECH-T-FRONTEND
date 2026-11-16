@@ -118,7 +118,7 @@ export function RecoverForm({ onDone, onBack }: Readonly<Props>) {
         <label><input type="radio" name="method" checked={method === "sms"} onChange={() => setMethod("sms")} /> Mensaje de texto</label>
       </fieldset>
       <button type="submit" className="solid" disabled={pending}>Enviar código</button>
-      {onBack ? <button type="button" className="text-link" onClick={onBack}>← Volver atrás</button> : null}
+      {onBack ? <button type="button" className="screen-back" onClick={onBack}>Volver atrás</button> : null}
       <NoticeStack items={notices.items} onClose={notices.close} />
     </form>
   );

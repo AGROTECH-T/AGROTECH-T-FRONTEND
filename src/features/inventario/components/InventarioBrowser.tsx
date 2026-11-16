@@ -5,23 +5,22 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { FarmRole } from "../../farms/types/index.ts";
-import { createMovement, getInventoryCatalog, getProduct } from "../services/inventoryApi.ts";
+import { inventoryIdFor } from "../services/farmInventories.ts";
+import { createMovement, getInventoryCatalog, getProduct, listProducts } from "../services/inventoryApi.ts";
 import { movementAmountMessage, normalizeAmount } from "../services/salidaAmount.ts";
 import type { InventoryCatalog, MovementKind, Product } from "../types/index.ts";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { ConfirmModal } from "./ConfirmModal.tsx";
+import { ListPager } from "./ListPager.tsx";
 import { LendWindow, ReturnWindow } from "./ProductLoans.tsx";
 import { ProductList } from "./ProductList.tsx";
 
 type Props = {
   farmId: number;
+  inventoryId: string;
   role: FarmRole;
-  products: Product[];
-  loading: boolean;
-  error: string;
-  onReload: () => void;
   onSelect: (product: Product) => void;
   onEdit: (product: Product) => void;
   onMove: (product: Product, kind: MovementKind) => void;
@@ -45,11 +44,8 @@ type Desk = "entrada" | "salida" | null;
  */
 export function InventarioBrowser({
   farmId,
+  inventoryId,
   role,
-  products,
-  loading,
-  error,
-  onReload,
   onSelect,
   onEdit,
   onMove,
@@ -66,6 +62,12 @@ export function InventarioBrowser({
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [order, setOrder] = useState<Order>("name");
+  const [page, setPage] = useState(1);
+  const [tick, setTick] = useState(0);
+  const [count, setCount] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [amounts, setAmounts] = useState<Record<number, string>>({});
   const [amountErrors, setAmountErrors] = useState<Record<number, string>>({});
   const [saving, setSaving] = useState(false);
@@ -80,20 +82,42 @@ export function InventarioBrowser({
       .catch(() => setCatalog(null));
   }, [catalogMark]);
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    const rows = products.filter((item) => {
-      if (category && item.category !== category) return false;
-      if (status === "active" && !item.is_active) return false;
-      if (status === "inactive" && item.is_active) return false;
-      if (status === "low" && !item.is_low_stock) return false;
-      if (!needle) return true;
-      return (
-        item.name.toLowerCase().includes(needle) || item.barcode.toLowerCase().includes(needle)
-      );
-    });
-    return sortProducts(rows, order);
-  }, [products, query, category, status, order]);
+  useEffect(() => {
+    setPage(1);
+  }, [farmId, inventoryId, query, category, status, order]);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    setError("");
+    void listProducts(farmId, {
+      page,
+      q: query.trim() || undefined,
+      category: category || undefined,
+      status,
+      order,
+    })
+      .then((data) => {
+        if (!alive) return;
+        const rows = inventoryId
+          ? data.results.filter((item) => inventoryIdFor(farmId, item.id) === inventoryId)
+          : data.results;
+        setProducts(rows);
+        setCount(data.count);
+      })
+      .catch((cause) => {
+        if (!alive) return;
+        setError(cause instanceof Error ? cause.message : "No se pudo cargar el inventario");
+        setProducts([]);
+        setCount(0);
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [farmId, inventoryId, page, query, category, status, order, fresh, tick]);
 
   useEffect(() => {
     if (!fresh) return;
@@ -102,7 +126,7 @@ export function InventarioBrowser({
 
   const saveDesk = async () => {
     if (!desk) return;
-    const rows = filtered.filter((item) => (amounts[item.id] ?? "").trim() !== "");
+    const rows = products.filter((item) => (amounts[item.id] ?? "").trim() !== "");
     if (rows.length === 0) {
       setDeskNote("Escribe la cantidad en al menos un producto.");
       return;
@@ -142,7 +166,7 @@ export function InventarioBrowser({
       <div className="inv-bar">
         <label className="inv-bar__filter">
           <span className="visually-hidden">Categoría</span>
-          <select value={category} onChange={(event) => setCategory(event.target.value)}>
+          <select value={category} onChange={(event) => { setCategory(event.target.value); setPage(1); }}>
             <option value="">Todas las categorías</option>
             {(catalog?.categories ?? []).map((item) => (
               <option key={item.id} value={item.id}>
@@ -153,7 +177,7 @@ export function InventarioBrowser({
         </label>
         <label className="inv-bar__filter">
           <span className="visually-hidden">Estado</span>
-          <select value={status} onChange={(event) => setStatus(event.target.value as StatusFilter)}>
+          <select value={status} onChange={(event) => { setStatus(event.target.value as StatusFilter); setPage(1); }}>
             <option value="all">Todos los estados</option>
             <option value="active">Activos</option>
             <option value="inactive">Inactivos</option>
@@ -166,7 +190,7 @@ export function InventarioBrowser({
             type="search"
             placeholder="Buscar producto..."
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => { setQuery(event.target.value); setPage(1); }}
           />
         </label>
       </div>
@@ -213,29 +237,29 @@ export function InventarioBrowser({
       {!loading && error ? (
         <div className="farm-state" role="alert">
           <p>{error}</p>
-          <button type="button" className="btn-primary" onClick={onReload}>
+          <button type="button" className="btn-primary" onClick={() => setTick((current) => current + 1)}>
             Reintentar
           </button>
         </div>
       ) : null}
-      {!loading && !error && products.length === 0 ? (
+      {!loading && !error && count === 0 ? (
         <div className="inventario-empty" role="status">
           <p className="inventario-empty__title">Aún no hay productos</p>
           <p className="inventario-empty__hint">Crea el primero con el botón de arriba.</p>
         </div>
       ) : null}
-      {!loading && !error && products.length > 0 && filtered.length === 0 ? (
+      {!loading && !error && count > 0 && products.length === 0 ? (
         <div className="inventario-empty" role="status">
           <p className="inventario-empty__title">Nada coincide</p>
           <p className="inventario-empty__hint">Prueba otro nombre, código o filtro.</p>
         </div>
       ) : null}
-      {!loading && !error && filtered.length > 0 ? (
+      {!loading && !error && products.length > 0 ? (
         <ProductList
-          products={filtered}
+          products={products}
           role={role}
           order={order}
-          onSort={setOrder}
+          onSort={(next) => { setOrder(next); setPage(1); }}
           onView={onSelect}
           onEdit={onEdit}
           onMove={onMove}
@@ -250,6 +274,7 @@ export function InventarioBrowser({
           }}
         />
       ) : null}
+      <ListPager page={page} count={count} onPage={setPage} one="producto" many="productos" />
       {loan?.mode === "prestar" ? (
         <LendWindow
           farmId={farmId}
@@ -276,21 +301,4 @@ export function InventarioBrowser({
       ) : null}
     </>
   );
-}
-
-function sortProducts(items: Product[], order: Order): Product[] {
-  const copy = [...items];
-  copy.sort((left, right) => {
-    if (order === "quantity") {
-      const gap = Number(left.quantity) - Number(right.quantity);
-      if (gap !== 0) return gap;
-    }
-    if (order === "last_movement") {
-      const leftAt = left.last_movement_at ? Date.parse(left.last_movement_at) : 0;
-      const rightAt = right.last_movement_at ? Date.parse(right.last_movement_at) : 0;
-      if (leftAt !== rightAt) return rightAt - leftAt;
-    }
-    return left.name.localeCompare(right.name, "es");
-  });
-  return copy;
 }

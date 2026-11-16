@@ -13,27 +13,9 @@ import type { Account } from "../../auth/types/index.ts";
 import { ConfiguracionScreen } from "../../configuracion/index.ts";
 import { FarmsScreen } from "../../farms/index.ts";
 import { GalponPanel } from "../../galpon/components/GalponPanel.tsx";
-import { InventarioPanel } from "../../inventario/index.ts";
+import { InventarioPanel, type StockView } from "../../inventario/index.ts";
 import { ProfileScreen } from "../../profile/index.ts";
 import { HomeHub } from "./HomeHub.tsx";
-
-type StockView =
-  | "lista"
-  | "crear"
-  | "entrada"
-  | "salida"
-  | "historial"
-  | "inventarios"
-  | "catalogo"
-  | "categorias"
-  | "unidades"
-  | "medidas"
-  | "reportes"
-  | "ajustes"
-  | "consumo"
-  | "prestamos"
-  | "pedido"
-  | "bajo";
 
 function asStockView(view?: string): StockView {
   if (

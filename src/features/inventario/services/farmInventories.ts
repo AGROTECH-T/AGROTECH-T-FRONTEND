@@ -60,6 +60,31 @@ export function listInventories(farmId: number): FarmInventory[] {
 }
 
 /**
+ * Completa inventarios de prueba en local para ver la paginación.
+ * @param farmId - Finca activa.
+ * @returns Inventarios, con los de prueba si corre en localhost.
+ */
+export function ensureDemoInventories(farmId: number): FarmInventory[] {
+  const current = listInventories(farmId);
+  if (typeof window === "undefined" || window.location.hostname !== "localhost") {
+    return current;
+  }
+  const prefix = "Prueba inventario ";
+  const have = new Set(current.map((item) => item.name.toLowerCase()));
+  const extra: FarmInventory[] = [];
+  for (let index = 1; index <= 28; index += 1) {
+    const name = `${prefix}${String(index).padStart(2, "0")}`;
+    if (have.has(name.toLowerCase())) continue;
+    extra.push({ id: crypto.randomUUID(), farmId, name });
+    have.add(name.toLowerCase());
+  }
+  if (extra.length === 0) return listInventories(farmId);
+  const store = readStore();
+  writeStore({ ...store, inventories: [...store.inventories, ...extra] });
+  return listInventories(farmId);
+}
+
+/**
  * Crea otro inventario en la finca.
  * @param farmId - Finca activa.
  * @param name - Nombre que escribió la persona.

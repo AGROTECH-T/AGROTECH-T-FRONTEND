@@ -7,19 +7,22 @@
  */
 
 .config-tabs {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
   margin: 0 0 24px;
+  padding: 6px;
+  border-radius: 22px;
+  background: var(--tint);
+  box-shadow: var(--inset);
 }
 
 .config-tab {
   padding: 10px 18px;
   border: 0;
-  border-radius: 18px;
-  color: var(--leaf);
-  background: var(--surface);
-  box-shadow: var(--raised);
+  border-radius: 16px;
+  color: var(--ink);
+  background: transparent;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
@@ -28,7 +31,7 @@
 .config-tab.is-active {
   color: var(--field);
   background: var(--forest);
-  box-shadow: var(--inset);
+  box-shadow: var(--raised);
 }
 
 .config-state {
@@ -49,7 +52,7 @@
 
 .config-section__title {
   margin: 0 0 12px;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.15rem;
   font-weight: 700;
 }
@@ -69,7 +72,7 @@
 
 .config-assign__ok {
   margin: 0 0 12px;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 0.86rem;
 }
 
@@ -84,7 +87,7 @@
 .config-assign__card {
   padding: 18px;
   border-radius: 28px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--raised);
 }
 
@@ -92,7 +95,7 @@
   display: grid;
   gap: 8px;
   margin-bottom: 14px;
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -138,7 +141,7 @@
 
 .config-assign__card h3 {
   margin: 0;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.2rem;
 }
 
@@ -148,7 +151,7 @@
 
 .config-assign__farm h4 {
   margin: 0 0 10px;
-  color: var(--leaf);
+  color: var(--ink);
   font-size: 0.95rem;
 }
 
@@ -163,7 +166,7 @@
   gap: 6px;
   margin: 14px 0 0;
   padding-left: 18px;
-  color: var(--leaf);
+  color: var(--ink);
   font-size: 0.86rem;
   line-height: 1.45;
 }
@@ -184,7 +187,7 @@
   overflow-x: auto;
   padding: 6px;
   border-radius: 24px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--raised);
 }
 
@@ -206,7 +209,7 @@
 }
 
 .config-matrix__table thead th {
-  color: var(--forest);
+  color: var(--ink);
   background: var(--card);
   font-size: 0.76rem;
   font-weight: 700;
@@ -216,7 +219,7 @@
 }
 
 .config-matrix__table tbody th[scope="row"] {
-  color: var(--leaf);
+  color: var(--ink);
   font-weight: 600;
 }
 
@@ -227,8 +230,8 @@
 
 .config-matrix__group th {
   padding: 8px 14px;
-  color: var(--forest);
-  background: var(--surface);
+  color: var(--ink);
+  background: var(--tint);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -247,7 +250,7 @@
   min-width: 44px;
   padding: 3px 10px;
   border-radius: 999px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--mint);
   font-weight: 700;
 }
@@ -260,7 +263,7 @@
 .config-matrix__cell.is-condicionado span,
 .config-matrix__cell.is-pendiente span,
 .config-matrix__cell.is-no_requiere span {
-  color: var(--leaf);
+  color: var(--ink);
   font-size: 0.78rem;
   font-weight: 600;
 }
@@ -284,7 +287,7 @@
 }
 
 .config-rules strong {
-  color: var(--forest);
+  color: var(--ink);
   font-size: 0.86rem;
 }
 
@@ -294,13 +297,79 @@
   line-height: 1.45;
 }
 
+.config-people {
+  display: grid;
+  gap: 22px;
+}
+
 .config-people__bar {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   align-items: end;
   justify-content: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 0;
+}
+
+.config-people__block {
+  display: grid;
+  gap: 14px;
+  padding: 18px 18px 16px;
+  border-radius: 28px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.config-people__block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.config-people__block-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.config-people__search {
+  display: grid;
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+
+.config-people__search input {
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 16px;
+  color: var(--ink);
+  background: var(--field);
+  box-shadow: var(--inset);
+  font: inherit;
+}
+
+.config-people__empty {
+  margin: 0;
+  color: var(--sage);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.config-people__pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.config-people__pager span {
+  color: var(--sage);
+  font-size: 0.86rem;
+  font-weight: 600;
 }
 
 .config-people__create {
@@ -314,7 +383,7 @@
   gap: 8px;
   flex: 1;
   min-width: 220px;
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -334,9 +403,9 @@
 
 .config-people__table {
   overflow-x: auto;
-  border-radius: 28px;
-  background: var(--surface);
-  box-shadow: var(--raised);
+  border-radius: 22px;
+  background: var(--tint);
+  box-shadow: var(--inset);
 }
 
 .config-people__table table {
@@ -353,7 +422,7 @@
 }
 
 .config-people__table thead th {
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -363,11 +432,11 @@
 .config-people__table tbody th,
 .config-people__table tbody td {
   border-top: 1px solid var(--line);
-  color: var(--leaf);
+  color: var(--ink);
 }
 
 .config-people__table tbody th {
-  color: var(--forest);
+  color: var(--ink);
 }
 
 .config-people__table tbody th span {
@@ -382,7 +451,7 @@
 }
 
 .config-people__table .is-on {
-  color: var(--forest);
+  color: var(--leaf);
   font-weight: 700;
 }
 
@@ -395,11 +464,20 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--leaf);
+  color: var(--ink);
   font: inherit;
   font-weight: 700;
   text-decoration: underline;
   cursor: pointer;
+}
+
+.config-people__link.is-danger {
+  color: var(--danger);
+}
+
+.config-people__link:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .config-detail {
@@ -412,7 +490,7 @@
   gap: 8px;
   padding: 18px;
   border-radius: 28px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--raised);
 }
 
@@ -420,7 +498,7 @@
 .config-detail__card h3,
 .config-detail__card h4 {
   margin: 8px 0 0;
-  color: var(--forest);
+  color: var(--ink);
 }
 
 .config-detail__card h4 {
@@ -445,7 +523,7 @@
   border-radius: 18px;
   background: var(--field);
   box-shadow: var(--inset);
-  color: var(--leaf);
+  color: var(--ink);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -463,7 +541,7 @@
   display: grid;
   gap: 8px;
   max-width: 420px;
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -472,7 +550,7 @@
   width: min(560px, 100%);
   padding: 0;
   border-radius: 28px;
-  background: var(--surface);
+  background: var(--tint);
 }
 
 .form-window__card:has(.config-account) .form-window__head {
@@ -506,7 +584,7 @@
   border-radius: 16px;
   padding: 15px 16px;
   color: var(--ink);
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
   font: inherit;
 }
@@ -544,7 +622,7 @@
   border: 0;
   border-radius: 999px;
   padding: 12px 16px;
-  color: var(--forest);
+  color: var(--ink);
   background: var(--foam);
   box-shadow: var(--raised);
   font-weight: 700;
@@ -565,7 +643,7 @@
 }
 
 .config-account__extras p {
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.85rem;
 }
 
@@ -579,8 +657,8 @@
   border: 0;
   border-radius: 16px;
   padding: 10px 12px 10px 16px;
-  color: var(--forest);
-  background: var(--surface);
+  color: var(--ink);
+  background: var(--tint);
   box-shadow: var(--inset);
   font: inherit;
   font-weight: 600;
@@ -597,7 +675,7 @@
   border: 2px solid var(--leaf);
   border-radius: 999px;
   padding: 6px 14px;
-  color: var(--leaf);
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -637,7 +715,7 @@
   margin: 0;
   padding: 0;
   border: 0;
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -653,13 +731,474 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--leaf);
+  color: var(--ink);
   font-weight: 600;
+}
+
+.config-crew {
+  display: grid;
+  gap: 18px;
+}
+
+.config-crew__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+
+.config-crew__search,
+.config-crew__filter {
+  display: grid;
+  gap: 8px;
+  flex: 1 1 180px;
+  min-width: 160px;
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.config-crew__search {
+  flex: 1 1 240px;
+}
+
+.config-crew__search input,
+.config-crew__filter select {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--field);
+  box-shadow: var(--inset);
+  color: var(--ink);
+  font: inherit;
+}
+
+.config-crew__create {
+  width: fit-content;
+  min-height: 44px;
+}
+
+.config-role-hints {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.config-role-hints li {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--tint);
+  box-shadow: var(--raised);
+}
+
+.config-role-hints h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.config-role-hints p {
+  margin: 0;
+  color: var(--sage);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.config-crew__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.config-person {
+  display: grid;
+  min-height: 100%;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.config-person__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px 14px;
+  background: var(--tint);
+}
+
+.config-person__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--field);
+  background: var(--forest);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.config-person__who {
+  flex: 1;
+  min-width: 0;
+}
+
+.config-person__who h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.config-person__who p {
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: var(--sage);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.config-status {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.config-status.is-on {
+  color: var(--field);
+  background: var(--leaf);
+}
+
+.config-status.is-off {
+  color: var(--danger-deep);
+  background: var(--danger-soft);
+}
+
+.config-person__facts {
+  display: grid;
+  gap: 0;
+  margin: 14px 16px 10px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.config-person__facts > div {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px;
+}
+
+.config-person__facts > div + div {
+  border-top: 1px solid var(--line);
+}
+
+.config-person__facts dt {
+  color: var(--sage);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.config-person__facts dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.config-person__roles {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.config-person__roles li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+}
+
+.config-person__roles strong {
+  color: var(--ink);
+}
+
+.config-person__roles span {
+  color: var(--sage);
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.config-person__actions {
+  display: flex;
+  padding: 0 16px 16px;
+}
+
+.config-person__actions .btn-primary {
+  flex: 1;
+}
+
+.config-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 36px 24px;
+  border-radius: 24px;
+  background: var(--tint);
+  box-shadow: var(--inset);
+  text-align: center;
+}
+
+.config-empty h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.1rem;
+}
+
+.config-empty p {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--sage);
+}
+
+.config-ficha {
+  display: grid;
+  gap: 16px;
+}
+
+.config-ficha__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 24px;
+  background: var(--tint);
+  box-shadow: var(--raised);
+}
+
+.config-ficha__identity {
+  flex: 1;
+  min-width: 180px;
+}
+
+.config-ficha__identity h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.config-ficha__identity p {
+  margin: 6px 0 0;
+  color: var(--sage);
+  font-size: 0.88rem;
+}
+
+.config-ficha__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.config-ficha__lock {
+  margin: 0;
+  max-width: 28ch;
+  color: var(--sage);
+  font-size: 0.82rem;
+}
+
+.config-ficha__farm {
+  display: grid;
+  gap: 18px;
+  padding: 0 0 18px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.config-ficha__farm-head {
+  padding: 16px 18px;
+  background: var(--tint);
+}
+
+.config-ficha__farm-head p {
+  margin: 0;
+  color: var(--sage);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.config-ficha__farm-head h3 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-size: 1.2rem;
+}
+
+.config-ficha__block {
+  display: grid;
+  gap: 8px;
+  padding: 0 18px;
+}
+
+.config-ficha__block h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.config-ficha__block > p {
+  margin: 0;
+  color: var(--sage);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.config-ficha__void {
+  color: var(--mist);
+}
+
+.config-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 18px;
+  background: var(--field);
+  box-shadow: var(--inset);
+}
+
+.config-seg button {
+  flex: 1;
+  min-width: 110px;
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 14px;
+  color: var(--ink);
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.config-seg button.is-on {
+  color: var(--field);
+  background: var(--forest);
+  box-shadow: var(--raised);
+}
+
+.config-seg button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.config-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.config-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--field);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.config-chips li.is-extra {
+  background: var(--mint);
+}
+
+.config-chips button {
+  border: 0;
+  background: transparent;
+  color: var(--danger);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.config-ficha__add {
+  display: grid;
+  gap: 8px;
 }
 
 @media (max-width: 900px) {
   .config-assign__layout,
   .config-form__grid {
     grid-template-columns: 1fr;
+  }
+
+  .config-ficha__who {
+    align-items: flex-start;
+  }
+
+  .config-ficha__tools {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .config-tabs {
+    width: 100%;
+  }
+
+  .config-tab {
+    flex: 1 1 auto;
+  }
+
+  .config-assign__people,
+  .config-assign__card,
+  .config-ficha__who {
+    padding: 14px;
+  }
+
+  .config-crew__search {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .config-crew__create {
+    width: 100%;
+  }
+
+  .config-person__actions .btn-primary {
+    width: 100%;
   }
 }

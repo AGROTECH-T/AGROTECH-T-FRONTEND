@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { downloadFarmHistory, listFarmMovements } from "../services/inventoryApi.ts";
 import { displayQuantity, equivalenceText } from "../services/equivalence.ts";
 import type { Movement, MovementKind } from "../types/index.ts";
+import { ListPager } from "./ListPager.tsx";
 
 type Props = {
   farmId: number;
@@ -72,8 +73,6 @@ export function FarmHistory({ farmId, onBack }: Readonly<Props>) {
       setDownloading(false);
     }
   };
-
-  const pages = Math.max(1, Math.ceil(count / 15));
 
   return (
     <section className="inv-detail inv-history">
@@ -169,27 +168,7 @@ export function FarmHistory({ farmId, onBack }: Readonly<Props>) {
         </div>
       ) : null}
 
-      <div className="inv-form__actions">
-        <button
-          type="button"
-          className="btn-secondary"
-          disabled={page <= 1}
-          onClick={() => setPage((current) => current - 1)}
-        >
-          Anterior
-        </button>
-        <span className="inv-equivalence">
-          Página {page} de {pages} · {count} movimiento{count === 1 ? "" : "s"}
-        </span>
-        <button
-          type="button"
-          className="btn-secondary"
-          disabled={page >= pages}
-          onClick={() => setPage((current) => current + 1)}
-        >
-          Siguiente
-        </button>
-      </div>
+      <ListPager page={page} count={count} onPage={setPage} one="movimiento" many="movimientos" />
     </section>
   );
 }

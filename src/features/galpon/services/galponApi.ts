@@ -6,7 +6,7 @@
 
 import { deleteJson, getJson, patchJson, postJson } from "../../../services/api/client.ts";
 import { readToken } from "../../auth/services/session.ts";
-import type { House, Lot, LotEvent } from "../types/index.ts";
+import type { EventPage, House, Lot, LotEvent } from "../types/index.ts";
 
 function root(farmId: number): string {
   return `/api/v1/avicultura/${farmId}`;
@@ -64,8 +64,25 @@ export function reopenLot(farmId: number, lotId: number): Promise<Lot> {
   return postJson<Lot>(`${root(farmId)}/lotes/${lotId}/reabrir/`, {}, readToken());
 }
 
-export function listEvents(farmId: number, lotId: number): Promise<LotEvent[]> {
-  return getJson<LotEvent[]>(`${root(farmId)}/lotes/${lotId}/eventos/`, readToken());
+export const EVENT_PAGE_SIZE = 15;
+
+/**
+ * Una página de bitácora, sin bajar todo el lote.
+ * @param farmId - Finca.
+ * @param lotId - Lote.
+ * @param query - Filtro de tipo y número de página.
+ * @returns Página con totales por tipo.
+ */
+export function listEvents(
+  farmId: number,
+  lotId: number,
+  query: { kind?: string; page?: number } = {},
+): Promise<EventPage> {
+  const params = new URLSearchParams();
+  params.set("page", String(query.page ?? 1));
+  params.set("page_size", String(EVENT_PAGE_SIZE));
+  if (query.kind) params.set("kind", query.kind);
+  return getJson<EventPage>(`${root(farmId)}/lotes/${lotId}/eventos/?${params}`, readToken());
 }
 
 export function createEvent(

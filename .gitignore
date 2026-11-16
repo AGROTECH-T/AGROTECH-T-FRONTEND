@@ -27,6 +27,5 @@ coverage
 *.sln
 *.sw?
 
-# Guía de diseño local (skill agrotech-t; no versionar)
-.cursor/diseno-agrotech-t.md
-.cursor/skills/
+# Archivos técnicos locales del editor (reglas y guías propias)
+.cursor/

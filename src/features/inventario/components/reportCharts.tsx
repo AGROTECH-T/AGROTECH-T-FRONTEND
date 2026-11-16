@@ -81,7 +81,7 @@ export function ComparisonList({ items }: Readonly<{ items: CompareItem[] }>) {
         <li key={item.id} className="chart-compare__row">
           <header className="chart-compare__head">
             <strong>{item.label}</strong>
-            <span className={variationClass(item.variation)}>{variationLabel(item.variation)}</span>
+            <span className={variationClass(item.variation)}>{comparisonLabel(item)}</span>
           </header>
           <div className="chart-compare__series">
             <div className="chart-compare__item is-now">
@@ -195,6 +195,16 @@ function variationLabel(value: number | null): string {
   if (value === null) return "Sin comparación";
   if (value === 0) return "Igual";
   return `${value > 0 ? "+" : ""}${value}%`;
+}
+
+/**
+ * Texto de la variación, distinguiendo el caso sin consumo previo.
+ * @param item - Fila comparada.
+ * @returns Porcentaje o el motivo de no comparar.
+ */
+function comparisonLabel(item: CompareItem): string {
+  if (item.variation === null && item.before <= 0) return "Sin consumo antes";
+  return variationLabel(item.variation);
 }
 
 function variationClass(value: number | null): string {
