@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Formulario de un lote de engorde.
  *
  * Propósito: registrar la llegada de las aves o corregir los datos de un
@@ -163,8 +163,8 @@ export function LotForm({
   }
 
   const pending = Object.values(gaps).filter(Boolean).length;
-  const disponibles = houses.filter(
-    (house) => lot == null || house.id === lot.house_id,
+  const disponibles = houses.filter((house) =>
+    lot != null ? house.id === lot.house_id : house.open_lot_id == null,
   );
 
   return (

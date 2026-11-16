@@ -49,7 +49,7 @@ export function GalponPanel({ onCreateFarm }: Readonly<Props> = {}) {
     (text: string, tone: "ok" | "warn" = "ok") => {
       notices.push([text], tone);
     },
-    [notices],
+    [notices.push],
   );
 
   const farm = farms.find((item) => item.id === farmId) ?? null;

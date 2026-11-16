@@ -22,10 +22,10 @@ export type Notice = {
 export function useNotices() {
   const [items, setItems] = useState<Notice[]>([]);
   const serial = useRef(0);
-  const push = (texts: string[], tone: Notice["tone"]) => {
+  const push = useCallback((texts: string[], tone: Notice["tone"]) => {
     const next = texts.filter(Boolean).map((text) => ({ id: ++serial.current, tone, text }));
     setItems((current) => [...next, ...current].slice(0, 6));
-  };
+  }, []);
   const close = useCallback((id: number) => {
     setItems((current) => current.filter((item) => item.id !== id));
   }, []);

@@ -31,17 +31,6 @@ describe("menú del shell", () => {
     expect(visibleNavItems(["home"]).map((item) => item.id)).toEqual(["home"]);
   });
 
-  it("el inventario del menú no incluye estadísticas ni reportes", () => {
-    const inventario = NAV_ITEMS.find((item) => item.id === "inventario");
-    expect(inventario?.children?.map((child) => child.id)).toEqual([
-      "lista",
-      "inventarios",
-      "crear",
-      "catalogo",
-    ]);
-    expect(inventario?.children?.map((child) => child.label)).toContain("Crear catálogo");
-  });
-
   it("el superadmin y el administrador ven todos los módulos", () => {
     expect(
       visibleNavItems(["home", "fincas", "inventario", "galpon", "configuracion"]).map(

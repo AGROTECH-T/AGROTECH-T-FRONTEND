@@ -68,7 +68,7 @@
 
 .profile-identity__mail {
   margin: 0;
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.9rem;
   word-break: break-word;
 }
@@ -126,7 +126,7 @@
   height: 40px;
   flex-shrink: 0;
   border-radius: 14px;
-  color: var(--leaf);
+  color: var(--ink);
   background: var(--field);
   box-shadow: var(--raised);
 }
@@ -177,7 +177,7 @@
   height: 44px;
   flex-shrink: 0;
   border-radius: 14px;
-  color: var(--moss);
+  color: var(--ink);
   background: var(--field);
   box-shadow: var(--inset);
 }
@@ -216,7 +216,7 @@
 }
 
 .profile-form__locked input[readonly] {
-  color: var(--moss);
+  color: var(--ink);
   cursor: not-allowed;
 }
 

@@ -8,13 +8,15 @@
 
 .farm-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 14px;
   margin-bottom: 22px;
 }
 
 .farm-search {
-  flex: 1;
+  flex: 1 1 180px;
+  min-width: 0;
 }
 
 .farm-search input,
@@ -42,10 +44,12 @@
 
 .farm-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   width: 100%;
+  min-width: 0;
   padding: 16px 18px;
   border: 0;
   border-radius: 22px;
@@ -62,11 +66,13 @@
 }
 
 .farm-row__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-weight: 700;
 }
 
 .farm-row__role {
-  color: var(--moss);
+  color: var(--ink);
   font-size: 0.92rem;
   font-weight: 600;
 }

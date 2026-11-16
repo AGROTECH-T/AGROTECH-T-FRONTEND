@@ -234,7 +234,7 @@ export function CatalogUnits({
 
       {catalog === null ? <p className="cat-empty">Cargando el catálogo…</p> : null}
       {catalog && catalog.units.length === 0 ? (
-        <p className="cat-empty">Todavía no hay unidades. Crea la primera aquí abajo.</p>
+        <p className="cat-empty">Todavía no hay formas de contar. Crea la primera aquí abajo.</p>
       ) : null}
       {catalog && catalog.units.length > 0 && filtered.length === 0 ? (
         <p className="cat-empty">No hay unidades que coincidan.</p>
@@ -246,7 +246,7 @@ export function CatalogUnits({
             {editing === item.id ? (
               <form onSubmit={(event) => void saveEdit(event)}>
                 <label className={gaps.editName ? "is-miss" : ""}>
-                  <span>¿Cómo se llama?</span>
+                  <span>¿Qué unidad es?</span>
                   <input type="text" maxLength={80} value={draft} onChange={(event) => { setDraft(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
                   {gaps.editName ? <span className="field-miss">{gaps.editName}</span> : null}
                 </label>
@@ -314,7 +314,7 @@ export function CatalogUnits({
         <form className="easy-sheet" onSubmit={(event) => void create(event)}>
           <h2>Nueva unidad</h2>
           <label className={gaps.name ? "is-miss" : ""}>
-            <span>¿Cómo lo llamas al sacarlo? Ahí va bulto, caja o caneca. Si sale suelto, va kilo.</span>
+            <span>¿Qué unidad es? Ahí va bulto, caja o caneca. Si sale suelto, va kilo.</span>
             <input
               type="text"
               maxLength={80}

@@ -1,12 +1,14 @@
 /**
  * Hub de reportes del inventario.
  *
- * Propósito: entrar a préstamos y pedido sugerido.
+ * Propósito: entrar a ajustes, préstamos y pedido sugerido.
  * Contexto: las estadísticas de consumo tienen su botón directo.
  * @author Cristian Deysdayr Jimenez
  */
 
-export type ReportView = "prestamos" | "pedido";
+import { BackButton } from "../../../components/ui/BackButton.tsx";
+
+export type ReportView = "ajustes" | "prestamos" | "pedido";
 
 type Props = {
   onOpen: (view: ReportView) => void;
@@ -14,6 +16,12 @@ type Props = {
 };
 
 const REPORTS: { id: ReportView; title: string; lead: string; action: string }[] = [
+  {
+    id: "ajustes",
+    title: "Ajustes",
+    lead: "Reconteos con su motivo: qué se corrigió, cuándo y cuánto cambió el stock.",
+    action: "Ver ajustes",
+  },
   {
     id: "prestamos",
     title: "Préstamos",
@@ -36,9 +44,7 @@ const REPORTS: { id: ReportView; title: string; lead: string; action: string }[]
 export function ReportsHub({ onOpen, onBack }: Readonly<Props>) {
   return (
     <section className="panel" aria-labelledby="reportes-title">
-      <button type="button" className="btn-secondary screen-back" onClick={onBack}>
-        ← Volver al inventario
-      </button>
+      <BackButton onClick={onBack} />
       <header className="panel__header">
         <h1 id="reportes-title" className="panel__title">
           Más reportes
@@ -73,11 +79,18 @@ function HubIcon({ kind }: { kind: ReportView }) {
       </svg>
     );
   }
+  if (kind === "pedido") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+        <path d="M4 5h2l2 10h9l2-7H7" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="10" cy="19" r="1.4" />
+        <circle cx="17" cy="19" r="1.4" />
+      </svg>
+    );
+  }
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-      <path d="M4 5h2l2 10h9l2-7H7" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="10" cy="19" r="1.4" />
-      <circle cx="17" cy="19" r="1.4" />
+      <path d="M4 19h16M7 15V9M12 15V5M17 15v-4" strokeLinecap="round" />
     </svg>
   );
 }

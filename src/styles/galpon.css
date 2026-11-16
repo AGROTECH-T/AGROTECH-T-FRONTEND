@@ -56,21 +56,8 @@ body.is-galpon .inv-modal {
   color: var(--gp-muted);
 }
 
-.galpon .notice-card {
-  color: var(--gp-head);
-  background: var(--gp-white);
-  border-color: var(--gp-line);
-  box-shadow: 0 10px 24px var(--gp-shade);
-}
-
-.galpon .notice-card.ok {
-  color: var(--gp-head);
-  background: var(--gp-white);
-  border-color: var(--gp-action);
-}
-
-.galpon .notice-card.ok .notice-time {
-  color: var(--gp-action-deep);
+body.is-galpon .notices {
+  z-index: 200;
 }
 
 body.is-galpon .form-window__card,
@@ -114,6 +101,12 @@ body.is-galpon .form-window__x {
 
 .galpon__panel > .screen-back {
   margin-bottom: 0;
+  color: #f4f6f5;
+  background: var(--ash);
+}
+
+.galpon__panel > .screen-back:hover:not(:disabled) {
+  background: var(--ash-deep);
 }
 
 .galpon__head {

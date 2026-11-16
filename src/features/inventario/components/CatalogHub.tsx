@@ -138,9 +138,9 @@ export function CatalogHub({
     <section className="panel catalog" aria-labelledby="catalogo-title">
       <BackButton onClick={onBack} />
       <header className="panel__header">
-        <h1 id="catalogo-title" className="panel__title">Crear catálogo</h1>
+        <h1 id="catalogo-title" className="panel__title">Catálogo</h1>
         <p className="panel__lead">
-          Aquí decides la medida, la unidad y la categoría de cada producto.
+          Aquí decides cómo se mide, cómo se cuenta y en qué grupo va cada producto.
         </p>
       </header>
 
