@@ -19,15 +19,16 @@ import type { Account } from "../types/index.ts";
 type Props = {
   notice: string;
   onForgot: () => void;
+  onSignUp: () => void;
   onSuccess: (account: Account) => void;
 };
 
 /**
  * Controla el ingreso y muestra el error del backend.
- * @param props - Aviso previo, olvido de clave y sesión creada.
+ * @param props - Aviso previo, olvido de clave, registro y sesión creada.
  * @returns Formulario de acceso.
  */
-export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
+export function SignInForm({ notice, onForgot, onSignUp, onSuccess }: Readonly<Props>) {
   const [identification, setIdentification] = useState("");
   const [password, setPassword] = useState("");
   const [gaps, setGaps] = useState<Record<string, string>>({});
@@ -92,6 +93,7 @@ export function SignInForm({ notice, onForgot, onSuccess }: Readonly<Props>) {
       <TextField id="login-password" label="Contraseña" icon="lock" type="password" value={password} autoComplete="current-password" message={gaps.password} onChange={edit("password", setPassword)} />
       <button type="button" className="text-link" onClick={onForgot}>Olvidé mi contraseña</button>
       <button type="submit" className="solid" disabled={pending}>{pending ? "Ingresando" : "Entrar a mi finca →"}</button>
+      <button type="button" className="auth-switch" onClick={onSignUp}>+ Crear cuenta</button>
       <NoticeStack items={notices.items} onClose={notices.close} />
     </form>
   );

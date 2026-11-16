@@ -20,15 +20,16 @@ import { PasswordGuide } from "./PasswordGuide.tsx";
 type Gaps = Record<string, string>;
 
 type Props = {
+  onSignIn: () => void;
   onSuccess: (account: Account) => void;
 };
 
 /**
  * Envía el alta y abre la sesión cuando todos los campos están completos.
- * @param props - Sesión creada al terminar el registro.
+ * @param props - Vuelta al ingreso y sesión creada al terminar el registro.
  * @returns Formulario de registro.
  */
-export function SignUpForm({ onSuccess }: Readonly<Props>) {
+export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [identification, setIdentification] = useState("");
@@ -112,7 +113,22 @@ export function SignUpForm({ onSuccess }: Readonly<Props>) {
       </div>
       <TextField id="signup-password" label="Contraseña" icon="lock" type="password" value={password} autoComplete="new-password" message={gaps.password} onChange={edit("password", setPassword)} />
       {password ? <PasswordGuide value={password} /> : null}
-      <button type="submit" className="solid" disabled={pending}>{pending ? "Creando" : "Crear cuenta"}</button>
+      <button type="submit" className="solid" disabled={pending}>
+        {pending ? "Creando" : "+ Crear cuenta"}
+      </button>
+      <button type="button" className="auth-switch" onClick={onSignIn}>
+        <svg className="auth-switch__arrow" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M14.5 5.5 8 12l6.5 6.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Ingresar con mi cuenta
+      </button>
       <NoticeStack items={notices.items} onClose={notices.close} />
     </form>
   );
