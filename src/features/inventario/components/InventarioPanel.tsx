@@ -24,6 +24,7 @@ import { ConsumptionReport } from "./ConsumptionReport.tsx";
 import { FarmHistory } from "./FarmHistory.tsx";
 import { InventarioBrowser } from "./InventarioBrowser.tsx";
 import { InventoryManager } from "./InventoryManager.tsx";
+import { InventoryTemplateWindow } from "./InventoryTemplateWindow.tsx";
 import { LoansReport } from "./LoansReport.tsx";
 import { OrderReport } from "./OrderReport.tsx";
 import { ProductCreateForm } from "./ProductCreateForm.tsx";
@@ -74,6 +75,8 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
   const [seed, setSeed] = useState({ name: "", barcode: "" });
   const [fresh, setFresh] = useState<Product | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [templateOpen, setTemplateOpen] = useState(false);
+  const [refreshMark, setRefreshMark] = useState(0);
   const farm = farms.find((item) => item.id === farmId) ?? null;
   const role: FarmRole = farm?.role ?? "consulta";
   const canWrite = role === "administrador" || role === "operador";
@@ -272,6 +275,14 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
       </button>
       <button
         type="button"
+        className="inv-pill is-template"
+        onClick={() => setTemplateOpen(true)}
+        disabled={farmId == null}
+      >
+        <Mark kind="sheet" /> Cargar inventario
+      </button>
+      <button
+        type="button"
         className="inv-pill is-download"
         onClick={() => void downloadStock()}
         disabled={downloading || farmId == null}
@@ -381,6 +392,7 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
           onMoved={replaceProduct}
           onNotice={tell}
           catalogMark={catalogMark}
+          refreshMark={refreshMark}
         />
       ) : null}
     </section>
@@ -439,11 +451,31 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
         onNotice={tell}
       />
     ) : null}
+    {templateOpen && farmId != null ? (
+      <InventoryTemplateWindow
+        farmId={farmId}
+        canWrite={canWrite}
+        onClose={() => setTemplateOpen(false)}
+        onImported={(report) => {
+          for (const id of report.created_ids) placeProduct(id, inventoryId);
+          setRefreshMark((current) => current + 1);
+        }}
+        onNotice={tell}
+      />
+    ) : null}
     </>
   );
 }
 
-function Mark({ kind }: { kind: "in" | "out" | "log" | "down" | "chart" | "more" }) {
+function Mark({ kind }: { kind: "in" | "out" | "log" | "down" | "chart" | "more" | "sheet" }) {
+  if (kind === "sheet") {
+    return (
+      <svg className="inv-ico" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 5h16v14H4z" fill="none" stroke="currentColor" strokeWidth="2" />
+        <path d="M4 10h16M10 10v9" fill="none" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    );
+  }
   if (kind === "chart") {
     return (
       <svg className="inv-ico" viewBox="0 0 24 24" aria-hidden="true">

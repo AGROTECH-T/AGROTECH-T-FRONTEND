@@ -12,6 +12,7 @@ import { readToken } from "../../auth/services/session.ts";
 import type {
   AdjustmentReport,
   ConsumptionReport,
+  ImportReport,
   InventoryCatalog,
   LoanPage,
   LoanReport,
@@ -398,6 +399,29 @@ export async function downloadInventory(farmId: number, productIds: number[]): P
     `/api/v1/inventory/${farmId}/products/inventory.xlsx${suffix}`,
     `inventario-${farmId}.xlsx`,
   );
+}
+
+/**
+ * Baja la plantilla vacía de siete columnas para crear productos.
+ */
+export async function downloadInventoryTemplate(farmId: number): Promise<void> {
+  await downloadFile(
+    `/api/v1/inventory/${farmId}/products/template.xlsx`,
+    `plantilla-inventario-${farmId}.xlsx`,
+  );
+}
+
+/**
+ * Crea o actualiza los productos con la plantilla cargada.
+ */
+export async function importInventory(farmId: number, file: File): Promise<ImportReport> {
+  const body = new FormData();
+  body.append("file", file);
+  const response = await authed(`/api/v1/inventory/${farmId}/products/import/`, {
+    method: "POST",
+    body,
+  });
+  return response.json() as Promise<ImportReport>;
 }
 
 /**
