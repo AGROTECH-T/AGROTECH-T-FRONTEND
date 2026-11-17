@@ -5,7 +5,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FarmRole } from "../../farms/types/index.ts";
 import { inventoryIdFor } from "../services/farmInventories.ts";
 import { createMovement, getInventoryCatalog, getProduct, listProducts } from "../services/inventoryApi.ts";
@@ -31,11 +31,24 @@ type Props = {
   onFreshUsed: () => void;
   onNotice?: (message: string) => void;
   catalogMark: number;
+  refreshMark?: number;
 };
 
 type Order = "name" | "quantity" | "last_movement";
 type StatusFilter = "all" | "active" | "inactive" | "low";
 type Desk = "entrada" | "salida" | null;
+
+/**
+ * Deja solo los productos del inventario abierto.
+ * @param rows - Productos que devolvió la búsqueda.
+ * @param farmId - Finca activa.
+ * @param inventoryId - Inventario elegido, o vacío para no filtrar.
+ * @returns Filas visibles.
+ */
+function rowsForInventory(rows: Product[], farmId: number, inventoryId: string): Product[] {
+  if (!inventoryId) return rows;
+  return rows.filter((item) => inventoryIdFor(farmId, item.id) === inventoryId);
+}
 
 /**
  * Toolbar, alta y listado de productos.
@@ -56,6 +69,7 @@ export function InventarioBrowser({
   onFreshUsed,
   onNotice,
   catalogMark,
+  refreshMark = 0,
 }: Readonly<Props>) {
   const canWrite = role === "administrador" || role === "operador";
   const [query, setQuery] = useState("");
@@ -75,6 +89,16 @@ export function InventarioBrowser({
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [loan, setLoan] = useState<{ product: Product; mode: "prestar" | "devolver" } | null>(null);
   const [catalog, setCatalog] = useState<InventoryCatalog | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  /**
+   * Deja listo el buscador para el lector USB sin abrir el teclado del teléfono.
+   */
+  useEffect(() => {
+    if (window.matchMedia("(pointer: fine)").matches) {
+      searchRef.current?.focus();
+    }
+  }, []);
 
   useEffect(() => {
     void getInventoryCatalog()
@@ -99,10 +123,7 @@ export function InventarioBrowser({
     })
       .then((data) => {
         if (!alive) return;
-        const rows = inventoryId
-          ? data.results.filter((item) => inventoryIdFor(farmId, item.id) === inventoryId)
-          : data.results;
-        setProducts(rows);
+        setProducts(rowsForInventory(data.results, farmId, inventoryId));
         setCount(data.count);
       })
       .catch((cause) => {
@@ -117,12 +138,34 @@ export function InventarioBrowser({
     return () => {
       alive = false;
     };
-  }, [farmId, inventoryId, page, query, category, status, order, fresh, tick]);
+  }, [farmId, inventoryId, page, query, category, status, order, fresh, tick, refreshMark]);
 
   useEffect(() => {
     if (!fresh) return;
     onFreshUsed();
   }, [fresh, onFreshUsed]);
+
+  /**
+   * Busca el texto escrito o escaneado y abre la ficha si coincide un solo producto.
+   * @param term - Código o nombre que llegó al buscador.
+   */
+  const openByCode = async (term: string) => {
+    const code = term.trim();
+    if (!code) return;
+    try {
+      const data = await listProducts(farmId, {
+        page: 1,
+        q: code,
+        category: category || undefined,
+        status,
+        order,
+      });
+      const rows = rowsForInventory(data.results, farmId, inventoryId);
+      if (rows.length === 1) onSelect(rows[0]);
+    } catch {
+      // El listado muestra el error de la búsqueda.
+    }
+  };
 
   const saveDesk = async () => {
     if (!desk) return;
@@ -185,12 +228,20 @@ export function InventarioBrowser({
           </select>
         </label>
         <label className="inventario-search">
-          <span className="visually-hidden">Buscar insumo</span>
+          <span className="visually-hidden">Buscar insumo por nombre o código</span>
           <input
+            ref={searchRef}
             type="search"
-            placeholder="Buscar producto..."
+            placeholder="Buscar producto o escanear código"
+            title="Escribe el nombre o el código. El lector USB escribe el código y busca con Enter."
+            enterKeyHint="search"
             value={query}
             onChange={(event) => { setQuery(event.target.value); setPage(1); }}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter") return;
+              event.preventDefault();
+              void openByCode(event.currentTarget.value);
+            }}
           />
         </label>
       </div>

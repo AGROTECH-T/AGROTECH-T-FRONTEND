@@ -34,6 +34,159 @@
   font-weight: 600;
 }
 
+/* Etiquetas del código de barras, dentro del ajuste. */
+.adj__labels-toggle {
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.adj__labels-icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.adj__labels {
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+  padding: 14px;
+  border-radius: 20px;
+  background: var(--field);
+  box-shadow: var(--inset);
+}
+
+.adj__labels .inv-form__field input {
+  min-height: 42px;
+}
+
+.adj__labels .btn-primary {
+  width: 100%;
+}
+
+.adj__labels-hint,
+.adj__labels-note {
+  margin: 0;
+  color: var(--sage);
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* Plantilla e importación del inventario. */
+.inv-template {
+  display: grid;
+  gap: 20px;
+  padding: 10px 24px 6px;
+}
+
+.inv-template__block {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(20, 43, 27, 0.12);
+}
+
+.inv-template__block:last-of-type {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.inv-template__title {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.inv-template__lead,
+.inv-template__note {
+  margin: 0;
+  color: var(--sage);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.inv-template__columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inv-template__columns li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--field);
+  box-shadow: var(--inset);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.inv-template__wide {
+  width: 100%;
+}
+
+.inv-template__import {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.inv-template__import input {
+  flex: 1 1 180px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--ink);
+  background: var(--field);
+  box-shadow: var(--inset);
+  font: inherit;
+  text-overflow: ellipsis;
+}
+
+.inv-template__import .btn-primary {
+  flex: none;
+}
+
+.inv-template__report {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--field);
+  box-shadow: var(--inset);
+}
+
+.inv-template__report p {
+  margin: 0;
+}
+
+.inv-template__errors {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 520px) {
+  .inv-template__import {
+    flex-direction: column;
+  }
+
+  .inv-template__import .btn-primary {
+    width: 100%;
+  }
+}
+
 .inv-form__gap,
 .inv-form__error,
 .field-miss {

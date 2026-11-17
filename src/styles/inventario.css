@@ -373,6 +373,8 @@
 .inv-pill.is-chart:hover { background: #0b5346; }
 .inv-pill.is-more { background: var(--action); }
 .inv-pill.is-more:hover { background: var(--ink); }
+.inv-pill.is-template { background: var(--sage); }
+.inv-pill.is-template:hover { background: var(--ink); }
 .inv-pill.is-download { background: var(--moss); }
 .inv-pill.is-download:hover { background: var(--forest); }
 .inv-pill:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -1542,6 +1544,108 @@ button.easy-chip {
   gap: 10px;
   width: 100%;
 }
+
+/* Resumen de existencias en estadísticas. */
+.stock-summary {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.stock-summary__head h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.stock-summary__head p {
+  margin: 4px 0 0;
+  color: var(--sage);
+  font-size: 0.9rem;
+}
+
+.stock-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stock-summary__card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px 20px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--field);
+  box-shadow: var(--raised);
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+
+.stock-summary__card.is-button {
+  cursor: pointer;
+}
+
+.stock-summary__card.is-button:hover {
+  filter: brightness(0.99);
+}
+
+.stock-summary__card strong {
+  display: block;
+  color: var(--ink);
+  font-size: 1.85rem;
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.stock-summary__card span:not(.stock-summary__icon) {
+  display: block;
+  margin-top: 4px;
+  color: var(--sage);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stock-summary__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.stock-summary__icon.is-box,
+.stock-summary__icon.is-ok {
+  color: #1f7a45;
+  background: rgba(61, 154, 98, 0.16);
+}
+
+.stock-summary__icon.is-warn {
+  color: #c2781a;
+  background: rgba(232, 164, 74, 0.22);
+}
+
+.stock-summary__icon.is-out {
+  color: #c24b4b;
+  background: rgba(224, 122, 122, 0.2);
+}
+
+.stock-categories {
+  margin-top: 14px;
+}
+
+@media (max-width: 720px) {
+  .stock-summary__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 
 .rp__stat {
   display: grid;

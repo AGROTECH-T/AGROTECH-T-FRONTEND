@@ -279,3 +279,20 @@ export type OrderReport = {
   low: number;
   to_order: number;
 };
+
+export type ImportRowError = {
+  row: number;
+  message: string;
+};
+
+export type ImportReport = {
+  file: string;
+  total: number;
+  created: number;
+  updated: number;
+  unchanged: number;
+  categories: number;
+  units: number;
+  created_ids: number[];
+  errors: ImportRowError[];
+};
