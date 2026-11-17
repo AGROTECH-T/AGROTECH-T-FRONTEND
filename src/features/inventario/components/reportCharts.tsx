@@ -293,9 +293,12 @@ export function FlowLines({
  * @param props - Partes con color.
  * @returns Dona pequeña y leyenda.
  */
-export function CategoryPie({ slices }: Readonly<{ slices: Slice[] }>) {
+export function CategoryPie({
+  slices,
+  emptyText = "No hay categorías para mostrar.",
+}: Readonly<{ slices: Slice[]; emptyText?: string }>) {
   const total = slices.reduce((sum, slice) => sum + slice.value, 0);
-  if (total === 0) return <p className="chart-empty">No hay salidas para agrupar.</p>;
+  if (total === 0) return <p className="chart-empty">{emptyText}</p>;
   return (
     <div className="stats-pie">
       <div className="stats-pie__ring" style={{ background: conic(slices, total) }} />
