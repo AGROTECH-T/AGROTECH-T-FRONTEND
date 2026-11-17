@@ -8,6 +8,7 @@ import { useState, type FormEvent } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { displayQuantity } from "../services/equivalence.ts";
 import { ADJUSTMENT_REASONS } from "../services/adjustmentReasons.ts";
+import { downloadBarcodeSheet, MAX_LABELS } from "../services/barcodeSheet.ts";
 import { createMovement, getProduct } from "../services/inventoryApi.ts";
 import type { AdjustmentReason, Product } from "../types/index.ts";
 import { useProductPhoto } from "./productPhoto.ts";
@@ -37,9 +38,35 @@ export function ProductAdjustWindow({
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const [openPhoto, setOpenPhoto] = useState(false);
+  const [openLabels, setOpenLabels] = useState(false);
+  const stockLabels = Math.min(Math.max(Math.floor(Number(product.quantity) || 1), 1), MAX_LABELS);
+  const [labels, setLabels] = useState(String(stockLabels));
+  const [sheetNote, setSheetNote] = useState("");
+  const [printing, setPrinting] = useState(false);
   const photo = useProductPhoto(farmId, product);
   const delta = Number(counted) - Number(product.quantity);
   const unit = product.unit_nature === "continua" ? product.base_symbol : product.unit_label;
+
+  /**
+   * Descarga las etiquetas con la cantidad escrita.
+   */
+  const downloadLabels = async () => {
+    const total = Number(labels);
+    if (!Number.isInteger(total) || total < 1 || total > MAX_LABELS) {
+      setSheetNote(`Escribe una cantidad entre 1 y ${MAX_LABELS}.`);
+      return;
+    }
+    setPrinting(true);
+    setSheetNote("");
+    try {
+      await downloadBarcodeSheet(product, total);
+      onNotice?.("códigos descargados");
+    } catch (cause) {
+      setSheetNote(cause instanceof Error ? cause.message : "No se pudo generar el PDF");
+    } finally {
+      setPrinting(false);
+    }
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -78,6 +105,48 @@ export function ProductAdjustWindow({
           )}
           <strong>{product.name}</strong>
           <span>{unitCaption(product)}</span>
+          {product.barcode ? (
+            <button
+              type="button"
+              className="btn-secondary adj__labels-toggle"
+              aria-expanded={openLabels}
+              onClick={() => setOpenLabels((open) => !open)}
+            >
+              <BarcodeIcon />
+              Códigos de barras
+            </button>
+          ) : (
+            <p className="adj__labels-note">Sin código de barras</p>
+          )}
+          {product.barcode && openLabels ? (
+            <div className="adj__labels">
+              <label className="inv-form__field adj__labels-field">
+                <span>Etiquetas a imprimir</span>
+                <input
+                  value={labels}
+                  inputMode="numeric"
+                  aria-label="Cantidad de etiquetas"
+                  onChange={(event) => {
+                    setLabels(event.target.value);
+                    setSheetNote("");
+                  }}
+                  disabled={pending || printing}
+                />
+              </label>
+              <small className="adj__labels-hint">
+                Viene con el stock actual; puedes subir o bajar la cantidad.
+              </small>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => void downloadLabels()}
+                disabled={pending || printing}
+              >
+                {printing ? "Generando PDF..." : "Descargar códigos"}
+              </button>
+              {sheetNote ? <p className="inv-form__error" role="alert">{sheetNote}</p> : null}
+            </div>
+          ) : null}
         </div>
         <div className="adj__main">
           <div className="adj__stocks">
@@ -155,6 +224,32 @@ function deltaText(delta: number, product: Product): string {
   if (delta > 0) return `+${text}`;
   if (delta < 0) return `−${text}`;
   return text;
+}
+
+/**
+ * Ícono de etiquetas: barras dentro de las esquinas del lector.
+ * @returns Marca del botón.
+ */
+function BarcodeIcon() {
+  return (
+    <svg className="adj__labels-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3 8V5h3M18 5h3v3M21 16v3h-3M6 19H3v-3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8 9v6M10.3 9v6M12.6 9v6M14.9 9v6M17.2 9v6"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
 
 /**
