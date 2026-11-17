@@ -38,4 +38,12 @@ describe("menú del shell", () => {
       ),
     ).toEqual(["home", "fincas", "inventario", "galpon", "configuracion"]);
   });
+
+  it("Inventario no lista Estadísticas ni Reportes en el desplegable", () => {
+    const inventario = NAV_ITEMS.find((item) => item.id === "inventario");
+    const labels = (inventario?.children ?? []).map((child) => child.label);
+    expect(labels).toEqual(["Ver inventario", "Inventarios", "Crear producto", "Crear catálogo"]);
+    expect(labels).not.toContain("Estadísticas");
+    expect(labels).not.toContain("Reportes");
+  });
 });

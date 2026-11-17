@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listFarms } from "../services/farmsApi.ts";
 import type { Farm } from "../types/index.ts";
 import { FarmCreateForm } from "./FarmCreateForm.tsx";
@@ -15,6 +15,7 @@ import { FarmList } from "./FarmList.tsx";
 
 type Props = {
   view: "lista" | "crear";
+  tick?: number;
   onView: (view: "lista" | "crear") => void;
   onLeaveCreate: () => void;
 };
@@ -23,12 +24,13 @@ type Props = {
  * Orquesta listado, alta y detalle.
  * @returns Panel de Fincas.
  */
-export function FarmsScreen({ view, onView, onLeaveCreate }: Readonly<Props>) {
+export function FarmsScreen({ view, tick = 0, onView, onLeaveCreate }: Readonly<Props>) {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Farm | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const keepSelection = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -45,6 +47,14 @@ export function FarmsScreen({ view, onView, onLeaveCreate }: Readonly<Props>) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (keepSelection.current) {
+      keepSelection.current = false;
+      return;
+    }
+    setSelected(null);
+  }, [view, tick]);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -141,6 +151,7 @@ export function FarmsScreen({ view, onView, onLeaveCreate }: Readonly<Props>) {
           onCancel={onLeaveCreate}
           onCreated={(farm) => {
             setFarms((current) => [...current, farm].sort((a, b) => a.id - b.id));
+            keepSelection.current = true;
             onView("lista");
             setSelected(farm);
           }}

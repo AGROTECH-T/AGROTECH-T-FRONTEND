@@ -4,21 +4,17 @@
  * Propósito: no dejar a la persona atrapada dentro de una finca, un
  * producto o un galpón en pantallas angostas.
  * Contexto: debajo del buscador, a partir de 1080px.
+ * Estadísticas y Reportes van solo en las pills de inventario.
  * @author Cristian Deysdayr Jimenez
  */
 
-import { NAV_ITEMS, type AppSection, type NavChild } from "./navTypes.ts";
+import { NAV_ITEMS, type AppSection } from "./navTypes.ts";
 
 type Props = {
   section: AppSection;
   view: string;
   onNavigate: (section: AppSection, view?: string) => void;
 };
-
-const INVENTARIO_EXTRA: readonly NavChild[] = [
-  { id: "consumo", label: "Estadísticas" },
-  { id: "reportes", label: "Reportes" },
-];
 
 /**
  * Barra horizontal con las vistas de la sección activa.
@@ -27,8 +23,7 @@ const INVENTARIO_EXTRA: readonly NavChild[] = [
  */
 export function SectionBar({ section, view, onNavigate }: Readonly<Props>) {
   const item = NAV_ITEMS.find((entry) => entry.id === section);
-  const links = [...(item?.children ?? [])];
-  if (section === "inventario") links.push(...INVENTARIO_EXTRA);
+  const links = item?.children ?? [];
   if (links.length === 0) return null;
 
   return (
