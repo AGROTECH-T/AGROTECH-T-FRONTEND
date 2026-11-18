@@ -100,13 +100,6 @@ export function AsignacionRoles() {
     }
   }
 
-  async function refrescarAsignacion() {
-    const personas = await fetchAsignacion();
-    setPuedo(personas.puedo_asignar);
-    setUsuarios(personas.usuarios);
-    setFincas(personas.fincas ?? []);
-  }
-
   async function guardar(accion: () => Promise<UsuarioAsignado>, avisoError: string, avisoOk: string) {
     setGuardando(true);
     setError("");
@@ -114,9 +107,6 @@ export function AsignacionRoles() {
       const actualizada = await accion();
       setPersona(actualizada);
       setUsuarios((lista) => lista.map((item) => (item.id === actualizada.id ? { ...item, ...actualizada } : item)));
-      if (actualizada.es_yo) {
-        await refrescarAsignacion();
-      }
       notices.push([avisoOk], "ok");
     } catch (cause) {
       const text = cause instanceof Error ? cause.message : avisoError;
