@@ -55,10 +55,7 @@ export function DetallePermisos({
             {persona.activo ? "Activo" : "Inactivo"}
           </span>
           {persona.es_yo ? (
-            <p className="config-ficha__lock">
-              Puedes cambiar tu rol. No puedes inactivar tu cuenta ni editar tus
-              permisos extra.
-            </p>
+            <p className="config-ficha__lock">No puedes modificar tus propios roles ni permisos.</p>
           ) : (
             <button
               type="button"
@@ -88,19 +85,14 @@ export function DetallePermisos({
 
               <section className="config-ficha__block">
                 <h4>Rol</h4>
-                <p>
-                  Un rol por finca. Si eliges otro, reemplaza el actual
-                  {persona.es_yo
-                    ? ". Debe quedar al menos un administrador activo."
-                    : "."}
-                </p>
+                <p>Un rol por finca. Si eliges otro, reemplaza el actual.</p>
                 <div className="config-seg" role="group" aria-label={`Rol en ${membresia.farm_name}`}>
                   {ROLES_ORDEN.map((role) => (
                     <button
                       key={role}
                       type="button"
                       className={membresia.role === role ? "is-on" : undefined}
-                      disabled={guardando}
+                      disabled={persona.es_yo || guardando}
                       onClick={() => onRol(membresia.farm_id, role)}
                     >
                       {ROL_NOMBRE[role]}
