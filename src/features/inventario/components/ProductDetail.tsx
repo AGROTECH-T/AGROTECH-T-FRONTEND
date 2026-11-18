@@ -31,6 +31,8 @@ type Props = {
   farmId: number;
   product: Product;
   role: FarmRole;
+  /** Escritura según capabilities (movimientos). */
+  canWrite?: boolean;
   intent?: "ver" | "actualizar" | "ajuste";
   onBack: () => void;
   onChanged: (product: Product) => void;
@@ -46,6 +48,7 @@ export function ProductDetail({
   farmId,
   product,
   role,
+  canWrite = false,
   intent = "ver",
   onBack,
   onChanged,
@@ -136,6 +139,7 @@ export function ProductDetail({
             farmId={farmId}
             product={current}
             role={role}
+            canWrite={canWrite || isAdmin}
             lockedKind="ajuste"
             onDone={(fresh) => {
               setCurrent(fresh);

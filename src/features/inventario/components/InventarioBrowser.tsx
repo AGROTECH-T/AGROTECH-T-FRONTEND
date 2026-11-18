@@ -21,6 +21,8 @@ type Props = {
   farmId: number;
   inventoryId: string;
   role: FarmRole;
+  /** Escritura según capabilities del backend (no solo el rol). */
+  canWrite: boolean;
   onSelect: (product: Product) => void;
   onEdit: (product: Product) => void;
   onMove: (product: Product, kind: MovementKind) => void;
@@ -59,6 +61,7 @@ export function InventarioBrowser({
   farmId,
   inventoryId,
   role,
+  canWrite,
   onSelect,
   onEdit,
   onMove,
@@ -71,7 +74,6 @@ export function InventarioBrowser({
   catalogMark,
   refreshMark = 0,
 }: Readonly<Props>) {
-  const canWrite = role === "administrador" || role === "operador";
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -309,6 +311,7 @@ export function InventarioBrowser({
         <ProductList
           products={products}
           role={role}
+          canWrite={canWrite}
           order={order}
           onSort={(next) => { setOrder(next); setPage(1); }}
           onView={onSelect}

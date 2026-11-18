@@ -21,6 +21,8 @@ type Props = {
   farmId: number;
   product: Product;
   role: FarmRole;
+  /** Escritura según capabilities del backend. */
+  canWrite: boolean;
   lockedKind?: MovementKind;
   initialKind?: MovementKind;
   onDone: (product: Product) => void;
@@ -28,18 +30,18 @@ type Props = {
 
 /**
  * Formulario de un movimiento sobre el insumo abierto.
- * @param props - Producto, rol y aviso al terminar.
- * @returns Formulario o aviso si el rol no puede mover stock.
+ * @param props - Producto, permisos y aviso al terminar.
+ * @returns Formulario o aviso si no puede mover stock.
  */
 export function MovementForm({
   farmId,
   product,
   role,
+  canWrite,
   lockedKind,
   initialKind,
   onDone,
 }: Readonly<Props>) {
-  const canWrite = role === "administrador" || role === "operador";
   const canAdjust = role === "administrador" && !lockedKind;
   const whole = isWholeUnit(product.unit_nature);
   const [kind, setKind] = useState<MovementKind>(lockedKind ?? initialKind ?? "entrada");

@@ -50,3 +50,12 @@ export function canWriteInventory(
   if (farm.capabilities) return farm.capabilities.can_write_inventory;
   return farm.is_active && WRITE_ROLES.has(farm.role);
 }
+
+/** @returns true si la cuenta puede leer el inventario de la finca. */
+export function canReadInventory(
+  farm: Pick<Farm, "role" | "is_active" | "capabilities"> | null | undefined,
+): boolean {
+  if (!farm) return false;
+  if (farm.capabilities) return farm.capabilities.can_read_inventory;
+  return farm.is_active;
+}
