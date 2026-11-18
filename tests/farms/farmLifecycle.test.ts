@@ -300,12 +300,12 @@ function renderDetail(f: Farm, initialTab?: FarmTabId) {
 }
 
 describe("FarmDetail: finca activa e inactiva", () => {
-  it("administrador en finca inactiva: aviso, Reactivar y sin acciones no permitidas", () => {
+  it("administrador en finca inactiva: aviso y solo Reactivar", () => {
     expect(renderDetail(farm("administrador", false))).toContain("Finca desactivada");
     const html = renderDetail(farm("administrador", false), "configuracion");
     expect(html).toContain("Reactivar finca");
-    expect(html).not.toContain("Editar nombre");
     expect(html).not.toContain("Desactivar finca");
+    expect(html).not.toContain("Editar nombre");
     expect(html).not.toContain("Abandonar finca");
   });
 

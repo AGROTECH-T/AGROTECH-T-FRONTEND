@@ -66,7 +66,7 @@ const DIALOG: Record<
     title: (name) => `¿Desactivar la finca "${name}"?`,
     body:
       "Dejará de estar operativa, pero no se eliminará. Se conservarán sus datos " +
-      "históricos, membresías e inventario. Podrás reactivarla desde este detalle.",
+      "históricos, membresías e inventario. Podrás reactivarla desde Configuración → Reactivar fincas.",
     confirm: "Desactivar finca",
     pending: "Desactivando...",
   },
@@ -315,7 +315,8 @@ export function FarmDetail({
           </span>
           <h3 className="farm-form__title">Desactivar finca</h3>
           <p className="farm-empty__hint">
-            Dejará de estar operativa, pero se conservan sus datos. Podrás reactivarla.
+            Dejará de estar operativa, pero se conservan sus datos. Luego podrás
+            reactivarla aquí o en Configuración → Reactivar fincas.
           </p>
           <div className="farm-form__actions">
             <button
