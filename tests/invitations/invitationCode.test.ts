@@ -37,7 +37,7 @@ import {
   CODE_RATE_LIMIT_MESSAGE,
   CODE_SERVER_MESSAGE,
   CODE_SESSION_MESSAGE,
-  CODE_UNVERIFIED_MESSAGE,
+  CODE_INACTIVE_MESSAGE,
   codeErrorFrom,
   createCodeRunner,
   joinedMessage,
@@ -118,7 +118,7 @@ describe("estados de error", () => {
   const cases: [number, string, string][] = [
     [400, "invalid_request", CODE_INVALID_REQUEST_MESSAGE],
     [401, "session_expired", CODE_SESSION_MESSAGE],
-    [403, "unverified", CODE_UNVERIFIED_MESSAGE],
+    [403, "inactive", CODE_INACTIVE_MESSAGE],
     [404, "not_found", CODE_NOT_FOUND_MESSAGE],
     [409, "already_member", ALREADY_MEMBER_MESSAGE],
     [500, "server", CODE_SERVER_MESSAGE],
