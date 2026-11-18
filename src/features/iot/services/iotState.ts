@@ -1,7 +1,13 @@
 import type { IotDecimal, IotReading, IotResource, IotSensor } from "./iotApi.ts";
 import { farmIsAccessible, pageParams, readingDateParams } from "./iotApi.ts";
 
-export type IotView = "Resumen" | "Gateways" | "Coordinators" | "Sensores" | "Historial";
+export type IotView =
+  | "Resumen"
+  | "Gateways"
+  | "Coordinators"
+  | "Sensores"
+  | "Historial"
+  | "Configurar";
 
 /** Rows requested on the summary to derive the latest reading per sensor. */
 export const SUMMARY_READING_SAMPLE = 100;
@@ -112,7 +118,7 @@ export function iotRequestPlan(
   filters: HistoryFilters,
   now = new Date(),
 ): IotRequest[] {
-  if (view === "Sensores") return [];
+  if (view === "Sensores" || view === "Configurar") return [];
   if (view === "Resumen") {
     const readings = pageParams(1, SUMMARY_READING_SAMPLE);
     readings.set("ordering", "-measured_at");
