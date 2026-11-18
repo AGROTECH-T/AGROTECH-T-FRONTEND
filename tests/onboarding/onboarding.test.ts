@@ -31,7 +31,6 @@ import {
   NETWORK_MESSAGE,
   runFarmCreation,
   SESSION_MESSAGE,
-  UNVERIFIED_MESSAGE,
 } from "../../src/features/farms/services/farmCreation.ts";
 import type { Farm } from "../../src/features/farms/types/index.ts";
 import { emptyInventoryState } from "../../src/features/inventario/services/inventoryAccess.ts";
@@ -50,7 +49,6 @@ import {
   ONBOARDING_OPTIONS,
   type OnboardingStep,
   showsFooter,
-  UNVERIFIED_BLOCKED_MESSAGE,
   VERIFIED_BADGE,
   WELCOME_QUESTION,
   WELCOME_TITLE,
@@ -176,12 +174,12 @@ describe("bienvenida", () => {
     expect(html).not.toContain("Crear finca</button>");
   });
 
-  it("solo crea si el backend lo confirma y el correo está verificado", () => {
+  it("solo crea si el backend confirma capacidad de plataforma", () => {
     expect(canCreateFarm(NEWCOMER)).toBe(true);
     expect(canCreateFarm(BLOCKED)).toBe(false);
     expect(canCreateFarm({ ...BLOCKED, can_create_farms: undefined, can_create_first_farm: undefined })).toBe(false);
-    expect(canCreateFarm({ ...NEWCOMER, email_verified: false })).toBe(false);
-    expect(createBlockedReason({ ...NEWCOMER, email_verified: false })).toBe(UNVERIFIED_BLOCKED_MESSAGE);
+    expect(canCreateFarm({ ...NEWCOMER, email_verified: false, can_create_farms: true })).toBe(true);
+    expect(createBlockedReason(BLOCKED)).toBe(CREATE_BLOCKED_MESSAGE);
     expect(createBlockedReason(NEWCOMER)).toBe("");
   });
 
@@ -248,7 +246,6 @@ describe("crear la primera finca", () => {
   });
 
   it.each([
-    ["403 sin verificar", new ApiError(403, "verifica tu correo para crear fincas"), UNVERIFIED_MESSAGE],
     ["403 sin permiso", new ApiError(403, "tu cuenta no tiene permiso para crear fincas"), FORBIDDEN_MESSAGE],
     ["401", new ApiError(401, "la sesion vencio"), SESSION_MESSAGE],
     ["red", new TypeError("Failed to fetch"), NETWORK_MESSAGE],

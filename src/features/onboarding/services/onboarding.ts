@@ -29,10 +29,8 @@ export const GUEST_EMPTY_MESSAGE = CODE_EMPTY_MESSAGE;
 export const GUEST_LINK_HINT =
   "Si tu invitación llegó con un enlace, ábrelo desde el correo con esta misma cuenta.";
 export const CREATE_BLOCKED_MESSAGE =
-  "Tu cuenta no puede crear fincas en este momento: la creación de la primera finca ya " +
-  "se usó o se retiró el permiso de crear fincas. Si alguien te invitó a una finca, " +
-  "entra como invitado.";
-export const UNVERIFIED_BLOCKED_MESSAGE = "Verifica tu correo para crear fincas.";
+  "Tu cuenta no puede crear fincas. Solo quien el superadmin nombra administrador " +
+  "de plataforma puede crearlas. Si te invitaron a una finca, entra como invitado.";
 /** Insignia del panel de bienvenida: solo se muestra con email_verified=true. */
 export const VERIFIED_BADGE = "Correo verificado";
 export const ACCOUNT_LABEL = "Cuenta con la que entraste";
@@ -80,18 +78,17 @@ export const GUEST_CODE_MAX_LENGTH = CODE_MAX_LENGTH;
 /** Espera antes de abrir la finca recién creada, para leer la confirmación. */
 export const FARM_REDIRECT_DELAY_MS = 1500;
 
-type CreationFlags = Pick<Account, "can_create_farms" | "can_create_first_farm" | "email_verified">;
+type CreationFlags = Pick<Account, "can_create_farms" | "can_create_first_farm">;
 
 /** @returns true si el backend confirma que la cuenta puede crear una finca ahora. */
 export function canCreateFarm(account: CreationFlags): boolean {
-  if (!account.email_verified) return false;
   return account.can_create_farms === true || account.can_create_first_farm === true;
 }
 
 /** @returns Motivo por el que no se muestra el formulario, o "" si se puede crear. */
 export function createBlockedReason(account: CreationFlags): string {
   if (canCreateFarm(account)) return "";
-  return account.email_verified ? CREATE_BLOCKED_MESSAGE : UNVERIFIED_BLOCKED_MESSAGE;
+  return CREATE_BLOCKED_MESSAGE;
 }
 
 /** Quita espacios y unifica mayúsculas (la misma regla que el formulario de códigos). */

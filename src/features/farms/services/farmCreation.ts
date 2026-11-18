@@ -4,8 +4,8 @@
  * Propósito: validar el nombre y traducir la respuesta de POST /api/v1/farms/
  * a un resultado visible, compartido por Fincas y el onboarding.
  * Contexto: el modelo Farm solo admite `name` (máx. 100). El backend exige
- * cuenta activa y correo verificado, y la capacidad `can_create_farms` o la
- * excepción de primera finca (F10.2); responde 403 si no se cumple.
+ * cuenta activa y capacidad de plataforma (superadmin o administrador
+ * nombrado por el superadmin). Ya no exige correo verificado.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -13,8 +13,6 @@ import { isApiError } from "../../../services/api/client.ts";
 import type { Farm } from "../types/index.ts";
 
 export const NAME_MAX_LENGTH = 100;
-export const EMAIL_UNVERIFIED_SERVER = "verifica tu correo para crear fincas";
-export const UNVERIFIED_MESSAGE = "Verifica tu correo para crear fincas.";
 export const FORBIDDEN_MESSAGE = "Tu cuenta no tiene permiso para crear fincas.";
 export const SESSION_MESSAGE = "Tu sesión terminó. Vuelve a iniciar sesión.";
 export const NETWORK_MESSAGE =
@@ -42,9 +40,7 @@ export type FarmCreationResult =
 export function farmCreationError(cause: unknown): string {
   if (!isApiError(cause)) return NETWORK_MESSAGE;
   if (cause.status === 401) return SESSION_MESSAGE;
-  if (cause.status === 403) {
-    return cause.serverMessage === EMAIL_UNVERIFIED_SERVER ? UNVERIFIED_MESSAGE : FORBIDDEN_MESSAGE;
-  }
+  if (cause.status === 403) return FORBIDDEN_MESSAGE;
   return cause.message || FALLBACK_MESSAGE;
 }
 
