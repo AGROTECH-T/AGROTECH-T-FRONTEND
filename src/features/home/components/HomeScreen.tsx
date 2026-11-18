@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppShell, type AppSection } from "../../../components/layout/index.ts";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import type { Account } from "../../auth/types/index.ts";
@@ -16,6 +16,12 @@ import { GalponPanel } from "../../galpon/components/GalponPanel.tsx";
 import { InventarioPanel, type StockView } from "../../inventario/index.ts";
 import { IotScreen } from "../../iot/index.ts";
 import { ProfileScreen } from "../../profile/index.ts";
+import {
+  pushAppHistory,
+  replaceAppHistory,
+  subscribeAppHistory,
+  type AppHistoryState,
+} from "../services/appHistory.ts";
 import { HomeHub } from "./HomeHub.tsx";
 
 function asStockView(view?: string): StockView {
@@ -72,7 +78,11 @@ function renderSection(
   galponTick: number,
   onCreateFarm: () => void,
   onLeaveCreate: () => void,
+  onOpenInventory: (farmId: number, inventoryId?: string) => void,
+  onOpenGalpon: (farmId: number, houseId?: number) => void,
   focusFarmId?: number,
+  inventoryFocus?: { farmId: number; inventoryId?: string } | null,
+  galponFocus?: { farmId: number; houseId?: number } | null,
 ) {
   if (section === "fincas") {
     return (
@@ -83,6 +93,8 @@ function renderSection(
         tick={farmTick}
         onView={onFarmView}
         onLeaveCreate={onLeaveCreate}
+        onOpenInventory={onOpenInventory}
+        onOpenGalpon={onOpenGalpon}
       />
     );
   }
@@ -93,11 +105,20 @@ function renderSection(
         tick={stockTick}
         onView={onStockView}
         onCreateFarm={onCreateFarm}
+        initialFarmId={inventoryFocus?.farmId}
+        initialInventoryId={inventoryFocus?.inventoryId}
       />
     );
   }
   if (section === "galpon") {
-    return <GalponPanel tick={galponTick} onCreateFarm={onCreateFarm} />;
+    return (
+      <GalponPanel
+        tick={galponTick}
+        onCreateFarm={onCreateFarm}
+        initialFarmId={galponFocus?.farmId}
+        initialHouseId={galponFocus?.houseId}
+      />
+    );
   }
   if (section === "iot") return <IotScreen />;
   if (section === "configuracion") return <ConfiguracionScreen account={account} />;
@@ -127,12 +148,43 @@ export function HomeScreen({
   const [stockTick, setStockTick] = useState(0);
   const [galponTick, setGalponTick] = useState(0);
   const [backToInventory, setBackToInventory] = useState(false);
+  const [inventoryFocus, setInventoryFocus] = useState<{
+    farmId: number;
+    inventoryId?: string;
+  } | null>(null);
+  const [galponFocus, setGalponFocus] = useState<{
+    farmId: number;
+    houseId?: number;
+  } | null>(null);
   const notices = useNotices();
+  const skippingHistory = useRef(false);
+  const placeRef = useRef<AppHistoryState>({
+    agrotechApp: true,
+    section: initialSection ?? "home",
+  });
+  const modulesRef = useRef(account.modulos);
+  modulesRef.current = account.modulos;
 
-  const go = (next: AppSection, view?: string) => {
-    if (next !== "perfil" && !account.modulos.includes(next)) return;
+  const activeView = (next: AppSection, view?: string) => {
+    if (next === "fincas") return view === "crear" ? "crear" : "lista";
+    if (next === "inventario") return asStockView(view);
+    if (next === "galpon") return "galpones";
+    return view;
+  };
+
+  const remember = (next: AppSection, view?: string) => {
+    placeRef.current = view
+      ? { agrotechApp: true, section: next, view }
+      : { agrotechApp: true, section: next };
+  };
+
+  const applySection = (next: AppSection, view?: string) => {
+    if (next !== "perfil" && !modulesRef.current.includes(next)) return;
     setFocusFarmId(undefined);
+    if (next !== "inventario") setInventoryFocus(null);
+    if (next !== "galpon") setGalponFocus(null);
     setSection(next);
+    remember(next, activeView(next, view));
     if (next === "fincas") {
       setFarmView(view === "crear" ? "crear" : "lista");
       setFarmTick((current) => current + 1);
@@ -145,6 +197,67 @@ export function HomeScreen({
       setGalponTick((current) => current + 1);
     }
   };
+
+  const go = (next: AppSection, view?: string) => {
+    if (next !== "perfil" && !account.modulos.includes(next)) return;
+    const resolved = activeView(next, view);
+    const same =
+      next === section &&
+      (next === "fincas"
+        ? resolved === farmView
+        : next === "inventario"
+          ? resolved === stockView
+          : true);
+    applySection(next, view);
+    if (!same && !skippingHistory.current) pushAppHistory(next, resolved);
+  };
+
+  const openInventory = (farmId: number, inventoryId?: string) => {
+    if (!account.modulos.includes("inventario")) return;
+    setFocusFarmId(undefined);
+    setGalponFocus(null);
+    setInventoryFocus({ farmId, inventoryId });
+    setSection("inventario");
+    setStockView("lista");
+    setStockTick((current) => current + 1);
+    remember("inventario", "lista");
+    if (!skippingHistory.current) pushAppHistory("inventario", "lista");
+  };
+
+  const openGalpon = (farmId: number, houseId?: number) => {
+    if (!account.modulos.includes("galpon")) return;
+    setFocusFarmId(undefined);
+    setInventoryFocus(null);
+    setGalponFocus({ farmId, houseId });
+    setSection("galpon");
+    setGalponTick((current) => current + 1);
+    remember("galpon", "galpones");
+    if (!skippingHistory.current) pushAppHistory("galpon", "galpones");
+  };
+
+  useEffect(() => {
+    const start = initialSection ?? "home";
+    remember(start);
+    replaceAppHistory(start);
+    return subscribeAppHistory((state: AppHistoryState | null) => {
+      if (!state) {
+        // Atrás saldría de la app → reponemos entrada y conservamos la sesión.
+        const place = placeRef.current;
+        pushAppHistory(place.section, place.view);
+        return;
+      }
+      if (state.section !== "perfil" && !modulesRef.current.includes(state.section)) {
+        replaceAppHistory("home");
+        skippingHistory.current = true;
+        applySection("home");
+        skippingHistory.current = false;
+        return;
+      }
+      skippingHistory.current = true;
+      applySection(state.section, state.view);
+      skippingHistory.current = false;
+    });
+  }, [initialSection]);
 
   const content = renderSection(
     section,
@@ -169,7 +282,11 @@ export function HomeScreen({
       }
       setFarmView("lista");
     },
+    openInventory,
+    openGalpon,
     focusFarmId,
+    inventoryFocus,
+    galponFocus,
   );
 
   useEffect(() => {

@@ -7,12 +7,15 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import inicioIcon from "../../../assets/icons/inicio.png";
 import "../../../styles/invitation-accept.css";
 
 export type StatusAction = {
   label: string;
   onClick: () => void;
   variant?: "solid" | "ghost" | "text-link";
+  /** Icono opcional del botón. */
+  icon?: "reload" | "home";
 };
 
 type Props = {
@@ -39,6 +42,9 @@ export function SessionStatusView({ title, message, tone, actions = [] }: Readon
         data-tone={tone}
       >
         <header className="form-intro">
+          <span className={`invite-mark invite-mark--${tone}`} aria-hidden="true">
+            {tone === "busy" ? <BusyMark /> : <WarnMark />}
+          </span>
           <p className="brand">AGROTECH-T</p>
           <h2 id="session-status-title">{title}</h2>
         </header>
@@ -54,15 +60,77 @@ export function SessionStatusView({ title, message, tone, actions = [] }: Readon
               <button
                 key={action.label}
                 type="button"
-                className={action.variant ?? "solid"}
+                className={`${action.variant ?? "solid"} invite-action`}
                 onClick={action.onClick}
               >
-                {action.label}
+                {action.icon ? <ActionIcon kind={action.icon} /> : null}
+                <span>{action.label}</span>
               </button>
             ))}
           </div>
         ) : null}
       </section>
     </main>
+  );
+}
+
+/**
+ * Icono del botón según la acción.
+ * @param props - Tipo de icono.
+ * @returns Marca visual.
+ */
+function ActionIcon({ kind }: Readonly<{ kind: "reload" | "home" }>) {
+  if (kind === "home") {
+    return <img className="invite-action__icon" src={inicioIcon} alt="" />;
+  }
+  return (
+    <svg className="invite-action__icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M20 12a8 8 0 1 1-2.2-5.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M20 4v5h-5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function BusyMark() {
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="16" fill="none" stroke="currentColor" strokeWidth="3" opacity="0.28" />
+      <path
+        d="M40 24a16 16 0 0 0-16-16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function WarnMark() {
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true">
+      <circle cx="24" cy="24" r="18" fill="currentColor" opacity="0.14" />
+      <path
+        d="M24 14v12"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      <circle cx="24" cy="33" r="2.2" fill="currentColor" />
+    </svg>
   );
 }

@@ -33,9 +33,15 @@ export const UNEXPECTED_MESSAGE = "Ocurrió un error inesperado. Inténtalo de n
 export const NOT_CONFIRMED_MESSAGE =
   "El servidor aún no confirma la verificación del correo. Inténtalo de nuevo.";
 
-/** @returns true si la cuenta debe pasar por la verificación antes de entrar. */
-export function needsEmailVerification(account: Pick<Account, "email_verified">): boolean {
-  return account.email_verified !== true;
+/**
+ * Antes bloqueaba el ingreso si el correo no estaba verificado.
+ * Hoy el login ya no exige ese paso; se conserva por compatibilidad de tests
+ * y código que aún consulta la función. El OTP de recuperar contraseña no
+ * usa esta regla.
+ * @returns Siempre false: no hay bloqueo de verificación al entrar.
+ */
+export function needsEmailVerification(_account: Pick<Account, "email_verified">): boolean {
+  return false;
 }
 
 export type VerificationErrorKind =

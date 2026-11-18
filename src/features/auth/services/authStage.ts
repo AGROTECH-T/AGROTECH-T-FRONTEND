@@ -3,16 +3,14 @@
  *
  * Propósito: decidir qué pantalla corresponde según la cuenta, la invitación
  * y el acceso a fincas.
- * Contexto: sin cuenta → acceso; correo sin verificar → verificación (bloquea
- * todo lo demás, también la invitación); invitación pendiente → aceptación;
- * acceso a fincas aún sin comprobar → comprobación; sin fincas → bienvenida
- * (onboarding, F10.2); en otro caso → shell. La invitación se conserva durante
- * la verificación y tiene prioridad sobre la bienvenida.
+ * Contexto: sin cuenta → acceso; invitación pendiente → aceptación; acceso a
+ * fincas aún sin comprobar → comprobación; sin fincas → bienvenida
+ * (onboarding, F10.2); en otro caso → shell. La verificación de correo al
+ * entrar quedó desactivada; el OTP de recuperar contraseña sigue aparte.
  * @author Cristian Deysdayr Jimenez
  */
 
 import type { Account } from "../types/index.ts";
-import { needsEmailVerification } from "./verification.ts";
 
 export type AuthStage = "access" | "verify" | "invitation" | "checking" | "welcome" | "home";
 
@@ -38,7 +36,6 @@ export function authStage(
   farmAccess: FarmAccess = "some",
 ): AuthStage {
   if (!account) return "access";
-  if (needsEmailVerification(account)) return "verify";
   if (invitation) return "invitation";
   if (farmAccess === "unknown" || farmAccess === "error") return "checking";
   if (farmAccess === "none") return "welcome";
