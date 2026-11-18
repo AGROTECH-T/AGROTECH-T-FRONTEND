@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import type { Account } from "../../auth/types/index.ts";
+import { InvitacionesPanel } from "./InvitacionesPanel.tsx";
 import { RolesPermisosPanel } from "./RolesPermisosPanel.tsx";
 import { SuperadminPanel } from "./SuperadminPanel.tsx";
 
@@ -15,7 +16,7 @@ type Props = {
   account: Account;
 };
 
-type TabId = "administradores" | "roles";
+type TabId = "administradores" | "roles" | "invitaciones";
 
 /**
  * Texto de apoyo según el submódulo abierto.
@@ -26,13 +27,16 @@ function leadDeTab(tab: TabId): string {
   if (tab === "administradores") {
     return "Crea al administrador o nombra a una cuenta que ya se registró.";
   }
+  if (tab === "invitaciones") {
+    return "Elige la finca e invita por correo con el rol que tendrá al aceptar.";
+  }
   return "Crea cuentas, elige el rol en cada finca y suma permisos extra.";
 }
 
 /**
  * Cabecera, submódulos y contenido de Configuración.
  * @param props - Cuenta autenticada para elegir el panel.
- * @returns Panel del superadmin o de roles de finca.
+ * @returns Panel del superadmin, roles o invitaciones.
  */
 export function ConfiguracionScreen({ account }: Readonly<Props>) {
   const superadmin = account.is_superadmin;
@@ -66,9 +70,19 @@ export function ConfiguracionScreen({ account }: Readonly<Props>) {
         >
           Roles y permisos
         </button>
+        <button
+          type="button"
+          className={`config-tab${tab === "invitaciones" ? " is-active" : ""}`}
+          aria-current={tab === "invitaciones" ? "page" : undefined}
+          onClick={() => setTab("invitaciones")}
+        >
+          Invitaciones
+        </button>
       </nav>
 
-      {tab === "administradores" ? <SuperadminPanel /> : <RolesPermisosPanel />}
+      {tab === "administradores" ? <SuperadminPanel /> : null}
+      {tab === "roles" ? <RolesPermisosPanel /> : null}
+      {tab === "invitaciones" ? <InvitacionesPanel /> : null}
     </section>
   );
 }
