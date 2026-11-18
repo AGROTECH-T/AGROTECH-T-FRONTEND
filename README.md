@@ -290,7 +290,7 @@ BACKEND ....................... PERSISTENCIA + REGLAS + AUTH
 <details>
 <summary><b>🧬 CÓMO HABLA ESTA UI CON LA API</b></summary>
 
-- `apiRoot()` lee `import.meta.env.VITE_API_URL` y quita la barra final. Sin esa variable, usa `http://localhost:8090`.
+- `apiRoot()` lee `import.meta.env.VITE_API_URL` y quita la barra final. Sin esa variable usa `http://localhost:8090` **solo en `vite dev`**; en un build de producción falla con un error explícito (ver `docs/deploy/render.md`).
 - `postJson(path, body, token?)` envía JSON y lanza `Error(data.error)` si `!response.ok`.
 - `getJson(path, token)` consulta recursos protegidos con `Authorization: Bearer <token>`.
 - Cada dominio (`features/auth/services/*.ts`) arma sus operaciones encima del cliente compartido.

@@ -6,7 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-type Name = "home" | "land" | "box" | "gear";
+type Name = "home" | "land" | "box" | "iot" | "gear";
 
 type Props = {
   name: Name;
@@ -41,6 +41,7 @@ export function NavIcon({ name }: Readonly<Props>) {
           <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9 19 19M19 5l-2.1 2.1M7.1 16.9 5 19" />
         </>
       ) : null}
+      {name === "iot" ? <><circle cx="12" cy="12" r="3" /><path d="M12 2v4m0 12v4M2 12h4m12 0h4M5 5l2.8 2.8m8.4 8.4L19 19m0-14-2.8 2.8m-8.4 8.4L5 19" /></> : null}
     </svg>
   );
 }
