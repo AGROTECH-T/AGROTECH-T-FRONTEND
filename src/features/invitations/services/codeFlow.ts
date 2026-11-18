@@ -7,7 +7,7 @@
  * - 200: preview {farm_name, role, expires_at}; accept {farm_id, membership_id, role, status}.
  * - 400: cuerpo sin código o vacío.
  * - 401: sin sesión válida.
- * - 403: cuenta inactiva o correo sin verificar.
+ * - 403: cuenta inactiva.
  * - 404: genérico (código incorrecto, vencido, cancelado, usado o de otro correo).
  * - 409: la cuenta ya pertenece a la finca.
  * - 429: límite de intentos (5 fallos/15 min por cuenta) o de solicitudes.
@@ -30,8 +30,8 @@ export const CODE_INVALID_REQUEST_MESSAGE =
   "Revisa el código y escríbelo tal como aparece en el correo.";
 export const CODE_SESSION_MESSAGE =
   "Tu sesión terminó. Vuelve a iniciar sesión para usar el código.";
-export const CODE_UNVERIFIED_MESSAGE =
-  "Tu cuenta no puede usar códigos de invitación todavía. Verifica tu correo electrónico e inténtalo de nuevo.";
+export const CODE_INACTIVE_MESSAGE =
+  "Tu cuenta no está activa. Contacta al administrador para recuperarla.";
 export const CODE_NOT_FOUND_MESSAGE =
   "No encontramos una invitación pendiente para este código y esta cuenta. Revisa el código, " +
   "comprueba que iniciaste sesión con el correo invitado o pide una nueva invitación.";
@@ -47,7 +47,7 @@ export type CodeErrorKind =
   | "empty"
   | "invalid_request"
   | "session_expired"
-  | "unverified"
+  | "inactive"
   | "not_found"
   | "already_member"
   | "rate_limited"
@@ -68,7 +68,7 @@ export function codeErrorFrom(cause: unknown): CodeError {
     case 401:
       return { kind: "session_expired", message: CODE_SESSION_MESSAGE };
     case 403:
-      return { kind: "unverified", message: CODE_UNVERIFIED_MESSAGE };
+      return { kind: "inactive", message: CODE_INACTIVE_MESSAGE };
     case 404:
       return { kind: "not_found", message: CODE_NOT_FOUND_MESSAGE };
     case 409:
