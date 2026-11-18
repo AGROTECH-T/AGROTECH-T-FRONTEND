@@ -69,6 +69,8 @@ export type UsuarioAsignado = {
 export type FincaAsignable = {
   id: number;
   name: string;
+  /** Si falta (respuestas antiguas), se trata como activa. */
+  is_active?: boolean;
 };
 
 export type AsignacionRoles = {
