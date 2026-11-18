@@ -2,13 +2,13 @@
  * Pantalla de acceso.
  *
  * Propósito: componer el panel de cultivo y el formulario activo, y decidir
- * la etapa: restauración, verificación, invitación, bienvenida o shell.
+ * la etapa: restauración, invitación, bienvenida o shell.
  * Contexto: ingreso, registro, recuperación y sesión. Al recargar recupera la
  * sesión de la pestaña con GET /auth/me (sessionRestore.ts) y la renueva
  * mientras hay actividad (sessionRenewal.ts). Si se llegó desde el enlace de
- * una invitación, conserva el token durante el login y la verificación y
- * muestra la aceptación antes que nada. Sin fincas ni invitación, muestra la
- * bienvenida del onboarding (F10.2).
+ * una invitación, conserva el token durante el login y muestra la aceptación.
+ * El OTP de recuperar contraseña sigue en RecoverForm; el gate de verificación
+ * de correo al entrar quedó desactivado.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -29,7 +29,6 @@ import { clearToken, readToken, saveToken } from "../services/session.ts";
 import { createSessionRenewer, startActivityRenewal } from "../services/sessionRenewal.ts";
 import { restoreSession, SESSION_ENDED_NOTICE } from "../services/sessionRestore.ts";
 import type { Account, Mode } from "../types/index.ts";
-import { EmailVerificationScreen } from "./EmailVerificationScreen.tsx";
 import { RecoverForm } from "./RecoverForm.tsx";
 import { SessionStatusView } from "./SessionStatusView.tsx";
 import { SignInForm } from "./SignInForm.tsx";
@@ -65,7 +64,6 @@ export function AuthScreen() {
   const [restored, setRestored] = useState(false);
   const [farmAccess, setFarmAccess] = useState<FarmAccess>("unknown");
   const [landing, setLanding] = useState<Landing | null>(null);
-  const [justRegistered, setJustRegistered] = useState(false);
   // Contadores de solicitud: solo se aplica la respuesta más reciente
   // (StrictMode repite efectos; un cierre de sesión invalida lo pendiente).
   const restoreRun = useRef(0);
@@ -80,7 +78,6 @@ export function AuthScreen() {
     setRestored(false);
     setFarmAccess("unknown");
     setLanding(null);
-    setJustRegistered(false);
     setMode("signin");
     setNotice(message);
   }, []);
@@ -142,11 +139,26 @@ export function AuthScreen() {
     return () => document.body.classList.remove("is-auth");
   }, [account]);
 
+  // bfcache: Atrás puede devolver el login en caché con el token aún vivo.
+  useEffect(() => {
+    const revive = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      if (readToken()) setSession("restoring");
+    };
+    window.addEventListener("pageshow", revive);
+    return () => window.removeEventListener("pageshow", revive);
+  }, []);
+
   const leave = async () => {
     const token = readToken();
     resetToAccess(invitation ? INVITATION_LOGIN_NOTICE : "");
     if (token) await logout(token).catch(() => undefined);
     clearToken();
+    try {
+      history.replaceState(null, "", "/");
+    } catch {
+      // Sin historial usable el cierre de sesión igual limpia el token.
+    }
   };
 
   const signIn = (next: Account) => {
@@ -205,9 +217,10 @@ export function AuthScreen() {
         message={restoreError}
         tone="warn"
         actions={[
-          { label: "Reintentar", onClick: () => setSession("restoring") },
+          { label: "Reintentar", icon: "reload", onClick: () => setSession("restoring") },
           {
             label: "Iniciar sesión de nuevo",
+            icon: "home",
             variant: "ghost",
             onClick: () => {
               const token = readToken();
@@ -217,23 +230,6 @@ export function AuthScreen() {
             },
           },
         ]}
-      />
-    );
-  }
-
-  // Bloqueo de navegación: sin email_verified=true (GET /auth/me) no se entra.
-  // El backend exige además el correo verificado para crear fincas y aceptar
-  // invitaciones.
-  if (account && stage === "verify") {
-    return (
-      <EmailVerificationScreen
-        account={account}
-        autoSend={justRegistered}
-        onVerified={(verified) => {
-          setJustRegistered(false);
-          setAccount(verified);
-        }}
-        onLogout={() => void leave()}
       />
     );
   }
@@ -307,10 +303,7 @@ export function AuthScreen() {
     form = (
       <SignUpForm
         onSignIn={() => setMode("signin")}
-        onSuccess={(created) => {
-          setJustRegistered(true);
-          signIn(created);
-        }}
+        onSuccess={signIn}
       />
     );
   } else if (mode === "recover") {

@@ -108,21 +108,18 @@ afterEach(() => {
 });
 
 describe("registro y bloqueo", () => {
-  it("1. una cuenta recién registrada (email_verified=false) va a la verificación", () => {
-    expect(authStage(base, null)).toBe("verify");
+  it("1. la pantalla de verificación sigue existiendo, pero el login ya no la exige", () => {
+    expect(authStage(base, null)).toBe("home");
+    expect(needsEmailVerification(base)).toBe(false);
     const html = view({ sent: true });
     expect(html).toContain("Verifica tu correo");
     expect(html).toContain("ana@example.com");
     expect(html).toContain("Verificar correo");
   });
 
-  it("8. una cuenta sin verificar que inicia sesión no llega al shell", () => {
-    expect(needsEmailVerification(base)).toBe(true);
-    expect(authStage(base, null)).not.toBe("home");
-    // Sin el campo (respuesta inesperada) también se bloquea.
-    const { email_verified: _omit, ...legacy } = base;
-    void _omit;
-    expect(needsEmailVerification(legacy as Account)).toBe(true);
+  it("8. una cuenta sin verificar ya puede llegar al shell", () => {
+    expect(needsEmailVerification(base)).toBe(false);
+    expect(authStage(base, null)).toBe("home");
   });
 
   it("9. una cuenta verificada entra normalmente", () => {
@@ -132,8 +129,8 @@ describe("registro y bloqueo", () => {
     expect(authStage(null, null)).toBe("access");
   });
 
-  it("12. con invitación pendiente: primero verificación, después aceptación", () => {
-    expect(authStage(base, "token-invitacion")).toBe("verify");
+  it("12. con invitación pendiente: prioridad a la aceptación (sin gate de verificación)", () => {
+    expect(authStage(base, "token-invitacion")).toBe("invitation");
     expect(authStage({ ...base, email_verified: true }, "token-invitacion")).toBe("invitation");
   });
 });
@@ -259,8 +256,8 @@ describe("confirmación", () => {
 });
 
 describe("reingreso, duplicados y seguridad", () => {
-  it("10. quien abandona y vuelve encuentra la verificación sin envío automático", () => {
-    expect(authStage(base, null)).toBe("verify");
+  it("10. la pantalla de verificación sigue disponible sin envío automático", () => {
+    expect(authStage(base, null)).toBe("home");
     const html = view({ sent: false });
     expect(html).toContain("Enviar código");
     expect(html).toContain("Cerrar sesión");
