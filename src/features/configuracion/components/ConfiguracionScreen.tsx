@@ -9,6 +9,7 @@
 import { useState } from "react";
 import type { Account } from "../../auth/types/index.ts";
 import { InvitacionesPanel } from "./InvitacionesPanel.tsx";
+import { ReactivarFincasPanel } from "./ReactivarFincasPanel.tsx";
 import { RolesPermisosPanel } from "./RolesPermisosPanel.tsx";
 import { SuperadminPanel } from "./SuperadminPanel.tsx";
 
@@ -16,7 +17,7 @@ type Props = {
   account: Account;
 };
 
-type TabId = "administradores" | "roles" | "invitaciones";
+type TabId = "administradores" | "roles" | "invitaciones" | "reactivar";
 
 /**
  * Texto de apoyo según el submódulo abierto.
@@ -30,13 +31,16 @@ function leadDeTab(tab: TabId): string {
   if (tab === "invitaciones") {
     return "Elige la finca e invita por correo con el rol que tendrá al aceptar.";
   }
+  if (tab === "reactivar") {
+    return "Desactiva o reactiva tus fincas. Si está apagada, aquí aparece Reactivar.";
+  }
   return "Crea cuentas, elige el rol en cada finca y suma permisos extra.";
 }
 
 /**
  * Cabecera, submódulos y contenido de Configuración.
  * @param props - Cuenta autenticada para elegir el panel.
- * @returns Panel del superadmin, roles o invitaciones.
+ * @returns Panel del superadmin, roles, invitaciones o reactivar fincas.
  */
 export function ConfiguracionScreen({ account }: Readonly<Props>) {
   const superadmin = account.is_superadmin;
@@ -78,11 +82,20 @@ export function ConfiguracionScreen({ account }: Readonly<Props>) {
         >
           Invitaciones
         </button>
+        <button
+          type="button"
+          className={`config-tab${tab === "reactivar" ? " is-active" : ""}`}
+          aria-current={tab === "reactivar" ? "page" : undefined}
+          onClick={() => setTab("reactivar")}
+        >
+          Reactivar fincas
+        </button>
       </nav>
 
       {tab === "administradores" ? <SuperadminPanel /> : null}
       {tab === "roles" ? <RolesPermisosPanel /> : null}
       {tab === "invitaciones" ? <InvitacionesPanel /> : null}
+      {tab === "reactivar" ? <ReactivarFincasPanel /> : null}
     </section>
   );
 }

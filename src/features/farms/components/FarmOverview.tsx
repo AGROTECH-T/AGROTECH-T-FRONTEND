@@ -52,7 +52,7 @@ export function FarmOverview({ farm, canReactivate }: Readonly<Props>) {
       <p className="farm-empty__title">Finca desactivada</p>
       <p className="farm-empty__hint">
         {canReactivate
-          ? "No aparece en tu listado ni admite cambios. Puedes reactivarla desde Configuración."
+          ? "No aparece en tu listado ni admite cambios. Puedes reactivarla desde Configuración → Reactivar fincas."
           : "Esta finca no está operativa."}
       </p>
     </div>

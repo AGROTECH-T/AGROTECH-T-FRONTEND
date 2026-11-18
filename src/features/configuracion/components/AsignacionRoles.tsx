@@ -100,6 +100,13 @@ export function AsignacionRoles() {
     }
   }
 
+  async function refrescarAsignacion() {
+    const personas = await fetchAsignacion();
+    setPuedo(personas.puedo_asignar);
+    setUsuarios(personas.usuarios);
+    setFincas(personas.fincas ?? []);
+  }
+
   async function guardar(accion: () => Promise<UsuarioAsignado>, avisoError: string, avisoOk: string) {
     setGuardando(true);
     setError("");
@@ -107,6 +114,9 @@ export function AsignacionRoles() {
       const actualizada = await accion();
       setPersona(actualizada);
       setUsuarios((lista) => lista.map((item) => (item.id === actualizada.id ? { ...item, ...actualizada } : item)));
+      if (actualizada.es_yo) {
+        await refrescarAsignacion();
+      }
       notices.push([avisoOk], "ok");
     } catch (cause) {
       const text = cause instanceof Error ? cause.message : avisoError;
@@ -136,8 +146,12 @@ export function AsignacionRoles() {
   if (!puedo) {
     return (
       <div className="config-empty">
-        <h2>Falta una finca</h2>
-        <p>Crea una finca para poder crear trabajadores y asignarles rol.</p>
+        <h2>Se necesita ser administrador de la finca</h2>
+        <p>
+          Desactivar, reactivar y asignar roles solo lo puede hacer quien tiene
+          el rol Administrador en esa finca. Con Operador o Consulta no aparece
+          esta sección.
+        </p>
       </div>
     );
   }
