@@ -12,6 +12,7 @@ import type { Account } from "../../auth/types/index.ts";
 import { ConfiguracionScreen } from "../../configuracion/index.ts";
 import { FarmsScreen } from "../../farms/index.ts";
 import { InventarioPanel } from "../../inventario/index.ts";
+import { IotScreen } from "../../iot/index.ts";
 import { ProfileScreen } from "../../profile/index.ts";
 import { HomeHub } from "./HomeHub.tsx";
 
@@ -41,6 +42,7 @@ function renderSection(
 ) {
   if (section === "fincas") return <FarmsScreen initialFarmId={focusFarmId} account={account} />;
   if (section === "inventario") return <InventarioPanel account={account} />;
+  if (section === "iot") return <IotScreen />;
   if (section === "configuracion") return <ConfiguracionScreen />;
   if (section === "perfil") {
     return <ProfileScreen account={account} onAccountChange={onAccountChange} />;
