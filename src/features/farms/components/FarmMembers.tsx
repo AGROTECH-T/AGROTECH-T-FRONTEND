@@ -2,13 +2,9 @@
  * Listado de integrantes de una finca.
  *
  * Propósito: consultar miembros (solo administrador) con búsqueda, filtros y
- * paginación de servidor, y abrir el detalle de un integrante. La autorización
- * real la aplica el backend.
- * Contexto: sección independiente del detalle de finca. La selección se hace
- * por id de membresía, nunca por nombre; al volver se conservan filtros,
- * búsqueda y página sin repetir la consulta. Tras revocar (F8) la página se
- * vuelve a pedir al backend; tras transferir se usan las dos membresías que
- * devolvió el backend.
+ * paginación, y abrir el detalle. Reutiliza el diseño de Roles y permisos /
+ * Administradores (config-crew / config-person).
+ * Contexto: pestaña Integrantes del detalle de finca.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -30,6 +26,7 @@ import type {
   FarmRole,
   TransferAdminResponse,
 } from "../types/index.ts";
+import { initials } from "./FarmOverview.tsx";
 import { FarmMemberDetail } from "./FarmMemberDetail.tsx";
 
 const PAGE_SIZE = 20;
@@ -43,37 +40,22 @@ const STATUS_FILTERS: { value: string; label: string }[] = [
 
 type Props = {
   farmId: number;
-  /** Abre y carga la sección al montarse, sin botón de despliegue (uso en pestaña). */
   autoOpen?: boolean;
-  /** Consulta del listado (inyectable en pruebas). */
   listMembers?: typeof listFarmMembers;
-  /** Operaciones del detalle (inyectables en pruebas). */
   detailApi?: MemberDetailApi;
-  /** Página inicial ya cargada (pruebas de renderizado). */
   initialData?: FarmMembersResponse;
-  /** Integrante abierto al montar (pruebas de renderizado). */
   initialSelectedId?: number;
-  /** PATCH de rol (inyectable en pruebas). */
   changeRole?: (farmId: number, membershipId: number, role: FarmRole) => Promise<FarmMember>;
-  /** Se llama tras un cambio de rol exitoso con la membresía devuelta. */
   onRoleChanged?: (member: FarmMember) => void | Promise<void>;
-  /** La finca concede can_manage_members: se ofrecen revocar y transferir. */
   canManage?: boolean;
-  /** Revocación y transferencia (inyectables en pruebas). */
   adminApi?: MemberAdminApi;
-  /** Tras una revocación confirmada por el backend. */
   onMemberRevoked?: (member: FarmMember) => void | Promise<void>;
-  /** Tras una transferencia confirmada por el backend. */
   onAdminTransferred?: (result: TransferAdminResponse) => void | Promise<void>;
-  /** El backend negó un permiso: hay que releer el acceso a la finca. */
   onAccessStale?: () => void;
 };
 
 /**
- * Sección de integrantes con carga bajo demanda, búsqueda, filtros, paginación
- * y detalle del integrante seleccionado.
- * @param props - Identificador de la finca.
- * @returns Sección de integrantes.
+ * Sección de integrantes con el mismo lenguaje visual que Configuración.
  */
 export function FarmMembers({
   farmId,
@@ -103,6 +85,7 @@ export function FarmMembers({
   const requestSeq = useRef(0);
   const rowRefs = useRef(new Map<number, HTMLButtonElement>());
   const returnFocusId = useRef<number | null>(null);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function load(targetPage: number, targetStatus: string, targetQuery: string) {
     const requestId = ++requestSeq.current;
@@ -121,22 +104,27 @@ export function FarmMembers({
       setPage(targetPage);
     } catch (cause) {
       if (requestId !== requestSeq.current) return;
-      setError(
-        cause instanceof Error ? cause.message : "No se pudo cargar el listado",
-      );
+      setError(cause instanceof Error ? cause.message : "No se pudo cargar el listado");
     } finally {
-      if (requestId === requestSeq.current) {
-        setLoading(false);
-      }
+      if (requestId === requestSeq.current) setLoading(false);
     }
   }
 
   useEffect(() => {
     if (autoOpen && initialData === undefined) void load(1, "active", "");
-    // Solo al montar o al cambiar de finca; los filtros recargan por su cuenta.
   }, [autoOpen, farmId]);
 
-  // Al volver del detalle, el foco regresa a la fila del integrante abierto.
+  useEffect(() => {
+    if (!expanded) return;
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(() => {
+      void load(1, status, query);
+    }, 320);
+    return () => {
+      if (searchTimer.current) clearTimeout(searchTimer.current);
+    };
+  }, [query]);
+
   useEffect(() => {
     if (selected !== null || returnFocusId.current === null) return;
     rowRefs.current.get(returnFocusId.current)?.focus();
@@ -148,9 +136,7 @@ export function FarmMembers({
       setExpanded(false);
     } else {
       setExpanded(true);
-      if (data === null) {
-        void load(1, status, query);
-      }
+      if (data === null) void load(1, status, query);
     }
   }
 
@@ -169,17 +155,12 @@ export function FarmMembers({
     if (member) setSelected(member);
   }
 
-  /** Refleja en la página cargada la membresía devuelta por el PATCH. */
   async function memberChanged(updated: FarmMember) {
     setData((current) => replaceMember(current, updated));
     setSelected(updated);
     await onRoleChanged?.(updated);
   }
 
-  /**
-   * El backend confirmó la revocación (204): se cierra el detalle y se vuelve
-   * a pedir la página con los mismos filtros, sin retirar filas por cuenta propia.
-   */
   async function memberRevoked(revoked: FarmMember) {
     returnFocusId.current = null;
     setSelected(null);
@@ -207,7 +188,6 @@ export function FarmMembers({
     await onMemberRevoked?.(revoked);
   }
 
-  /** Refleja los dos roles que devolvió la transferencia. */
   async function adminTransferred(result: TransferAdminResponse) {
     setData((current) => applyTransfer(current, result));
     setSelected(result.new_admin);
@@ -243,60 +223,49 @@ export function FarmMembers({
   const pages = data ? totalPages(data.count, PAGE_SIZE) : 0;
 
   return (
-    <section className="farm-members" aria-label="Integrantes de la finca">
+    <section className="farm-members config-crew" aria-label="Integrantes de la finca">
       {autoOpen ? null : (
-        <button
-          type="button"
-          className="btn-secondary"
-          aria-expanded={expanded}
-          onClick={toggle}
-        >
+        <button type="button" className="btn-secondary" aria-expanded={expanded} onClick={toggle}>
           {expanded ? "Ocultar integrantes" : "Ver integrantes"}
         </button>
       )}
 
       {expanded ? (
         <>
-          <h3 className="farm-form__title">Integrantes</h3>
           {canManage ? (
-            <p className="farm-empty__hint">
+            <p className="farm-members__lead">
               Abre un integrante para cambiar su rol, transferirle la administración o
               revocar su acceso.
             </p>
           ) : null}
 
-          <form className="farm-members__toolbar" onSubmit={submitSearch} noValidate>
-            <label className="farm-search">
-              <span className="visually-hidden">Buscar integrante</span>
+          <div className="config-crew__toolbar">
+            <form className="config-crew__search" onSubmit={submitSearch} noValidate>
+              Buscar persona
               <input
                 type="search"
                 name="q"
-                placeholder="Buscar por nombre..."
+                placeholder="Nombre, documento o correo"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
               />
-            </label>
-            <button type="submit" className="btn-primary">
-              Buscar
-            </button>
-          </form>
-
-          <div className="farm-members__filters" role="group" aria-label="Filtro de estado">
-            {STATUS_FILTERS.map((filter) => (
-              <button
-                key={filter.value}
-                type="button"
-                className={
-                  filter.value === status
-                    ? "farm-members__filter is-active"
-                    : "farm-members__filter"
-                }
-                aria-pressed={filter.value === status}
-                onClick={() => changeStatus(filter.value)}
-              >
-                {filter.label}
+              <button type="submit" className="visually-hidden">
+                Buscar
               </button>
-            ))}
+            </form>
+            <div className="farm-roles farm-members__filters" role="group" aria-label="Filtro de estado">
+              {STATUS_FILTERS.map((filter) => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  className="farm-roles__option"
+                  aria-pressed={filter.value === status}
+                  onClick={() => changeStatus(filter.value)}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {loading ? (
@@ -308,48 +277,71 @@ export function FarmMembers({
           {!loading && error ? (
             <div className="farm-state" role="alert">
               <p>{error}</p>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => void load(page, status, query)}
-              >
+              <button type="button" className="btn-primary" onClick={() => void load(page, status, query)}>
                 Reintentar
               </button>
             </div>
           ) : null}
 
           {!loading && !error && data && data.results.length === 0 ? (
-            <p className="farm-state" role="status">
-              No hay integrantes que coincidan.
-            </p>
+            <div className="config-empty">
+              <h2>{query.trim() ? "Nadie coincide" : "Sin integrantes"}</h2>
+              <p>
+                {query.trim()
+                  ? "Prueba con otro nombre, documento o correo."
+                  : "No hay integrantes con ese filtro."}
+              </p>
+            </div>
           ) : null}
 
           {!loading && !error && data && data.results.length > 0 ? (
-            <ul className="farm-members__list">
-              {data.results.map((member) => (
-                <li key={member.id}>
-                  <button
-                    type="button"
-                    className="farm-members__item farm-members__row"
-                    data-membership-id={member.id}
-                    ref={(node) => {
-                      if (node) rowRefs.current.set(member.id, node);
-                      else rowRefs.current.delete(member.id);
-                    }}
-                    onClick={() => openMember(member.id)}
-                  >
-                    <span className="farm-members__name">
-                      {member.name || "Integrante sin nombre"}
-                    </span>
-                    <span className="farm-members__meta">
-                      {roleLabel(member.role)}
-                      <span className={`farm-member-status is-${member.status}`}>
-                        {membershipStatusLabel(member.status)}
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              ))}
+            <ul className="config-crew__grid">
+              {data.results.map((member) => {
+                const label = member.name || "Integrante sin nombre";
+                const active = member.status === "active";
+                return (
+                  <li key={member.id}>
+                    <article className="config-person">
+                      <header className="config-person__head">
+                        <span className="config-person__avatar" aria-hidden="true">
+                          {initials(label)}
+                        </span>
+                        <div className="config-person__who">
+                          <h3>{label}</h3>
+                          <p>Integrante de la finca</p>
+                        </div>
+                        <span className={active ? "config-status is-on" : "config-status is-off"}>
+                          {membershipStatusLabel(member.status)}
+                        </span>
+                      </header>
+                      <dl className="config-person__facts">
+                        <div>
+                          <dt>Rol</dt>
+                          <dd>{roleLabel(member.role)}</dd>
+                        </div>
+                        <div>
+                          <dt>Estado</dt>
+                          <dd>{membershipStatusLabel(member.status)}</dd>
+                        </div>
+                      </dl>
+                      <div className="config-person__actions">
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          data-membership-id={member.id}
+                          ref={(node) => {
+                            if (node) rowRefs.current.set(member.id, node);
+                            else rowRefs.current.delete(member.id);
+                          }}
+                          onClick={() => openMember(member.id)}
+                        >
+                          Ver detalle
+                        </button>
+                      </div>
+                    </article>
+                  </li>
+                );
+              })}
             </ul>
           ) : null}
 

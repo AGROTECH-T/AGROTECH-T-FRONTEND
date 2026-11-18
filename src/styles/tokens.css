@@ -17,12 +17,15 @@
   --mist: #a4b99e;
   --foam: #c0d9b8;
   --mint: #c4e8c9;
+  /* Esmeralda de Galpón (--gp-mark): bordes e indicadores, no texto. */
+  --emerald: #0f5c45;
   --paper: #c0d9b8;
   --surface: #d2ddcd;
   --card: #ffffff;
   --tint: #e7f3ee;
   --field: #f4f8f2;
   --line: #b7c9b2;
+  /* Naranja de acción (diseno/tokens + --gp-action de Galpón). */
   --action: #f28c26;
   --action-deep: #d97816;
   --accent: #fde4c4;

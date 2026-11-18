@@ -1,8 +1,9 @@
 /**
  * Formulario y detalle de fincas.
  *
- * Propósito: alta y ficha de consulta con relieve neomórfico.
- * Contexto: Farms v1; alta, edición y borrado de administrador.
+ * Propósito: alta y ficha con el mismo patrón de Galpón: tarjeta blanca,
+ * bloque gris interior y campo blanco con acento esmeralda (--emerald /
+ * #0f5c45). Botones de acción en naranja (--action).
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -10,8 +11,9 @@
   margin-bottom: 22px;
   padding: 22px 24px;
   border-radius: 24px;
-  background: var(--tint);
-  box-shadow: var(--inset);
+  color: var(--ink);
+  background: var(--card);
+  box-shadow: var(--raised);
 }
 
 .farm-form__title {
@@ -20,12 +22,46 @@
   font-size: 1.15rem;
 }
 
+.farm-form__block {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #f3f1ee; /* mismo gris suave que --gp-soft de Galpón */
+  box-shadow: var(--inset);
+}
+
 .farm-form__field {
   display: flex;
   flex-direction: column;
   gap: 8px;
   color: var(--ink);
   font-weight: 600;
+}
+
+.farm-form__field input,
+.farm-form__field select,
+.farm-form__field textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 14px;
+  color: var(--ink);
+  background: #fff;
+  /* Acento esmeralda de Galpón (#0F5C45 / --emerald). */
+  box-shadow: var(--inset), inset 0 0 0 1.5px #0f5c45;
+  font: inherit;
+  box-sizing: border-box;
+  transition: box-shadow 0.15s ease;
+}
+
+.farm-form__field input:focus,
+.farm-form__field select:focus,
+.farm-form__field textarea:focus {
+  outline: none;
+  box-shadow: var(--inset), 0 0 0 3px color-mix(in srgb, #0f5c45 42%, transparent);
 }
 
 .farm-form__gap,

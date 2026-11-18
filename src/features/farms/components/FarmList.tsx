@@ -2,14 +2,13 @@
  * Listado de fincas propias.
  *
  * Propósito: mostrar cada finca como tarjeta (nombre, rol, estado y fecha) y
- * abrir su detalle.
- * Distribución: cuadrícula de tarjetas verticales con una franja de surcos,
- * el ícono superpuesto y un único botón «Abrir finca».
+ * abrir su detalle con «Abrir finca».
+ * Distribución: cuadrícula limpia con el navicon de finca.
  * Contexto: pantalla Fincas del shell.
  * @author Cristian Deysdayr Jimenez
  */
 
-import fincaArt from "../../../assets/onboard-finca.webp";
+import fincaIcon from "../../../assets/icons/finca.png";
 import { shortDate } from "../services/farmFilter.ts";
 import { roleLabel } from "../services/roleLabel.ts";
 import type { Farm } from "../types/index.ts";
@@ -25,11 +24,9 @@ function FarmCard({ farm, onSelect }: Readonly<{ farm: Farm; onSelect: (farm: Fa
   const date = active ? shortDate(farm.created_at) : shortDate(farm.deactivated_at);
   return (
     <article className="farm-card" data-active={active ? "true" : "false"} aria-labelledby={titleId}>
-      <div className="farm-card__band" aria-hidden="true">
-        <span className="farm-card__mark">
-          <img src={fincaArt} alt="" width={32} height={32} decoding="async" />
-        </span>
-      </div>
+      <span className="farm-card__mark" aria-hidden="true">
+        <img src={fincaIcon} alt="" width={28} height={28} decoding="async" />
+      </span>
       <div className="farm-card__body">
         <div className="farm-card__head">
           <h3 id={titleId} className="farm-card__name">

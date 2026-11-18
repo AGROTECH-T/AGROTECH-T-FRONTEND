@@ -1,5 +1,5 @@
 /**
- * Pruebas del Resumen de solo lectura y de la pestaña Configuración.
+ * Pruebas del Resumen de solo lectura y de la sección Configuración.
  *
  * Contexto: entorno node; HTML estático con renderToStaticMarkup.
  * @author Cristian Deysdayr Jimenez
@@ -46,8 +46,15 @@ describe("pestaña Configuración", () => {
       ...visibleTabs(farm("administrador")).map((tab) => tab.id),
       "configuracion",
     ]);
-    expect(detailTabs(farm("operador"), true).map((tab) => tab.id)).toEqual(["resumen", "configuracion"]);
-    expect(detailTabs(farm("operador", false), false).map((tab) => tab.id)).toEqual(["resumen"]);
+    expect(detailTabs(farm("operador"), true).map((tab) => tab.id)).toEqual([
+      "inventarios",
+      "galpones",
+      "configuracion",
+    ]);
+    expect(detailTabs(farm("operador", false), false).map((tab) => tab.id)).toEqual([
+      "inventarios",
+      "galpones",
+    ]);
   });
 });
 
@@ -69,44 +76,25 @@ describe("Resumen de solo lectura", () => {
     expect(initials("  ")).toBe("?");
   });
 
-  it("no tiene campos ni acciones que modifiquen la finca", () => {
+  it("en finca activa no renderiza aviso ni acciones", () => {
     const html = renderToStaticMarkup(
       createElement(FarmOverview, {
         farm: farm("administrador"),
-        roleText: "Administrador",
-        showMembers: true,
-        showInvitations: true,
-        showHistory: true,
         canReactivate: false,
-        onOpenTab: () => undefined,
       }),
     );
-    expect(html).toContain("Solo lectura");
-    expect(html).not.toContain("<input");
-    expect(html).not.toContain("<form");
-    for (const text of ["Editar nombre", "Desactivar finca", "Abandonar finca", "Reactivar finca"]) {
-      expect(html).not.toContain(text);
-    }
-    expect(html).toContain("Ver integrantes");
-    expect(html).toContain("Ver invitaciones");
-    expect(html).toContain("Ver historial completo");
+    expect(html).toBe("");
   });
 
-  it("sin capacidades de administración solo muestra datos y acceso", () => {
+  it("en finca desactivada muestra el aviso", () => {
     const html = renderToStaticMarkup(
       createElement(FarmOverview, {
-        farm: farm("operador"),
-        roleText: "Operador",
-        showMembers: false,
-        showInvitations: false,
-        showHistory: false,
+        farm: farm("operador", false),
         canReactivate: false,
-        onOpenTab: () => undefined,
       }),
     );
-    expect(html).toContain("Tu acceso");
-    expect(html).toContain("Operador");
-    expect(html).not.toContain("Ver integrantes");
-    expect(html).not.toContain("Actividad reciente");
+    expect(html).toContain("Finca desactivada");
+    expect(html).not.toContain("<input");
+    expect(html).not.toContain("<form");
   });
 });

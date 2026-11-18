@@ -502,57 +502,59 @@ export function FarmInvitations({
           La persona recibirá un enlace de un solo uso válido por {INVITATION_TTL_DAYS} días.
           Para aceptarlo debe registrarse y verificar este mismo correo.
         </p>
-        <label className="farm-form__field">
-          <span>Correo</span>
-          <input
-            type="email"
-            name="email"
-            inputMode="email"
-            autoComplete="off"
-            maxLength={254}
-            placeholder="persona@ejemplo.com"
-            value={email}
-            disabled={submitting}
-            aria-invalid={fieldErrors.email ? true : undefined}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              setFieldErrors((current) => ({ ...current, email: undefined }));
-            }}
-          />
-          {fieldErrors.email ? (
-            <span className="farm-form__gap">{fieldErrors.email}</span>
-          ) : null}
-        </label>
+        <div className="farm-form__block">
+          <label className="farm-form__field">
+            <span>Correo</span>
+            <input
+              type="email"
+              name="email"
+              inputMode="email"
+              autoComplete="off"
+              maxLength={254}
+              placeholder="persona@ejemplo.com"
+              value={email}
+              disabled={submitting}
+              aria-invalid={fieldErrors.email ? true : undefined}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setFieldErrors((current) => ({ ...current, email: undefined }));
+              }}
+            />
+            {fieldErrors.email ? (
+              <span className="farm-form__gap">{fieldErrors.email}</span>
+            ) : null}
+          </label>
 
-        <div className="farm-form__field">
-          <span id="farm-invitation-role">Rol</span>
-          <div
-            className="farm-members__filters"
-            role="radiogroup"
-            aria-labelledby="farm-invitation-role"
-          >
-            {INVITATION_ROLES.map((option) => {
-              const checked = option === role;
-              return (
-                <button
-                  key={option}
-                  type="button"
-                  role="radio"
-                  aria-checked={checked}
-                  data-role={option}
-                  className={checked ? "farm-members__filter is-active" : "farm-members__filter"}
-                  disabled={submitting}
-                  onClick={() => {
-                    setRole(option);
-                    setFieldErrors((current) => ({ ...current, role: undefined }));
-                  }}
-                >
-                  {roleLabel(option)}
-                </button>
-              );
-            })}
+          <div className="farm-form__field">
+            <span id="farm-invitation-role">Rol</span>
+            <div
+              className="farm-members__filters"
+              role="radiogroup"
+              aria-labelledby="farm-invitation-role"
+            >
+              {INVITATION_ROLES.map((option) => {
+                const checked = option === role;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    role="radio"
+                    aria-checked={checked}
+                    data-role={option}
+                    className={checked ? "farm-members__filter is-active" : "farm-members__filter"}
+                    disabled={submitting}
+                    onClick={() => {
+                      setRole(option);
+                      setFieldErrors((current) => ({ ...current, role: undefined }));
+                    }}
+                  >
+                    {roleLabel(option)}
+                  </button>
+                );
+              })}
+            </div>
+            {fieldErrors.role ? <span className="farm-form__gap">{fieldErrors.role}</span> : null}
           </div>
-          {fieldErrors.role ? <span className="farm-form__gap">{fieldErrors.role}</span> : null}
         </div>
 
         <div className="farm-form__actions">

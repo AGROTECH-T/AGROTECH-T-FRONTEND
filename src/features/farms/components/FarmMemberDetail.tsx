@@ -289,39 +289,39 @@ export function FarmMemberDetail({
     // Se recarga solo al cambiar de finca o de integrante (por id).
   }, [farmId, member.id]);
 
-  const statusClass = `farm-member-status is-${current.status}`;
+  const displayName = current.name || "Integrante sin nombre";
+  const mark = displayName
+    .trim()
+    .split(/[\s@._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+  const active = current.status === "active";
 
   return (
-    <section className="farm-member-detail" aria-labelledby="farm-member-detail-title">
+    <section className="config-ficha farm-member-detail" aria-labelledby="farm-member-detail-title">
       <button type="button" className="btn-secondary" onClick={onBack}>
         Volver a integrantes
       </button>
 
-      <header className="farm-member-detail__header">
-        <h3 id="farm-member-detail-title" className="farm-form__title">
-          {current.name || "Integrante sin nombre"}
-        </h3>
-        <span className={statusClass}>{membershipStatusLabel(current.status)}</span>
-      </header>
-
-      <dl className="farm-detail__meta">
-        <div>
-          <dt>Rol</dt>
-          <dd>{roleLabel(current.role)}</dd>
+      <article className="config-ficha__who">
+        <span className="config-person__avatar" aria-hidden="true">
+          {mark || "?"}
+        </span>
+        <div className="config-ficha__identity">
+          <h2 id="farm-member-detail-title">{displayName}</h2>
+          <p>
+            Rol {roleLabel(current.role)} · Creada {formatDate(current.created_at)} · Actualizada{" "}
+            {formatDate(current.updated_at)}
+          </p>
         </div>
-        <div>
-          <dt>Estado</dt>
-          <dd>{membershipStatusLabel(current.status)}</dd>
+        <div className="config-ficha__tools">
+          <span className={active ? "config-status is-on" : "config-status is-off"}>
+            {membershipStatusLabel(current.status)}
+          </span>
         </div>
-        <div>
-          <dt>Creada</dt>
-          <dd>{formatDate(current.created_at)}</dd>
-        </div>
-        <div>
-          <dt>Actualizada</dt>
-          <dd>{formatDate(current.updated_at)}</dd>
-        </div>
-      </dl>
+      </article>
 
       {detailLoading ? (
         <p className="farm-state" role="status">
@@ -338,131 +338,124 @@ export function FarmMemberDetail({
         </div>
       ) : null}
 
-      <section className="farm-form farm-member-role" aria-labelledby="farm-member-role-title">
-        <h4 id="farm-member-role-title" className="farm-form__title">
-          Rol en la finca
-        </h4>
-        {canChangeRole(current) ? (
-          <>
-            <div className="farm-members__filters" role="radiogroup" aria-label="Rol">
-              {ROLE_OPTIONS.map((option) => {
-                const checked = option === selectedRole;
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    role="radio"
-                    aria-checked={checked}
-                    data-role={option}
-                    className={
-                      checked ? "farm-members__filter is-active" : "farm-members__filter"
-                    }
-                    disabled={busy || !confirmed}
-                    onClick={() => {
-                      setSelectedRole(option);
-                      setRoleError("");
-                    }}
-                  >
-                    {roleLabel(option)}
-                    {option === current.role ? " (actual)" : ""}
-                  </button>
-                );
-              })}
-            </div>
-            {roleError && !confirmOpen ? (
-              <p className="farm-form__error" role="alert">
-                {roleError}
-              </p>
-            ) : null}
-            <div className="farm-form__actions">
-              <button
-                type="button"
-                className="btn-primary"
-                disabled={busy || !confirmed || !isRoleChange(current, selectedRole)}
-                onClick={() => {
-                  setRoleError("");
-                  send({ type: "open", dialog: "role" });
-                }}
-              >
-                Cambiar rol
-              </button>
-            </div>
-          </>
-        ) : (
-          <p className="farm-empty__hint">
-            Solo se puede cambiar el rol de una membresía activa.
-          </p>
-        )}
-      </section>
+      <article className="config-ficha__farm">
+        <header className="config-ficha__farm-head">
+          <p>Membresía</p>
+          <h3>{displayName}</h3>
+        </header>
 
-      {canManage ? (
-        <section
-          className="farm-form farm-member-actions"
-          aria-labelledby="farm-member-actions-title"
-        >
-          <h4 id="farm-member-actions-title" className="farm-form__title">
-            Administración del integrante
-          </h4>
-          {actionNotice ? (
-            <p className="farm-empty__hint" role="status">
-              {actionNotice}
-            </p>
-          ) : null}
-          {actionError && dialog === null ? (
-            <p className="farm-form__error" role="alert">
-              {actionError}
-            </p>
-          ) : null}
-          {canRevoke(current) ? (
+        <section className="config-ficha__block" aria-labelledby="farm-member-role-title">
+          <h4 id="farm-member-role-title">Rol</h4>
+          {canChangeRole(current) ? (
             <>
-              {isTransferEligible(current) ? (
-                <div className="farm-member-actions__item">
-                  <p className="farm-empty__hint">
-                    Pasa la administración a este integrante; tú quedarás como Operador.
-                  </p>
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    data-action="transfer"
-                    disabled={busy || !confirmed}
-                    onClick={() => send({ type: "open", dialog: "transfer" })}
-                  >
-                    Transferir administración
-                  </button>
-                </div>
-              ) : null}
-              <div className="farm-member-actions__item">
-                <p className="farm-empty__hint">
-                  Retira el acceso de este integrante a la finca.
+              <p>Elige el nuevo rol y confirma el cambio.</p>
+              <div className="config-seg" role="radiogroup" aria-label="Rol">
+                {ROLE_OPTIONS.map((option) => {
+                  const checked = option === selectedRole;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      role="radio"
+                      aria-checked={checked}
+                      data-role={option}
+                      className={checked ? "is-on" : undefined}
+                      disabled={busy || !confirmed}
+                      onClick={() => {
+                        setSelectedRole(option);
+                        setRoleError("");
+                      }}
+                    >
+                      {roleLabel(option)}
+                      {option === current.role ? " · actual" : ""}
+                    </button>
+                  );
+                })}
+              </div>
+              {roleError && !confirmOpen ? (
+                <p className="farm-form__error" role="alert">
+                  {roleError}
                 </p>
+              ) : null}
+              <div className="config-ficha__tools">
                 <button
                   type="button"
-                  className="btn-danger"
-                  data-action="revoke"
-                  disabled={busy || !confirmed}
-                  onClick={() => send({ type: "open", dialog: "revoke" })}
+                  className="btn-primary"
+                  disabled={busy || !confirmed || !isRoleChange(current, selectedRole)}
+                  onClick={() => {
+                    setRoleError("");
+                    send({ type: "open", dialog: "role" });
+                  }}
                 >
-                  Revocar acceso
+                  Cambiar rol
                 </button>
               </div>
             </>
           ) : (
-            <p className="farm-empty__hint">
-              Solo una membresía activa se puede revocar o recibir la administración.
-            </p>
+            <p className="config-ficha__void">Solo se puede cambiar el rol de una membresía activa.</p>
           )}
         </section>
-      ) : null}
 
-      <section className="farm-history" aria-label="Historial del integrante">
-        <h4 className="farm-form__title">Historial del integrante</h4>
-        <HistoryEvents
-          view={historyView(history, MEMBER_HISTORY_PAGE_SIZE)}
-          emptyText="Este integrante no tiene eventos registrados."
-          onPage={(page) => void goToPage(page)}
-          onRetry={() => void goToPage(history.page)}
-        />
-      </section>
+        {canManage ? (
+          <section className="config-ficha__block" aria-labelledby="farm-member-actions-title">
+            <h4 id="farm-member-actions-title">Administración</h4>
+            {actionNotice ? (
+              <p role="status">{actionNotice}</p>
+            ) : null}
+            {actionError && dialog === null ? (
+              <p className="farm-form__error" role="alert">
+                {actionError}
+              </p>
+            ) : null}
+            {canRevoke(current) ? (
+              <>
+                {isTransferEligible(current) ? (
+                  <>
+                    <p>Pasa la administración a este integrante; tú quedarás como Operador.</p>
+                    <div className="config-ficha__tools">
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        data-action="transfer"
+                        disabled={busy || !confirmed}
+                        onClick={() => send({ type: "open", dialog: "transfer" })}
+                      >
+                        Transferir administración
+                      </button>
+                    </div>
+                  </>
+                ) : null}
+                <p>Retira el acceso de este integrante a la finca.</p>
+                <div className="config-ficha__tools">
+                  <button
+                    type="button"
+                    className="btn-danger"
+                    data-action="revoke"
+                    disabled={busy || !confirmed}
+                    onClick={() => send({ type: "open", dialog: "revoke" })}
+                  >
+                    Revocar acceso
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className="config-ficha__void">
+                Solo una membresía activa se puede revocar o recibir la administración.
+              </p>
+            )}
+          </section>
+        ) : null}
+
+        <section className="config-ficha__block" aria-label="Historial del integrante">
+          <h4>Historial del integrante</h4>
+          <HistoryEvents
+            view={historyView(history, MEMBER_HISTORY_PAGE_SIZE)}
+            emptyText="Este integrante no tiene eventos registrados."
+            onPage={(page) => void goToPage(page)}
+            onRetry={() => void goToPage(history.page)}
+          />
+        </section>
+      </article>
       <ConfirmDialog
         open={confirmOpen}
         tone={roleChangeCopy(current, selectedRole).tone}

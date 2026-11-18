@@ -106,17 +106,18 @@ function renderMembers(initialSelectedId?: number) {
 describe("FarmMembers: listado pulsable", () => {
   it("cada fila es un botón identificado por su id de membresía", () => {
     const html = renderMembers();
-    expect(html.match(/class="farm-members__item farm-members__row"/g)?.length).toBe(3);
+    expect(html.match(/data-membership-id="/g)?.length).toBe(3);
     expect(html).toContain('data-membership-id="10"');
     expect(html).toContain('data-membership-id="11"');
     expect(html).toContain('data-membership-id="12"');
+    expect(html).toContain("config-crew__grid");
   });
 
   it("muestra los estados activo, revocado y abandonado", () => {
     const html = renderMembers();
-    expect(html).toContain('farm-member-status is-active">Activa');
-    expect(html).toContain('farm-member-status is-revoked">Revocada');
-    expect(html).toContain('farm-member-status is-left">Abandonada');
+    expect(html).toContain('config-status is-on">Activa');
+    expect(html).toContain('config-status is-off">Revocada');
+    expect(html).toContain('config-status is-off">Abandonada');
   });
 
   it("conserva la paginación y los filtros en el listado", () => {
@@ -129,14 +130,14 @@ describe("FarmMembers: listado pulsable", () => {
     const html = renderMembers(11);
     expect(html).toContain("Volver a integrantes");
     expect(html).toContain("Historial del integrante");
-    expect(html).not.toContain("farm-members__row");
+    expect(html).not.toContain("config-crew__grid");
     expect(html).not.toContain('aria-label="Filtro de estado"');
   });
 
   it("un id inexistente no abre detalle", () => {
     const html = renderMembers(99);
     expect(html).not.toContain("Volver a integrantes");
-    expect(html).toContain("farm-members__row");
+    expect(html).toContain("config-crew__grid");
   });
 });
 

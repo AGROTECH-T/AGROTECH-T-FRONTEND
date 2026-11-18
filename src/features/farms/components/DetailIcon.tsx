@@ -20,7 +20,9 @@ export type DetailIconName =
   | "power"
   | "logout"
   | "arrow-left"
-  | "arrow-right";
+  | "arrow-right"
+  | "box"
+  | "barn";
 
 const PATHS: Record<DetailIconName, string[]> = {
   grid: ["M4 4h7v7H4z", "M13 4h7v7h-7z", "M4 13h7v7H4z", "M13 13h7v7h-7z"],
@@ -45,6 +47,8 @@ const PATHS: Record<DetailIconName, string[]> = {
   logout: ["M14 4h5v16h-5", "M10 8l-4 4 4 4", "M6 12h10"],
   "arrow-left": ["M19 12H5", "m11 6-6 6 6 6"],
   "arrow-right": ["M5 12h14", "m13 6 6 6-6 6"],
+  box: ["M4 8l8-4 8 4v10l-8 4-8-4z", "M4 8l8 4 8-4", "M12 12v10"],
+  barn: ["M4 20V10l8-6 8 6v10", "M9 20v-6h6v6", "M4 10h16"],
 };
 
 /** Ícono decorativo de 24×24 con trazo. */
