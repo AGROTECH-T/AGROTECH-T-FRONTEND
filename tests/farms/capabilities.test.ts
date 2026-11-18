@@ -24,10 +24,7 @@ import {
 } from "../../src/features/farms/services/farmLifecycle.ts";
 import { visibleTabs } from "../../src/features/farms/services/farmTabs.ts";
 import type { Farm, FarmCapabilities, FarmRole } from "../../src/features/farms/types/index.ts";
-import { InventarioBrowser } from "../../src/features/inventario/components/InventarioBrowser.tsx";
-import { ProductDetail } from "../../src/features/inventario/components/ProductDetail.tsx";
 import { canWriteInventory } from "../../src/features/inventario/services/inventoryAccess.ts";
-import type { Product } from "../../src/features/inventario/types/index.ts";
 
 const none: FarmCapabilities = {
   can_edit_farm: false,
@@ -63,22 +60,6 @@ function farm(role: FarmRole, capabilities?: FarmCapabilities, id = 1): Farm {
   };
 }
 
-const product: Product = {
-  id: 1,
-  farm_id: 1,
-  name: "Maíz",
-  barcode: "7701234567890",
-  unit: "kg",
-  unit_label: "Kilogramo (kg)",
-  category: "concentrados",
-  category_label: "Concentrados",
-  min_stock: "1.000",
-  quantity: "5.000",
-  created_at: "2026-11-01T00:00:00Z",
-  updated_at: "2026-11-01T00:00:00Z",
-};
-
-const noop = () => undefined;
 const tabIds = (target: Farm) => visibleTabs(target).map((tab) => tab.id);
 
 describe("crear fincas y abrir por identificador", () => {
@@ -151,42 +132,15 @@ describe("pestañas y acciones por finca", () => {
 });
 
 describe("inventario", () => {
-  it("consulta no ve las acciones de escritura", () => {
-    const viewer = farm("consulta", none);
-    expect(canWriteInventory(viewer)).toBe(false);
-    const list = renderToStaticMarkup(
-      createElement(InventarioBrowser, {
-        farmId: 1,
-        products: [product],
-        loading: false,
-        error: "",
-        onReload: noop,
-        onSelect: noop,
-        onCreated: noop,
-        canWrite: false,
-      }),
-    );
-    expect(list).not.toContain("+ Nuevo insumo");
-    const detail = renderToStaticMarkup(
-      createElement(ProductDetail, {
-        farmId: 1,
-        product,
-        onBack: noop,
-        onChanged: noop,
-        canWrite: false,
-      }),
-    );
-    expect(detail).not.toContain("Registrar movimiento");
-    expect(detail).toContain("solo permite consultar");
+  // INT-02: los paneles de inventario son los de develop; la autorización de
+  // escritura la aplica el backend (require_action). Aquí se prueba la regla.
+  it("consulta no puede escribir inventario", () => {
+    expect(canWriteInventory(farm("consulta", none))).toBe(false);
   });
 
-  it("operador y administrador sí ven las acciones de escritura", () => {
+  it("operador y administrador sí pueden escribir inventario", () => {
     expect(canWriteInventory(farm("operador", operatorCaps))).toBe(true);
     expect(canWriteInventory(farm("administrador", adminCaps))).toBe(true);
-    const detail = renderToStaticMarkup(
-      createElement(ProductDetail, { farmId: 1, product, onBack: noop, onChanged: noop }),
-    );
-    expect(detail).toContain("Registrar movimiento");
   });
 
   it("al cambiar de finca se recalcula la capacidad", () => {

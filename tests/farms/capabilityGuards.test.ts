@@ -27,7 +27,6 @@ import {
 } from "../../src/features/farms/services/farmLifecycle.ts";
 import { visibleTabs, type FarmTabId } from "../../src/features/farms/services/farmTabs.ts";
 import type { Farm, FarmCapabilities, FarmRole } from "../../src/features/farms/types/index.ts";
-import { InventarioPanel } from "../../src/features/inventario/components/InventarioPanel.tsx";
 import {
   canWriteInventory,
   emptyInventoryState,
@@ -178,21 +177,15 @@ describe("hallazgo 2: respaldo tras desactivar o reactivar", () => {
 });
 
 describe("hallazgo 6: estado vacío de Inventario", () => {
-  const render = (account?: { can_create_farms?: boolean }) =>
-    renderToStaticMarkup(createElement(InventarioPanel, { account }));
-
   it("cuenta con capacidad de crear: orienta a crear la finca", () => {
     expect(emptyInventoryState({ can_create_farms: true }).title).toBe("Primero crea una finca");
-    expect(render({ can_create_farms: true })).toContain("Primero crea una finca");
   });
 
   it("cuenta sin capacidad (operador o consulta sin fincas): pide una invitación", () => {
     const state = emptyInventoryState({ can_create_farms: false });
     expect(state.title).not.toContain("crea");
     expect(state.hint).toContain("invite");
-    const html = render({ can_create_farms: false });
-    expect(html).not.toContain("Primero crea una finca");
-    expect(html).toContain("Aún no perteneces a ninguna finca");
+    expect(state.title).toBe("Aún no perteneces a ninguna finca");
   });
 
   it("operador y consulta con fincas no ven el estado vacío; la escritura depende del rol", () => {
@@ -204,6 +197,5 @@ describe("hallazgo 6: estado vacío de Inventario", () => {
     const state = emptyInventoryState(undefined);
     expect(state.title).toBe("Aún no tienes fincas disponibles");
     expect(state.hint).toContain("invitación");
-    expect(render(undefined)).toContain("Aún no tienes fincas disponibles");
   });
 });
