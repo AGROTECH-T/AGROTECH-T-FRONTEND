@@ -1,0 +1,11 @@
+# Normaliza finales de linea en el repositorio (INT-02).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
