@@ -90,6 +90,10 @@ function caps(overrides: Partial<FarmCapabilities> = {}): FarmCapabilities {
     can_manage_invitations: true,
     can_read_inventory: true,
     can_write_inventory: true,
+    can_read_galpon: true,
+    can_write_galpon: true,
+    can_read_iot: true,
+    can_manage_iot: true,
     ...overrides,
   };
 }

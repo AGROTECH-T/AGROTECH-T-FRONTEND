@@ -1367,6 +1367,16 @@ button.easy-chip {
   flex: 1;
 }
 
+/* Listado de inventarios (mismo look que main; ya no vive en farms.css). */
+.farm-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .inv-book {
   display: flex;
   flex-wrap: wrap;
@@ -1375,7 +1385,32 @@ button.easy-chip {
 }
 
 .inv-book .farm-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   flex: 1;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 0;
+  border-radius: 22px;
+  color: var(--ink);
+  background: var(--tint);
+  box-shadow: var(--raised);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inv-book .farm-row:hover {
+  background: var(--field);
+}
+
+.inv-book .farm-row__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 700;
 }
 
 .inv-book__actions,

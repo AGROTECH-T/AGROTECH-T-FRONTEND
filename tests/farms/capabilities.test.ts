@@ -35,6 +35,10 @@ const none: FarmCapabilities = {
   can_manage_invitations: false,
   can_read_inventory: true,
   can_write_inventory: false,
+  can_read_galpon: true,
+  can_write_galpon: false,
+  can_read_iot: true,
+  can_manage_iot: false,
 };
 const adminCaps: FarmCapabilities = {
   ...none,
@@ -44,8 +48,14 @@ const adminCaps: FarmCapabilities = {
   can_manage_members: true,
   can_manage_invitations: true,
   can_write_inventory: true,
+  can_write_galpon: true,
+  can_manage_iot: true,
 };
-const operatorCaps: FarmCapabilities = { ...none, can_write_inventory: true };
+const operatorCaps: FarmCapabilities = {
+  ...none,
+  can_write_inventory: true,
+  can_write_galpon: true,
+};
 
 function farm(role: FarmRole, capabilities?: FarmCapabilities, id = 1): Farm {
   return {
@@ -62,18 +72,18 @@ function farm(role: FarmRole, capabilities?: FarmCapabilities, id = 1): Farm {
 
 const tabIds = (target: Farm) => visibleTabs(target).map((tab) => tab.id);
 
-describe("crear fincas y abrir por identificador", () => {
-  it("cuenta con capacidad: muestra Nueva finca", () => {
+describe("crear fincas", () => {
+  it("cuenta con capacidad: muestra Nueva finca y ya no ofrece abrir por identificador", () => {
     const html = renderToStaticMarkup(
       createElement(FarmsScreen, {
         account: { can_create_farms: true, can_open_inactive_farms: true },
       }),
     );
     expect(html).toContain("+ Nueva finca");
-    expect(html).toContain("Abrir por identificador");
+    expect(html).not.toContain("Abrir por identificador");
   });
 
-  it("cuenta sin capacidad (operador o consulta): oculta ambas acciones", () => {
+  it("cuenta sin capacidad (operador o consulta): oculta crear", () => {
     const html = renderToStaticMarkup(
       createElement(FarmsScreen, {
         account: { can_create_farms: false, can_open_inactive_farms: false },
@@ -104,13 +114,14 @@ describe("crear fincas y abrir por identificador", () => {
 describe("pestañas y acciones por finca", () => {
   it("usa las capacidades del backend", () => {
     expect(tabIds(farm("administrador", adminCaps))).toEqual([
-      "resumen",
+      "inventarios",
+      "galpones",
       "integrantes",
       "invitaciones",
       "historial",
     ]);
-    expect(tabIds(farm("operador", operatorCaps))).toEqual(["resumen"]);
-    expect(tabIds(farm("consulta", none))).toEqual(["resumen"]);
+    expect(tabIds(farm("operador", operatorCaps))).toEqual(["inventarios", "galpones"]);
+    expect(tabIds(farm("consulta", none))).toEqual(["inventarios", "galpones"]);
   });
 
   it("las capacidades mandan sobre el rol", () => {
@@ -125,7 +136,7 @@ describe("pestañas y acciones por finca", () => {
 
   it("sin capacidades recurre al rol (compatibilidad)", () => {
     expect(tabIds(farm("administrador"))).toContain("integrantes");
-    expect(tabIds(farm("operador"))).toEqual(["resumen"]);
+    expect(tabIds(farm("operador"))).toEqual(["inventarios", "galpones"]);
     expect(canEditName(farm("administrador"))).toBe(true);
     expect(canEditName(farm("consulta"))).toBe(false);
   });

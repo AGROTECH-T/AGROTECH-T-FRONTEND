@@ -32,6 +32,8 @@ function unitName(product: Product): string {
 type Props = {
   products: Product[];
   role: FarmRole;
+  /** Escritura según capabilities (movimientos, préstamos). */
+  canWrite: boolean;
   order: Order;
   onSort: (order: Order) => void;
   onView: (product: Product) => void;
@@ -53,6 +55,7 @@ type Props = {
 export function ProductList({
   products,
   role,
+  canWrite,
   order,
   onSort,
   onView,
@@ -65,7 +68,7 @@ export function ProductList({
   amountError,
   onAmount,
 }: Readonly<Props>) {
-  const canWrite = role === "administrador" || role === "operador";
+  // Editar / ajuste siguen el rol admin (GESTIONAR_PRODUCTOS / AJUSTAR_STOCK).
   const isAdmin = role === "administrador";
 
   return (

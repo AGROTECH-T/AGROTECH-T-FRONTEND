@@ -16,6 +16,7 @@ import {
   placeProduct,
   type FarmInventory,
 } from "../services/farmInventories.ts";
+import { canWriteInventory } from "../services/inventoryAccess.ts";
 import type { Product } from "../types/index.ts";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { AdjustmentReport } from "./AdjustmentReport.tsx";
@@ -56,13 +57,24 @@ type Props = {
   tick: number;
   onView: (view: StockView) => void;
   onCreateFarm: () => void;
+  /** Finca preferida al abrir desde el detalle de finca. */
+  initialFarmId?: number;
+  /** Inventario preferido al abrir desde el detalle de finca. */
+  initialInventoryId?: string;
 };
 
 /**
  * Orquesta finca activa, listado, detalle e historial.
  * @returns Panel de Inventario.
  */
-export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<Props>) {
+export function InventarioPanel({
+  view,
+  tick,
+  onView,
+  onCreateFarm,
+  initialFarmId,
+  initialInventoryId,
+}: Readonly<Props>) {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [farmId, setFarmId] = useState<number | null>(null);
   const [selected, setSelected] = useState<Product | null>(null);
@@ -79,7 +91,7 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
   const [refreshMark, setRefreshMark] = useState(0);
   const farm = farms.find((item) => item.id === farmId) ?? null;
   const role: FarmRole = farm?.role ?? "consulta";
-  const canWrite = role === "administrador" || role === "operador";
+  const canWrite = canWriteInventory(farm);
   const blocked = view === "crear" || view === "entrada" || view === "salida";
   const shown: StockView = !canWrite && blocked ? "lista" : view;
   const desk = shown === "entrada" || shown === "salida" ? shown : null;
@@ -94,19 +106,29 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
     void listFarms()
       .then((items) => {
         setFarms(items);
-        setFarmId(items[0]?.id ?? null);
+        const preferred =
+          initialFarmId != null && items.some((item) => item.id === initialFarmId)
+            ? initialFarmId
+            : items[0]?.id ?? null;
+        setFarmId(preferred);
       })
       .catch((cause) => {
         setError(cause instanceof Error ? cause.message : "No se pudieron cargar las fincas");
       });
-  }, []);
+  }, [tick, initialFarmId]);
 
   useEffect(() => {
     if (farmId == null) return;
     const items = listInventories(farmId);
     setInventories(items);
-    setInventoryId(items[0]?.id ?? "");
-  }, [farmId]);
+    setInventoryId((current) => {
+      if (initialInventoryId && items.some((item) => item.id === initialInventoryId)) {
+        return initialInventoryId;
+      }
+      if (items.some((item) => item.id === current)) return current;
+      return items[0]?.id ?? "";
+    });
+  }, [farmId, initialInventoryId]);
 
   const clearFresh = useCallback(() => setFresh(null), []);
 
@@ -273,14 +295,16 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
       <button type="button" className="inv-pill is-more" onClick={() => onView("reportes")}>
         <Mark kind="more" /> Más reportes
       </button>
-      <button
-        type="button"
-        className="inv-pill is-template"
-        onClick={() => setTemplateOpen(true)}
-        disabled={farmId == null}
-      >
-        <Mark kind="sheet" /> Cargar inventario
-      </button>
+      {canWrite ? (
+        <button
+          type="button"
+          className="inv-pill is-template"
+          onClick={() => setTemplateOpen(true)}
+          disabled={farmId == null}
+        >
+          <Mark kind="sheet" /> Cargar inventario
+        </button>
+      ) : null}
       <button
         type="button"
         className="inv-pill is-download"
@@ -373,6 +397,7 @@ export function InventarioPanel({ view, tick, onView, onCreateFarm }: Readonly<P
           farmId={farmId}
           inventoryId={inventoryId}
           role={role}
+          canWrite={canWrite}
           onSelect={(product) => {
             setDetailMode({ intent: "ver" });
             setSelected(product);

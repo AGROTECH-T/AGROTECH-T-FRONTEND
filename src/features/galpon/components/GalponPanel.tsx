@@ -12,8 +12,9 @@ import { useCallback, useEffect, useState } from "react";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { listFarms } from "../../farms/services/farmsApi.ts";
-import type { Farm, FarmRole } from "../../farms/types/index.ts";
+import type { Farm } from "../../farms/types/index.ts";
 import { getLot, listHouses, listLots } from "../services/galponApi.ts";
+import { canWriteGalpon } from "../services/galponAccess.ts";
 import type { House, Lot } from "../types/index.ts";
 import { HouseWorkspace } from "./HouseWorkspace.tsx";
 import { HousesView } from "./HousesView.tsx";
@@ -23,6 +24,10 @@ import { Empty } from "./galponUi.tsx";
 type Props = {
   tick?: number;
   onCreateFarm?: () => void;
+  /** Finca preferida al abrir desde el detalle de finca. */
+  initialFarmId?: number;
+  /** Galpón preferido al abrir desde el detalle de finca. */
+  initialHouseId?: number;
 };
 
 function message(cause: unknown, fallback: string): string {
@@ -34,7 +39,12 @@ function message(cause: unknown, fallback: string): string {
  * @param props - Acción para crear una finca cuando todavía no hay ninguna.
  * @returns Cabecera, ruta y contenido de la pantalla actual.
  */
-export function GalponPanel({ tick = 0, onCreateFarm }: Readonly<Props> = {}) {
+export function GalponPanel({
+  tick = 0,
+  onCreateFarm,
+  initialFarmId,
+  initialHouseId,
+}: Readonly<Props> = {}) {
   const [farms, setFarms] = useState<Farm[]>([]);
   const [farmId, setFarmId] = useState<number | null>(null);
   const [houses, setHouses] = useState<House[]>([]);
@@ -54,8 +64,7 @@ export function GalponPanel({ tick = 0, onCreateFarm }: Readonly<Props> = {}) {
   );
 
   const farm = farms.find((item) => item.id === farmId) ?? null;
-  const role: FarmRole = farm?.role ?? "consulta";
-  const canWrite = role === "administrador" || role === "operador";
+  const canWrite = canWriteGalpon(farm);
   const house = houseId == null ? null : houses.find((item) => item.id === houseId) ?? null;
   const houseLots = houseId == null ? [] : lots.filter((item) => item.house_id === houseId);
   const lot = detail?.id === lotId ? detail : null;
@@ -85,19 +94,23 @@ export function GalponPanel({ tick = 0, onCreateFarm }: Readonly<Props> = {}) {
     void listFarms()
       .then((items) => {
         setFarms(items);
-        setFarmId(items[0]?.id ?? null);
+        const preferred =
+          initialFarmId != null && items.some((item) => item.id === initialFarmId)
+            ? initialFarmId
+            : items[0]?.id ?? null;
+        setFarmId(preferred);
       })
       .catch((cause) => setError(message(cause, "No se pudieron cargar las fincas")))
       .finally(() => setLoading(false));
-  }, []);
+  }, [tick, initialFarmId]);
 
   useEffect(() => {
-    if (tick === 0) return;
-    setHouseId(null);
+    if (tick === 0 && initialHouseId == null) return;
     setLotId(null);
     setDetail(null);
     setError("");
-  }, [tick]);
+    setHouseId(initialHouseId ?? null);
+  }, [tick, initialHouseId]);
 
   useEffect(() => {
     if (farmId == null) return;

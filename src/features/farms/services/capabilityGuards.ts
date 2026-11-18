@@ -22,6 +22,10 @@ export const NO_CAPABILITIES: Readonly<FarmCapabilities> = Object.freeze({
   can_manage_invitations: false,
   can_read_inventory: false,
   can_write_inventory: false,
+  can_read_galpon: false,
+  can_write_galpon: false,
+  can_read_iot: false,
+  can_manage_iot: false,
 });
 
 /**

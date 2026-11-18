@@ -22,6 +22,10 @@ export type FarmCapabilities = {
   can_manage_invitations: boolean;
   can_read_inventory: boolean;
   can_write_inventory: boolean;
+  can_read_galpon: boolean;
+  can_write_galpon: boolean;
+  can_read_iot: boolean;
+  can_manage_iot: boolean;
 };
 
 export type Farm = {

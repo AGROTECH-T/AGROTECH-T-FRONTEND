@@ -41,11 +41,17 @@ const adminActive: FarmCapabilities = {
   can_manage_invitations: true,
   can_read_inventory: true,
   can_write_inventory: true,
+  can_read_galpon: true,
+  can_write_galpon: true,
+  can_read_iot: true,
+  can_manage_iot: true,
 };
 const operatorCaps: FarmCapabilities = {
   ...NO_CAPABILITIES,
   can_read_inventory: true,
   can_write_inventory: true,
+  can_read_galpon: true,
+  can_write_galpon: true,
 };
 const viewerCaps: FarmCapabilities = { ...NO_CAPABILITIES, can_read_inventory: true };
 
@@ -104,7 +110,7 @@ describe("hallazgo 1: acceso sin confirmar", () => {
     expect(Object.values(view.capabilities ?? {}).some(Boolean)).toBe(false);
     expect(original.role).toBe("administrador");
     expect(original.capabilities).toEqual(adminActive);
-    expect(tabIds(view)).toEqual(["resumen"]);
+    expect(tabIds(view)).toEqual(["inventarios", "galpones"]);
     expect(canEditName(view) || canDeactivate(view) || canReactivate(view)).toBe(false);
     expect(canWriteInventory(view)).toBe(false);
   });
@@ -120,8 +126,14 @@ describe("hallazgo 1: acceso sin confirmar", () => {
 
   it("al confirmar el acceso se vuelven a usar las capacidades reales", () => {
     const confirmed = farm("administrador", adminActive);
-    expect(tabIds(unconfirmedAccessView(confirmed))).toEqual(["resumen"]);
-    expect(tabIds(confirmed)).toEqual(["resumen", "integrantes", "invitaciones", "historial"]);
+    expect(tabIds(unconfirmedAccessView(confirmed))).toEqual(["inventarios", "galpones"]);
+    expect(tabIds(confirmed)).toEqual([
+      "inventarios",
+      "galpones",
+      "integrantes",
+      "invitaciones",
+      "historial",
+    ]);
   });
 });
 

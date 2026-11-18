@@ -63,6 +63,7 @@ const props = {
   farmId: 1,
   inventoryId: "",
   role: "administrador" as const,
+  canWrite: true,
   onSelect,
   onEdit: vi.fn(),
   onMove: vi.fn(),

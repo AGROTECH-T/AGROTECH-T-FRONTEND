@@ -73,6 +73,10 @@ function caps(overrides: Partial<FarmCapabilities> = {}): FarmCapabilities {
     can_manage_invitations: true,
     can_read_inventory: true,
     can_write_inventory: true,
+    can_read_galpon: true,
+    can_write_galpon: true,
+    can_read_iot: true,
+    can_manage_iot: true,
     ...overrides,
   };
 }
@@ -199,13 +203,13 @@ describe("revocación: visibilidad", () => {
     const html = renderMember(member(11, "operador"), { canManage: true });
     expect(html).toContain('data-action="revoke"');
     expect(html).toContain("Revocar acceso");
-    expect(html).toContain("Administración del integrante");
+    expect(html).toContain("Administración");
   });
 
   it("oculta para un usuario no autorizado", () => {
     const html = renderMember(member(11, "operador"), { canManage: false });
     expect(html).not.toContain('data-action="revoke"');
-    expect(html).not.toContain("Administración del integrante");
+    expect(html).not.toContain(">Administración<");
   });
 
   it("oculta para membresías revocadas o abandonadas", () => {
@@ -546,7 +550,7 @@ describe("transferencia: éxito", () => {
     if (refresh.status !== "ok") throw new Error("se esperaba ok");
     expect(refresh.lostAdmin).toBe(true);
     expect(canManageMembers(refresh.farm)).toBe(false);
-    expect(visibleTabs(refresh.farm).map((t) => t.id)).toEqual(["resumen"]);
+    expect(visibleTabs(refresh.farm).map((t) => t.id)).toEqual(["inventarios", "galpones"]);
     const notice = memberChangeNotice(transferredText(transferResponse()), refresh);
     expect(notice.tone).toBe("warn");
     expect(notice.text).toBe(
