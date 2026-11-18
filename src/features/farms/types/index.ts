@@ -68,6 +68,8 @@ export type FarmMember = {
   status: FarmMembershipStatus;
   created_at: string;
   updated_at: string;
+  /** True si la membresía es la de la cuenta autenticada. */
+  is_self?: boolean;
 };
 
 export type FarmMembersResponse = {

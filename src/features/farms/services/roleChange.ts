@@ -3,9 +3,9 @@
  *
  * Propósito: textos de confirmación, mensajes de error y actualización del
  * acceso propio tras un PATCH exitoso.
- * Contexto: el backend decide (403/404/409). El frontend no conoce el id de la
- * membresía propia, así que tras cada cambio vuelve a leer GET /farms/{id}/
- * para saber el rol real de la cuenta; nunca compara nombres.
+ * Contexto: el backend decide (403/404/409) y marca ``is_self``. No se puede
+ * cambiar el propio rol (usar transferencia). Tras un cambio ajeno se relee
+ * GET /farms/{id}/ por si el acceso cambió.
  * @author Cristian Deysdayr Jimenez
  */
 
@@ -16,9 +16,12 @@ import { roleLabel } from "./roleLabel.ts";
 /** Valores exactos que acepta ChangeMemberRoleSerializer. */
 export const ROLE_OPTIONS: readonly FarmRole[] = ["administrador", "operador", "consulta"];
 
-/** Solo una membresía activa admite cambio de rol (el backend responde 404 si no). */
-export function canChangeRole(member: Pick<FarmMember, "status">): boolean {
-  return member.status === "active";
+/**
+ * Membresía activa ajena. La propia no admite cambio de rol (403 en backend);
+ * para ceder administración se usa la transferencia.
+ */
+export function canChangeRole(member: Pick<FarmMember, "status" | "is_self">): boolean {
+  return member.status === "active" && member.is_self !== true;
 }
 
 /** @returns true si el rol elegido es distinto del actual. */
@@ -48,7 +51,7 @@ export function roleChangeCopy(member: Pick<FarmMember, "name" | "role">, next: 
       title: `¿Promover a ${who} a Administrador?`,
       body: [
         `Pasará de ${from} a Administrador.`,
-        "Podrá editar y desactivar la finca, consultar su historial y gestionar a sus integrantes, incluido tu propio rol.",
+        "Podrá editar y desactivar la finca, consultar su historial y gestionar a sus integrantes.",
       ],
       confirm: "Promover a Administrador",
       tone: "warning",
@@ -60,7 +63,6 @@ export function roleChangeCopy(member: Pick<FarmMember, "name" | "role">, next: 
       title: `¿Cambiar a ${who} a ${to}?`,
       body: [
         `Dejará de ser Administrador y pasará a ${to}.`,
-        "Si es tu propia membresía, perderás de inmediato las opciones de administración de esta finca.",
         "La finca debe conservar al menos un administrador activo; si no hay otro, el cambio será rechazado.",
       ],
       confirm: `Cambiar a ${to}`,

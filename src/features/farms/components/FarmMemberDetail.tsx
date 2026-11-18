@@ -346,7 +346,12 @@ export function FarmMemberDetail({
 
         <section className="config-ficha__block" aria-labelledby="farm-member-role-title">
           <h4 id="farm-member-role-title">Rol</h4>
-          {canChangeRole(current) ? (
+          {current.is_self ? (
+            <p className="config-ficha__void">
+              No puedes cambiar tu propio rol. Para ceder la administración usa
+              «Transferir administración» en otro integrante.
+            </p>
+          ) : canChangeRole(current) ? (
             <>
               <p>Elige el nuevo rol y confirma el cambio.</p>
               <div className="config-seg" role="radiogroup" aria-label="Rol">
