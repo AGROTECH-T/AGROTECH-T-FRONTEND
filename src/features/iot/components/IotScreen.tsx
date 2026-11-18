@@ -342,40 +342,115 @@ export function IotScreen() {
     if (error) return <div className="iot-message iot-error" role="alert"><strong>No se pudo cargar IoT</strong><p>{error}</p><button type="button" className="btn-secondary" onClick={() => void load(query)} disabled={loading}>Reintentar</button></div>;
     if (loading && !hasData) return <div className="iot-message" role="status">Cargando información IoT…</div>;
     if (view === "Resumen") {
-      return <>
-        <IotGuide
-          title="Qué ves en IoT"
-          lead="Este módulo muestra lo que llega del campo a tu finca."
-          steps={
-            canManageIot
-              ? [
-                  "En Configurar registras gateway, coordinador, fuente y sensores de esta finca.",
-                  "Cuando el hardware publica por MQTT, aquí aparecen lecturas y tendencias.",
-                  "Cada finca solo ve y administra sus propios dispositivos.",
-                ]
-              : [
-                  "Aquí ves gateways, sensores y lecturas de esta finca.",
-                  "Cuando el hardware publica por MQTT, aparecen mediciones y tendencias.",
-                  "La configuración de dispositivos la hace quien administra IoT en la finca.",
-                ]
-          }
-          example={
-            canManageIot
-              ? "Si aún no hay sensores, abre la pestaña Configurar y sigue la guía paso a paso."
-              : "Si no ves datos, pide a un administrador de la finca que configure IoT."
-          }
-        />
-        <div className="iot-metrics">
-          {([["Gateways", data.gateways?.count], ["Coordinadores", data.coordinators?.count], ["Sensores", sensorData?.count]] as const).map(([label, value]) =>
-            <article className="iot-metric" key={label}><span>{label}</span><strong>{value ?? (sensorLoading ? "…" : "—")}</strong><small>registros en la finca</small></article>)}
-          <article className="iot-metric"><span>Última recepción</span><strong className="iot-date-value">{lastReceived ? formatIotDate(lastReceived) : "Sin datos"}</strong><small>hora del servidor, según la muestra</small></article>
+      const kpi = [
+        {
+          key: "gateways",
+          label: "Gateways",
+          value: data.gateways?.count,
+          hint: "puertas de enlace",
+          tone: "moss",
+        },
+        {
+          key: "coordinators",
+          label: "Coordinadores",
+          value: data.coordinators?.count,
+          hint: "nodos de campo",
+          tone: "leaf",
+        },
+        {
+          key: "sensors",
+          label: "Sensores",
+          value: sensorData?.count,
+          hint: "canales activos",
+          tone: "action",
+        },
+      ] as const;
+      return (
+        <div className="iot-dashboard">
+          <IotGuide
+            title="Qué ves en IoT"
+            lead="Este módulo muestra lo que llega del campo a tu finca."
+            steps={
+              canManageIot
+                ? [
+                    "En Configurar registras gateway, coordinador, fuente y sensores de esta finca.",
+                    "Cuando el hardware publica por MQTT, aquí aparecen lecturas y tendencias.",
+                    "Cada finca solo ve y administra sus propios dispositivos.",
+                  ]
+                : [
+                    "Aquí ves gateways, sensores y lecturas de esta finca.",
+                    "Cuando el hardware publica por MQTT, aparecen mediciones y tendencias.",
+                    "La configuración de dispositivos la hace quien administra IoT en la finca.",
+                  ]
+            }
+            example={
+              canManageIot
+                ? "Si aún no hay sensores, abre la pestaña Configurar y sigue la guía paso a paso."
+                : "Si no ves datos, pide a un administrador de la finca que configure IoT."
+            }
+          />
+          <div className="iot-metrics" role="group" aria-label="Indicadores de la finca">
+            {kpi.map((item) => (
+              <article className={`iot-metric iot-metric--${item.tone}`} key={item.key}>
+                <div className="iot-metric__top">
+                  <span>{item.label}</span>
+                  <span className="iot-metric__mark" aria-hidden="true" />
+                </div>
+                <strong>{item.value ?? (sensorLoading && item.key === "sensors" ? "…" : "—")}</strong>
+                <small>{item.hint}</small>
+              </article>
+            ))}
+            <article className="iot-metric iot-metric--time">
+              <div className="iot-metric__top">
+                <span>Última recepción</span>
+                <span className="iot-metric__mark" aria-hidden="true" />
+              </div>
+              <strong className="iot-date-value">
+                {lastReceived ? formatIotDate(lastReceived) : "Sin datos"}
+              </strong>
+              <small>hora del servidor · muestra actual</small>
+            </article>
+          </div>
+          {sensorError ? (
+            <div className="iot-message iot-error" role="alert">
+              <p>{sensorError}</p>
+            </div>
+          ) : sensorData && refreshedAt !== null ? (
+            <IotLatestReadings
+              sensors={sensorData.results}
+              readings={readings}
+              refreshedAt={refreshedAt}
+            />
+          ) : (
+            <div className="iot-message" role="status">
+              Cargando sensores…
+            </div>
+          )}
+          <section className="iot-history-block" aria-labelledby="iot-history-title">
+            <div className="iot-dash-head">
+              <div className="iot-section-title__main">
+                <span className="iot-section-title__badge" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
+                  </svg>
+                </span>
+                <div>
+                  <h2 id="iot-history-title">Últimas mediciones</h2>
+                  <p>Muestra rápida de las lecturas más recientes recibidas en esta finca.</p>
+                </div>
+              </div>
+              <span className="iot-section-chip">
+                {readings.length ? `Mostrando ${Math.min(20, readings.length)}` : "Sin datos"}
+              </span>
+            </div>
+            {readings.length ? (
+              <ReadingsTable readings={readings.slice(0, 20)} />
+            ) : (
+              <div className="iot-message">No hay mediciones en los últimos días consultados.</div>
+            )}
+          </section>
         </div>
-        {sensorError ? <div className="iot-message iot-error" role="alert"><p>{sensorError}</p></div>
-          : sensorData && refreshedAt !== null ? <IotLatestReadings sensors={sensorData.results} readings={readings} refreshedAt={refreshedAt} />
-            : <div className="iot-message" role="status">Cargando sensores…</div>}
-        <h2>Últimas mediciones</h2>
-        {readings.length ? <ReadingsTable readings={readings.slice(0, 20)} /> : <div className="iot-message">No hay mediciones en los últimos días consultados.</div>}
-      </>;
+      );
     }
     if (!current?.results.length) return <div className="iot-message"><strong>Sin datos para mostrar</strong><p>La API no devolvió registros en esta sección{view === "Historial" ? " con los filtros actuales" : ""}.</p></div>;
     return <>

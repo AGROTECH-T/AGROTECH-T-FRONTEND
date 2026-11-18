@@ -1,7 +1,7 @@
 /**
  * Panel de última lectura por sensor (Resumen IoT).
  *
- * Propósito: tarjetas por sensor con valor, estado, tendencia y paginación.
+ * Propósito: tarjetas tipo dashboard por sensor con valor, estado, tendencia y paginación.
  * Contexto: solo presentación; canales, UIDs y lecturas no se alteran.
  * @author Cristian Deysdayr Jimenez
  */
@@ -24,8 +24,8 @@ import {
 } from "../services/iotState.ts";
 import { formatIotDate, metricLabel } from "./iotFormat.ts";
 
-const SPARK_W = 160;
-const SPARK_H = 40;
+const SPARK_W = 220;
+const SPARK_H = 56;
 /** Sensores visibles por página en el resumen. */
 export const LATEST_SENSORS_PAGE_SIZE = 20;
 
@@ -40,7 +40,10 @@ type Props = {
 function Sparkline({ readings, sensorUid }: { readings: readonly IotReading[]; sensorUid: string }) {
   const series = trendSeries(readings, sensorUid);
   const geometry = series.length > 1 ? trendGeometry(series, SPARK_W, SPARK_H, 4) : null;
-  if (!geometry) return <span className="iot-spark iot-spark--empty">Sin tendencia</span>;
+  if (!geometry) return <span className="iot-spark iot-spark--empty">Sin tendencia aún</span>;
+  const first = geometry.points[0];
+  const last = geometry.points[geometry.points.length - 1];
+  const area = `${geometry.path} L${last.x.toFixed(1)} ${SPARK_H - 1} L${first.x.toFixed(1)} ${SPARK_H - 1} Z`;
   return (
     <svg
       className="iot-spark"
@@ -49,7 +52,9 @@ function Sparkline({ readings, sensorUid }: { readings: readonly IotReading[]; s
       role="img"
       aria-label={`Tendencia de ${series.length} mediciones válidas`}
     >
+      <path className="iot-trend__area" d={area} />
       <path className="iot-trend__line" d={geometry.path} vectorEffect="non-scaling-stroke" />
+      <circle className="iot-trend__dot" cx={last.x} cy={last.y} r="3.2" />
     </svg>
   );
 }
@@ -86,6 +91,12 @@ function EmptySensorIcon() {
   );
 }
 
+function metricTone(metric: string): "humidity" | "temp" | "default" {
+  if (metric === "relative_humidity" || metric === "moisture") return "humidity";
+  if (metric === "temperature") return "temp";
+  return "default";
+}
+
 /**
  * Latest reading available for each sensor, derived from the summary sample.
  */
@@ -94,6 +105,16 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
   const minutes = Math.round(RECENT_ACTIVITY_WINDOW_MS / 60000);
   const [page, setPage] = useState(1);
   const pageCount = Math.max(1, Math.ceil(sensors.length / LATEST_SENSORS_PAGE_SIZE));
+
+  const liveCount = useMemo(() => {
+    let count = 0;
+    for (const sensor of sensors) {
+      const reading = latest.get(sensor.uid);
+      if (!reading) continue;
+      if (activityEstimate(reading.server_received_at, refreshedAt) === "recent") count += 1;
+    }
+    return count;
+  }, [sensors, latest, refreshedAt]);
 
   useEffect(() => {
     setPage(1);
@@ -110,25 +131,31 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
 
   return (
     <section className="iot-latest" aria-labelledby="iot-latest-title">
-      <div className="iot-section-title">
+      <div className="iot-dash-head">
         <div className="iot-section-title__main">
           <span className="iot-section-title__badge" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M12 4v7" strokeLinecap="round" />
-              <path d="M9 9c0 3 1.5 5 3 7 1.5-2 3-4 3-7" strokeLinejoin="round" />
-              <path d="M7 19h10" strokeLinecap="round" />
+              <path d="M4 19V5" strokeLinecap="round" />
+              <path d="M4 19h16" strokeLinecap="round" />
+              <path d="M8 15v-4" strokeLinecap="round" />
+              <path d="M12 15V8" strokeLinecap="round" />
+              <path d="M16 15v-7" strokeLinecap="round" />
             </svg>
           </span>
           <div>
-            <h2 id="iot-latest-title">Última lectura por sensor</h2>
+            <h2 id="iot-latest-title">Panel de sensores</h2>
             <p>
-              Tomada de las {SUMMARY_READING_SAMPLE} mediciones más recientes de los últimos{" "}
-              {SUMMARY_WINDOW_DAYS} días. La actividad es una estimación según la hora de recepción
-              en el servidor (últimos {minutes} min), no un estado confirmado del dispositivo.
+              Última lectura de cada sensor, tomada de las {SUMMARY_READING_SAMPLE} mediciones más
+              recientes ({SUMMARY_WINDOW_DAYS} días). La actividad es una estimación según la
+              recepción en servidor (últimos {minutes} min).
             </p>
           </div>
         </div>
-        <span className="iot-section-chip">Últimos {SUMMARY_WINDOW_DAYS} días</span>
+        <div className="iot-dash-head__chips">
+          <span className="iot-section-chip">{sensors.length} sensores</span>
+          <span className="iot-section-chip iot-section-chip--live">{liveCount} con actividad reciente</span>
+          <span className="iot-section-chip">Últimos {SUMMARY_WINDOW_DAYS} días</span>
+        </div>
       </div>
 
       {sensors.length === 0 ? (
@@ -137,16 +164,21 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
         <>
           <div className="iot-sensor-grid">
             {pageSensors.map((sensor) => {
+              const tone = metricTone(sensor.metric);
               const reading = latest.get(sensor.uid);
               if (!reading) {
                 return (
-                  <article className="iot-sensor-card iot-sensor-card--empty" key={sensor.uid}>
+                  <article
+                    className={`iot-sensor-card iot-sensor-card--empty iot-sensor-card--${tone}`}
+                    key={sensor.uid}
+                  >
                     <header className="iot-sensor-card__head">
                       <MetricIcon metric={sensor.metric} />
                       <div>
                         <strong>{metricLabel(sensor.metric)}</strong>
                         <span className="iot-muted">
-                          {sensor.uid} · canal {sensor.channel}
+                          Canal {sensor.channel}
+                          {sensor.unit ? ` · ${sensor.unit}` : ""}
                         </span>
                       </div>
                     </header>
@@ -154,9 +186,12 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
                       <EmptySensorIcon />
                       <p>
                         <strong>Sin mediciones</strong>
-                        <span>Aún no se han registrado datos en este sensor</span>
+                        <span>Aún no llegan datos de este sensor</span>
                       </p>
                     </div>
+                    <footer className="iot-sensor-card__foot">
+                      <code>{sensor.uid}</code>
+                    </footer>
                   </article>
                 );
               }
@@ -164,25 +199,33 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
               const original = adjustedOriginalText(reading);
               const activity = activityEstimate(reading.server_received_at, refreshedAt);
               return (
-                <article className="iot-sensor-card" key={sensor.uid}>
+                <article
+                  className={`iot-sensor-card iot-sensor-card--${tone} iot-sensor-card--${activity}`}
+                  key={sensor.uid}
+                >
                   <header className="iot-sensor-card__head">
                     <MetricIcon metric={sensor.metric} />
-                    <div>
+                    <div className="iot-sensor-card__titles">
                       <strong>{metricLabel(sensor.metric)}</strong>
                       <span className="iot-muted">
-                        {sensor.uid} · canal {sensor.channel}
+                        Canal {sensor.channel}
+                        {sensor.unit ? ` · ${sensor.unit}` : ""}
                       </span>
                     </div>
-                  </header>
-                  <div className="iot-sensor-card__value">
-                    <span className={`iot-value iot-value--${status}`}>{readingValueText(reading)}</span>
                     <span className={`iot-badge iot-badge--${status}`}>
-                      {status === "valid" ? "✓ " : ""}
                       {READING_STATUS_LABEL[status]}
                     </span>
+                  </header>
+
+                  <div className="iot-sensor-card__hero">
+                    <span className={`iot-value iot-value--${status}`}>{readingValueText(reading)}</span>
+                    {original ? <small className="iot-muted">Ajustada · original {original}</small> : null}
                   </div>
-                  {original ? <small className="iot-muted">Ajustada · original {original}</small> : null}
-                  <Sparkline readings={readings} sensorUid={sensor.uid} />
+
+                  <div className="iot-sensor-card__chart">
+                    <Sparkline readings={readings} sensorUid={sensor.uid} />
+                  </div>
+
                   <dl className="iot-sensor-card__times">
                     <div>
                       <dt>Medición</dt>
@@ -196,9 +239,15 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
                       <dd>{formatIotDate(reading.server_received_at)}</dd>
                     </div>
                   </dl>
+
                   <div className={`iot-activity iot-activity--${activity}`} role="status">
+                    <span className="iot-activity__dot" aria-hidden="true" />
                     <span>{ACTIVITY_ESTIMATE_LABEL[activity]}</span>
                   </div>
+
+                  <footer className="iot-sensor-card__foot">
+                    <code>{sensor.uid}</code>
+                  </footer>
                 </article>
               );
             })}
