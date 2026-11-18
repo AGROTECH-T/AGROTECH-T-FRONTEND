@@ -25,7 +25,7 @@ import {
   type IotQuery,
   type IotView,
 } from "../services/iotState.ts";
-import { formatIotDate, formatIotTime } from "./iotFormat.ts";
+import { formatIotDate, formatIotTime, metricLabel } from "./iotFormat.ts";
 import { IotConfigPanel } from "./IotConfigPanel.tsx";
 import { IotGuide } from "./iotUi.tsx";
 import { IotLatestReadings } from "./IotLatestReadings.tsx";
@@ -79,7 +79,7 @@ function ReadingsTable({ readings }: { readings: readonly IotReading[] }) {
       const original = adjustedOriginalText(row);
       return <tr key={row.uid}>
         <td>{row.sensor_uid}</td>
-        <td>{row.metric}</td>
+        <td>{metricLabel(row.metric)}</td>
         <td><span className={`iot-value iot-value--${status}`}>{readingValueText(row)}</span>{original ? <small className="iot-muted"> (original {original})</small> : null}</td>
         <td><span className={`iot-badge iot-badge--${status}`}>{READING_STATUS_LABEL[status]}</span>{original ? <span className="iot-badge iot-badge--adjusted">Ajustada</span> : null}</td>
         <td>{formatIotDate(row.measured_at)}{row.measured_at_approximate ? " (aproximada)" : ""}</td>
@@ -284,7 +284,7 @@ export function IotScreen() {
     <div className="iot-table-wrap"><table className="iot-table"><thead><tr><th>UID</th><th>Nombre</th><th>Ubicación</th><th>Registro</th><th>Creado</th><th>Actualizado</th></tr></thead><tbody>{rows.map((row) => <tr key={row.uid}><td>{row.uid}</td><td>{row.name || "—"}</td><td>{row.location_label || "—"}</td><td>{row.is_active ? "Activo" : "Inactivo"}</td><td>{formatIotDate(row.created_at)}</td><td>{formatIotDate(row.updated_at)}</td></tr>)}</tbody></table></div>;
 
   const sensorsTable = (rows: readonly IotSensor[]) =>
-    <div className="iot-table-wrap"><table className="iot-table"><thead><tr><th>UID</th><th>Canal</th><th>Métrica</th><th>Unidad</th><th>Registro</th><th>Coordinator UID</th><th>Fuente</th></tr></thead><tbody>{rows.map((row) => <tr key={row.uid}><td>{row.uid}</td><td>{row.channel}</td><td>{row.metric}</td><td>{row.unit || "—"}</td><td>{row.is_active ? "Activo" : "Inactivo"}</td><td>{row.coordinator_uid}</td><td>{row.source ? row.source.name : "—"}</td></tr>)}</tbody></table></div>;
+    <div className="iot-table-wrap"><table className="iot-table"><thead><tr><th>UID</th><th>Canal</th><th>Métrica</th><th>Unidad</th><th>Registro</th><th>Coordinator UID</th><th>Fuente</th></tr></thead><tbody>{rows.map((row) => <tr key={row.uid}><td>{row.uid}</td><td>{row.channel}</td><td>{metricLabel(row.metric)}</td><td>{row.unit || "—"}</td><td>{row.is_active ? "Activo" : "Inactivo"}</td><td>{row.coordinator_uid}</td><td>{row.source ? row.source.name : "—"}</td></tr>)}</tbody></table></div>;
 
   const body = () => {
     if (view === "Sensores") {
@@ -407,7 +407,7 @@ export function IotScreen() {
     {farmId !== null ? <>
       <nav className="iot-tabs" aria-label="Secciones IoT">{visibleViews.map((item) => <button key={item} type="button" className={view === item ? "is-active" : ""} aria-current={view === item ? "page" : undefined} onClick={() => dispatch({ type: "view", view: item })}>{viewLabel[item]}</button>)}</nav>
       {view === "Historial" ? <div className="iot-filters">
-        <label>Sensor<select value={sensorUid} disabled={sensorLoading || loading} onChange={(event) => dispatch({ type: "sensor", sensorUid: event.target.value })}><option value="">Todos</option>{(sensorData?.results ?? []).map((sensor) => <option key={sensor.uid} value={sensor.uid}>{sensor.uid} · {sensor.metric}</option>)}</select>{sensorLoading ? <small role="status">Cargando sensores…</small> : sensorError ? <small role="alert">{sensorError}</small> : sensorData?.count === 0 ? <small role="status">Esta finca no tiene sensores.</small> : null}</label>
+        <label>Sensor<select value={sensorUid} disabled={sensorLoading || loading} onChange={(event) => dispatch({ type: "sensor", sensorUid: event.target.value })}><option value="">Todos</option>{(sensorData?.results ?? []).map((sensor) => <option key={sensor.uid} value={sensor.uid}>{sensor.uid} · {metricLabel(sensor.metric)} · canal {sensor.channel}</option>)}</select>{sensorLoading ? <small role="status">Cargando sensores…</small> : sensorError ? <small role="alert">{sensorError}</small> : sensorData?.count === 0 ? <small role="status">Esta finca no tiene sensores.</small> : null}</label>
         <label>Desde<input type="date" value={query.from} disabled={loading} onChange={(event) => dispatch({ type: "from", value: event.target.value })} /></label>
         <label>Hasta<input type="date" value={query.to} disabled={loading} onChange={(event) => dispatch({ type: "to", value: event.target.value })} /></label>
         <small className="iot-date-help">Las fechas se interpretan en la zona horaria local de tu navegador y se envían con su desfase UTC. Sin fechas, la API devuelve los últimos 7 días. Elige un sensor para ver su tendencia.</small>

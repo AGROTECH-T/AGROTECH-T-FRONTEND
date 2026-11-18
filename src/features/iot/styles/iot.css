@@ -191,12 +191,57 @@
   font-size: 0.8rem;
 }
 
+.iot-latest {
+  display: grid;
+  gap: 14px;
+}
+
 .iot-section-title {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 12px 16px;
+  margin: 0 0 4px;
+}
+
+.iot-section-title__main {
+  display: flex;
   gap: 12px;
-  margin: 0 0 14px;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1 1 18rem;
+}
+
+.iot-section-title__badge {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  color: var(--leaf);
+  background: var(--tint);
+  box-shadow: var(--raised);
+}
+
+.iot-section-title__badge svg {
+  width: 22px;
+  height: 22px;
+}
+
+.iot-section-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  color: var(--moss);
+  background: var(--field);
+  box-shadow: var(--inset);
+  font-size: 0.84rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .iot-section-title h2,
@@ -435,25 +480,105 @@
 
 .iot-sensor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
-  margin-bottom: 28px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
 .iot-sensor-card {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   align-content: start;
+  min-width: 0;
   padding: 18px;
-  border-radius: 22px;
+  border-radius: 24px;
   background: var(--card);
   box-shadow: var(--raised);
+  box-sizing: border-box;
 }
 
-.iot-sensor-card header {
+.iot-sensor-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--ink);
+}
+
+.iot-sensor-card__head > div {
   display: grid;
   gap: 2px;
+  min-width: 0;
+}
+
+.iot-sensor-card__head strong {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.iot-sensor-card__head .iot-muted {
+  overflow-wrap: anywhere;
+}
+
+.iot-sensor-card__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  color: var(--leaf);
+  background: var(--tint);
+}
+
+.iot-sensor-card__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.iot-sensor-card__icon--humidity {
+  color: var(--moss);
+  background: color-mix(in srgb, var(--moss) 12%, var(--field));
+}
+
+.iot-sensor-card__empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 18px 8px 8px;
+  text-align: center;
+}
+
+.iot-sensor-card__empty-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  color: var(--sage);
+  background: var(--field);
+  box-shadow: var(--inset);
+}
+
+.iot-sensor-card__empty-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.iot-sensor-card__empty p {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.iot-sensor-card__empty strong {
   color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.iot-sensor-card__empty span {
+  color: var(--sage);
+  font-size: 0.86rem;
+  line-height: 1.4;
 }
 
 .iot-sensor-card__value {
@@ -529,18 +654,25 @@
 }
 
 .iot-activity {
-  justify-self: start;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.74rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  margin-top: 2px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  box-sizing: border-box;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--sage);
   background: var(--field);
+  box-shadow: var(--inset);
 }
 
 .iot-activity--recent {
   color: var(--leaf);
-  background: var(--tint);
+  background: color-mix(in srgb, var(--leaf) 12%, var(--field));
 }
 
 .iot-spark {
