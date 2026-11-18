@@ -26,11 +26,21 @@ import {
   type IotView,
 } from "../services/iotState.ts";
 import { formatIotDate, formatIotTime } from "./iotFormat.ts";
+import { IotConfigPanel } from "./IotConfigPanel.tsx";
+import { IotGuide } from "./iotUi.tsx";
 import { IotLatestReadings } from "./IotLatestReadings.tsx";
 import { IotTrend } from "./IotTrend.tsx";
 import "../styles/iot.css";
 
-const views: IotView[] = ["Resumen", "Gateways", "Coordinators", "Sensores", "Historial"];
+const views: IotView[] = ["Resumen", "Gateways", "Coordinators", "Sensores", "Historial", "Configurar"];
+const viewLabel: Record<IotView, string> = {
+  Resumen: "Resumen",
+  Gateways: "Gateways",
+  Coordinators: "Coordinadores",
+  Sensores: "Sensores",
+  Historial: "Historial",
+  Configurar: "Configurar",
+};
 
 export function iotErrorText(cause: unknown): string {
   if (cause instanceof ApiError) {
@@ -249,7 +259,26 @@ export function IotScreen() {
         ? data.readings
         : null;
   const refreshing = loading || (view === "Sensores" && sensorLoading);
-  const hasData = view === "Resumen" ? Boolean(data.readings) : view === "Sensores" ? Boolean(sensorData) : Boolean(current);
+  const hasData = view === "Resumen"
+    ? Boolean(data.readings)
+    : view === "Sensores" || view === "Configurar"
+      ? Boolean(sensorData) || view === "Configurar"
+      : Boolean(current);
+  const canManageIot = selectedFarm?.capabilities
+    ? selectedFarm.capabilities.can_manage_iot
+    : selectedFarm?.role === "administrador";
+  const canReadIot = selectedFarm?.capabilities
+    ? selectedFarm.capabilities.can_read_iot
+    : Boolean(selectedFarm?.is_active);
+  const visibleViews = canManageIot
+    ? views
+    : views.filter((item) => item !== "Configurar");
+
+  useEffect(() => {
+    if (!canManageIot && view === "Configurar") {
+      dispatch({ type: "view", view: "Resumen" });
+    }
+  }, [canManageIot, view]);
 
   const devicesTable = (rows: readonly (IotDevice | IotCoordinator)[]) =>
     <div className="iot-table-wrap"><table className="iot-table"><thead><tr><th>UID</th><th>Nombre</th><th>Ubicación</th><th>Registro</th><th>Creado</th><th>Actualizado</th></tr></thead><tbody>{rows.map((row) => <tr key={row.uid}><td>{row.uid}</td><td>{row.name || "—"}</td><td>{row.location_label || "—"}</td><td>{row.is_active ? "Activo" : "Inactivo"}</td><td>{formatIotDate(row.created_at)}</td><td>{formatIotDate(row.updated_at)}</td></tr>)}</tbody></table></div>;
@@ -265,12 +294,79 @@ export function IotScreen() {
         ? <>{sensorsTable(sensorData.results)}<div className="iot-pagination"><span>{sensorData.count} registros</span></div></>
         : <div className="iot-message"><strong>Sin sensores</strong><p>Esta finca no tiene sensores registrados.</p></div>;
     }
-    if (error) return <div className="iot-message iot-error" role="alert"><strong>No se pudo cargar IoT</strong><p>{error}</p><button onClick={() => void load(query)} disabled={loading}>Reintentar</button></div>;
+    if (view === "Configurar" && farmId !== null) {
+      if (!canManageIot) {
+        return (
+          <div className="iot-message" role="status">
+            <strong>Sin permiso de configuración</strong>
+            <p>Solo quien gestiona IoT en esta finca puede registrar dispositivos.</p>
+          </div>
+        );
+      }
+      return (
+        <IotConfigPanel
+          farmId={farmId}
+          canManage={canManageIot}
+          onChanged={() => {
+            requestGuard.current.invalidate();
+            setData({});
+            void loadFarms();
+            const selectedId = farmId;
+            if (selectedId === null) return;
+            const request = sensorGuard.current.begin();
+            setSensorLoading(true);
+            void listAllIot<IotSensor>(selectedId, "sensors")
+              .then((response) => {
+                if (!sensorGuard.current.isCurrent(request)) return;
+                setSensorData(response);
+                dispatch({ type: "sensorsLoaded", sensors: response.results });
+              })
+              .catch((cause) => {
+                if (sensorGuard.current.isCurrent(request)) setSensorError(iotErrorText(cause));
+              })
+              .finally(() => {
+                if (sensorGuard.current.isCurrent(request)) setSensorLoading(false);
+              });
+          }}
+        />
+      );
+    }
+    if (!canReadIot) {
+      return (
+        <div className="iot-message" role="status">
+          <strong>Sin permiso de lectura IoT</strong>
+          <p>Tu rol en esta finca no incluye ver dispositivos ni lecturas.</p>
+        </div>
+      );
+    }
+    if (error) return <div className="iot-message iot-error" role="alert"><strong>No se pudo cargar IoT</strong><p>{error}</p><button type="button" className="btn-secondary" onClick={() => void load(query)} disabled={loading}>Reintentar</button></div>;
     if (loading && !hasData) return <div className="iot-message" role="status">Cargando información IoT…</div>;
     if (view === "Resumen") {
       return <>
+        <IotGuide
+          title="Qué ves en IoT"
+          lead="Este módulo muestra lo que llega del campo a tu finca."
+          steps={
+            canManageIot
+              ? [
+                  "En Configurar registras gateway, coordinador, fuente y sensores de esta finca.",
+                  "Cuando el hardware publica por MQTT, aquí aparecen lecturas y tendencias.",
+                  "Cada finca solo ve y administra sus propios dispositivos.",
+                ]
+              : [
+                  "Aquí ves gateways, sensores y lecturas de esta finca.",
+                  "Cuando el hardware publica por MQTT, aparecen mediciones y tendencias.",
+                  "La configuración de dispositivos la hace quien administra IoT en la finca.",
+                ]
+          }
+          example={
+            canManageIot
+              ? "Si aún no hay sensores, abre la pestaña Configurar y sigue la guía paso a paso."
+              : "Si no ves datos, pide a un administrador de la finca que configure IoT."
+          }
+        />
         <div className="iot-metrics">
-          {([["Gateways", data.gateways?.count], ["Coordinators", data.coordinators?.count], ["Sensores", sensorData?.count]] as const).map(([label, value]) =>
+          {([["Gateways", data.gateways?.count], ["Coordinadores", data.coordinators?.count], ["Sensores", sensorData?.count]] as const).map(([label, value]) =>
             <article className="iot-metric" key={label}><span>{label}</span><strong>{value ?? (sensorLoading ? "…" : "—")}</strong><small>registros en la finca</small></article>)}
           <article className="iot-metric"><span>Última recepción</span><strong className="iot-date-value">{lastReceived ? formatIotDate(lastReceived) : "Sin datos"}</strong><small>hora del servidor, según la muestra</small></article>
         </div>
@@ -291,16 +387,25 @@ export function IotScreen() {
 
   return <section className="panel iot-panel" aria-labelledby="iot-title">
     <header className="panel__header iot-header">
-      <div><span className="iot-eyebrow">MONITOREO DE CAMPO</span><h1 id="iot-title" className="panel__title">Internet de las cosas</h1><p className="panel__lead">Dispositivos, sensores y lecturas recibidas.</p></div>
+      <div>
+        <p className="panel__kicker">Monitoreo de campo</p>
+        <h1 id="iot-title" className="panel__title">Internet de las cosas</h1>
+        <p className="panel__lead">Dispositivos, sensores y lecturas recibidas.</p>
+      </div>
       <div className="iot-refresh-box">
-        <button className="iot-refresh" onClick={() => void load(query)} disabled={refreshing || farmId === null || view === "Sensores"}>{refreshing ? "Actualizando…" : "Actualizar"}</button>
+        <button type="button" className="btn-secondary" onClick={() => void load(query)} disabled={refreshing || farmId === null || view === "Sensores" || view === "Configurar"}>{refreshing ? "Actualizando…" : "Actualizar"}</button>
         <small className="iot-muted" role="status">{refreshing && hasData ? "Actualizando datos…" : refreshedAt !== null ? `Actualizado a las ${formatIotTime(refreshedAt)}` : ""}</small>
       </div>
     </header>
-    {farmError ? <div className="iot-message iot-error" role="alert"><p>{farmError}</p><button onClick={() => void loadFarms()}>Reintentar</button></div> : null}
-    <div className="iot-farm-picker"><label htmlFor="iot-farm">Finca</label>{farmLoading ? <span role="status">Cargando fincas…</span> : farms.length ? <select id="iot-farm" value={farmId ?? ""} onChange={(event) => { requestGuard.current.invalidate(); sensorGuard.current.invalidate(); setLoading(false); setData({}); setRefreshedAt(null); setSensorData(null); dispatch({ type: "farmChanged" }); setFarmError(""); setFarmId(Number(event.target.value)); }}><option value="" disabled>Selecciona una finca</option>{farms.map((farm) => <option key={farm.id} value={farm.id}>{farm.name}</option>)}</select> : !farmError ? <span role="status">No tienes fincas disponibles.</span> : null}{selectedFarm ? <span className="iot-selected-farm">Finca seleccionada: {selectedFarm.name}</span> : null}</div>
+    {farmError ? <div className="iot-message iot-error" role="alert"><p>{farmError}</p><button type="button" className="btn-secondary" onClick={() => void loadFarms()}>Reintentar</button></div> : null}
+    <div className="iot-farm-picker">
+      <label htmlFor="iot-farm">Finca
+        {farmLoading ? <span role="status">Cargando fincas…</span> : farms.length ? <select id="iot-farm" value={farmId ?? ""} onChange={(event) => { requestGuard.current.invalidate(); sensorGuard.current.invalidate(); setLoading(false); setData({}); setRefreshedAt(null); setSensorData(null); dispatch({ type: "farmChanged" }); setFarmError(""); setFarmId(Number(event.target.value)); }}><option value="" disabled>Selecciona una finca</option>{farms.map((farm) => <option key={farm.id} value={farm.id}>{farm.name}</option>)}</select> : !farmError ? <span role="status">No tienes fincas disponibles.</span> : null}
+      </label>
+      {selectedFarm ? <span className="iot-selected-farm"><span>Finca seleccionada</span><strong>{selectedFarm.name}</strong></span> : null}
+    </div>
     {farmId !== null ? <>
-      <nav className="iot-tabs" aria-label="Secciones IoT">{views.map((item) => <button key={item} className={view === item ? "is-active" : ""} aria-current={view === item ? "page" : undefined} onClick={() => dispatch({ type: "view", view: item })}>{item}</button>)}</nav>
+      <nav className="iot-tabs" aria-label="Secciones IoT">{visibleViews.map((item) => <button key={item} type="button" className={view === item ? "is-active" : ""} aria-current={view === item ? "page" : undefined} onClick={() => dispatch({ type: "view", view: item })}>{viewLabel[item]}</button>)}</nav>
       {view === "Historial" ? <div className="iot-filters">
         <label>Sensor<select value={sensorUid} disabled={sensorLoading || loading} onChange={(event) => dispatch({ type: "sensor", sensorUid: event.target.value })}><option value="">Todos</option>{(sensorData?.results ?? []).map((sensor) => <option key={sensor.uid} value={sensor.uid}>{sensor.uid} · {sensor.metric}</option>)}</select>{sensorLoading ? <small role="status">Cargando sensores…</small> : sensorError ? <small role="alert">{sensorError}</small> : sensorData?.count === 0 ? <small role="status">Esta finca no tiene sensores.</small> : null}</label>
         <label>Desde<input type="date" value={query.from} disabled={loading} onChange={(event) => dispatch({ type: "from", value: event.target.value })} /></label>
