@@ -92,6 +92,13 @@ describe("selección de los tres roles", () => {
     }
     expect(canChangeRole(member("operador"))).toBe(true);
     expect(canChangeRole(member("operador", { status: "revoked" }))).toBe(false);
+    expect(canChangeRole(member("administrador", { is_self: true }))).toBe(false);
+  });
+
+  it("la membresía propia no ofrece cambio de rol", () => {
+    const html = renderMember(member("administrador", { is_self: true }));
+    expect(html).not.toContain('role="radiogroup"');
+    expect(html).toContain("No puedes cambiar tu propio rol");
   });
 
   it("el mismo rol no cuenta como cambio", () => {
@@ -113,13 +120,13 @@ describe("confirmación", () => {
     expect(copy.body.join(" ")).toContain("gestionar a sus integrantes");
   });
 
-  it("degradar a un administrador advierte de la pérdida de acceso y del último admin", () => {
+  it("degradar a un administrador advierte del último admin", () => {
     const copy = roleChangeCopy(member("administrador"), "operador");
     expect(copy.title).toBe("¿Cambiar a Luis Gómez a Operador?");
     expect(copy.tone).toBe("warning");
     const body = copy.body.join(" ");
-    expect(body).toContain("perderás de inmediato las opciones de administración");
     expect(body).toContain("al menos un administrador activo");
+    expect(body).not.toContain("tu propia membresía");
   });
 
   it("cambiar entre operador y consulta es una confirmación normal", () => {
