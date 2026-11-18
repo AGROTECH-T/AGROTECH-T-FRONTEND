@@ -114,7 +114,9 @@ export function InventarioBrowser({
 
   useEffect(() => {
     let alive = true;
-    setLoading(true);
+    // Solo muestra “Cargando…” en la primera carga o si la lista está vacía;
+    // las recargas tras editar no tapan la tabla (menos sensación de lentitud).
+    setLoading((current) => current || products.length === 0);
     setError("");
     void listProducts(farmId, {
       page,
@@ -193,11 +195,14 @@ export function InventarioBrowser({
           note: "",
           idempotencyKey: crypto.randomUUID(),
         });
-        onMoved(await getProduct(farmId, item.id));
+        const updated = await getProduct(farmId, item.id);
+        setProducts((rows) => rows.map((row) => (row.id === updated.id ? updated : row)));
+        onMoved(updated);
       }
       setAmounts({});
       setAmountErrors({});
       onDesk(null);
+      setTick((current) => current + 1);
       onNotice?.(desk === "entrada" ? "entrada registrada" : "salida registrada");
     } catch (cause) {
       setDeskNote(cause instanceof Error ? cause.message : "No se pudo guardar");
@@ -335,6 +340,7 @@ export function InventarioBrowser({
           product={loan.product}
           onClose={() => setLoan(null)}
           onDone={(fresh) => {
+            setProducts((rows) => rows.map((row) => (row.id === fresh.id ? fresh : row)));
             onMoved(fresh);
             onNotice?.("préstamo registrado");
             setLoan(null);
@@ -347,6 +353,7 @@ export function InventarioBrowser({
           product={loan.product}
           onClose={() => setLoan(null)}
           onDone={(fresh) => {
+            setProducts((rows) => rows.map((row) => (row.id === fresh.id ? fresh : row)));
             onMoved(fresh);
             onNotice?.("devolución registrada");
             setLoan(null);

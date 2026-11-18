@@ -173,7 +173,11 @@ export function listProducts(farmId: number, query: ProductQuery = {}): Promise<
   if (query.category) params.set("category", query.category);
   if (query.q) params.set("q", query.q);
   if (query.order) params.set("order", query.order);
-  return getJson<ProductPage>(`${productsPath(farmId)}?${params.toString()}`, readToken());
+  return getJson<ProductPage>(
+    `${productsPath(farmId)}?${params.toString()}`,
+    readToken(),
+    "no-store",
+  );
 }
 
 /**
@@ -231,7 +235,7 @@ export function deleteProduct(farmId: number, productId: number): Promise<void> 
  * Consulta un insumo.
  */
 export function getProduct(farmId: number, productId: number): Promise<Product> {
-  return getJson<Product>(`${productsPath(farmId)}${productId}/`, readToken());
+  return getJson<Product>(`${productsPath(farmId)}${productId}/`, readToken(), "no-store");
 }
 
 /**

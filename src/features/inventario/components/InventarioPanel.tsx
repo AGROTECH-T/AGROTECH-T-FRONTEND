@@ -134,6 +134,9 @@ export function InventarioPanel({
 
   const replaceProduct = (product: Product) => {
     setSelected((current) => (current?.id === product.id ? product : current));
+    // La lista vive en InventarioBrowser: hay que forzar recarga, si no queda
+    // el dato viejo hasta un F5.
+    setRefreshMark((current) => current + 1);
   };
 
   const downloadStock = async () => {
