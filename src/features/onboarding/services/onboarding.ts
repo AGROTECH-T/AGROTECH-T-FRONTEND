@@ -22,6 +22,7 @@ export type OnboardingStep = "choose" | "create" | "guest" | "created" | "joined
 
 export const WELCOME_TITLE = "¡Bienvenido a AGROTECH-T!";
 export const WELCOME_QUESTION = "¿Qué quieres hacer el día de hoy?";
+export const BRAND_TAGLINE = "Sistema inteligente de gestión agropecuaria";
 export const GUEST_TITLE = "Entrar como invitado";
 export const GUEST_PROMPT = "Introduce el código que recibiste en tu correo electrónico.";
 export const GUEST_EMPTY_MESSAGE = CODE_EMPTY_MESSAGE;
@@ -43,6 +44,8 @@ export type OnboardingOption = {
   title: string;
   text: string;
   action: string;
+  /** Puntos informativos bajo la descripción (solo presentación). */
+  points: readonly string[];
 };
 
 export const ONBOARDING_OPTIONS: readonly OnboardingOption[] = [
@@ -52,6 +55,7 @@ export const ONBOARDING_OPTIONS: readonly OnboardingOption[] = [
     title: "Crear una finca",
     text: "Registra tu finca y administra tu espacio de trabajo.",
     action: "Crear mi finca",
+    points: ["Gestiona tus fincas", "Organiza tu producción", "Accede a todos los módulos"],
   },
   {
     option: "guest",
@@ -59,6 +63,7 @@ export const ONBOARDING_OPTIONS: readonly OnboardingOption[] = [
     title: "Entrar como invitado",
     text: "Únete a una finca con la invitación que recibiste.",
     action: "Tengo una invitación",
+    points: ["Acceso rápido", "Sin registro adicional", "Empieza a trabajar"],
   },
 ];
 

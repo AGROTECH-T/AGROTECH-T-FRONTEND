@@ -127,9 +127,9 @@ describe("etapa del acceso", () => {
     expect(authStage(NEWCOMER, "token", "unknown")).toBe("invitation");
   });
 
-  it("sin verificar ve la verificación, aunque tenga invitación o no tenga fincas", () => {
-    expect(authStage(unverified, null, "none")).toBe("verify");
-    expect(authStage(unverified, "token", "none")).toBe("verify");
+  it("sin verificar ya no se bloquea: bienvenida o invitación según el caso", () => {
+    expect(authStage(unverified, null, "none")).toBe("welcome");
+    expect(authStage(unverified, "token", "none")).toBe("invitation");
     expect(authStage(null, "token", "none")).toBe("access");
   });
 
@@ -385,8 +385,20 @@ describe("distribución en dos paneles", () => {
     return { nodes: elements(root), ...handlers };
   }
 
+  function childText(value: unknown): string {
+    if (value == null || typeof value === "boolean") return "";
+    if (typeof value === "string" || typeof value === "number") return String(value);
+    if (Array.isArray(value)) return value.map(childText).join("");
+    if (typeof value === "object" && "props" in (value as object)) {
+      return childText((value as { props?: { children?: unknown } }).props?.children);
+    }
+    return "";
+  }
+
   function buttonWith(nodes: Node[], text: string) {
-    const match = nodes.find((n) => n.type === "button" && n.props.children === text);
+    const match = nodes.find(
+      (n) => n.type === "button" && childText(n.props.children).includes(text),
+    );
     if (!match) throw new Error(`sin botón «${text}»`);
     return match;
   }
@@ -439,11 +451,13 @@ describe("distribución en dos paneles", () => {
     expect(articles[0]).toContain("Crear una finca");
     expect(articles[0]).toContain("Registra tu finca y administra tu espacio de trabajo.");
     expect(articles[0]).toContain('data-option="create"');
-    expect(articles[0]).toContain("Crear mi finca</button>");
+    expect(articles[0]).toContain("Crear mi finca");
+    expect(articles[0]).toContain("Gestiona tus fincas");
     expect(articles[1]).toContain("Entrar como invitado");
     expect(articles[1]).toContain("Únete a una finca con la invitación que recibiste.");
     expect(articles[1]).toContain('data-option="guest"');
-    expect(articles[1]).toContain("Tengo una invitación</button>");
+    expect(articles[1]).toContain("Tengo una invitación");
+    expect(articles[1]).toContain("Acceso rápido");
     expect(html).toContain('type="button" class="solid onboard-option__action"');
     expect(html).toContain('aria-describedby="onboard-create-title onboard-create-text"');
   });

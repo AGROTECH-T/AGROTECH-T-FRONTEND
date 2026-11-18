@@ -4,9 +4,8 @@
  * Propósito: ofrecer "Crear una finca" y "Entrar como invitado" a una cuenta
  * verificada que aún no tiene fincas.
  * Distribución: dos paneles (cuenta a la izquierda; opciones o paso abierto a
- * la derecha) sobre el paisaje de fondo, con los tokens y clases existentes.
- * Las tarjetas se apilan y muestran su ilustración a la izquierda, separada
- * del contenido por una línea vertical; solo cambia la presentación.
+ * la derecha) sobre el paisaje de fondo. Las opciones usan los mismos navicons
+ * del sistema (finca) y el de carta para invitación.
  * Contexto: crear usa el mismo formulario y endpoint que Fincas; el backend
  * vuelve a validar la autorización. Entrar como invitado usa el formulario
  * común de códigos: previsualiza finca, rol y vencimiento, pide confirmación y
@@ -17,8 +16,8 @@
 import { useEffect, useState } from "react";
 import "../../../styles/invitation-accept.css";
 import "../../../styles/onboarding.css";
-import fincaArt from "../../../assets/onboard-finca.webp";
-import invitacionArt from "../../../assets/onboard-invitacion.webp";
+import fincaIcon from "../../../assets/icons/finca.png";
+import invitacionIcon from "../../../assets/icons/invitacion.png";
 import { BrandMark } from "../../../components/ui/BrandMark.tsx";
 import { FieldIcon } from "../../../components/ui/FieldIcon.tsx";
 import type { Account } from "../../auth/types/index.ts";
@@ -30,6 +29,7 @@ import type { InvitationAcceptResult, InvitationCodePreview } from "../../invita
 import {
   ACCOUNT_LABEL,
   accountName,
+  BRAND_TAGLINE,
   createBlockedReason,
   FARM_REDIRECT_DELAY_MS,
   farmCreatedMessage,
@@ -77,19 +77,56 @@ function CheckIcon() {
   );
 }
 
+/** Punto de lista decorativo. */
+function PointCheck() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="10" cy="10" r="9" fill="currentColor" opacity="0.18" />
+      <path d="m6.2 10.2 2.4 2.4 5.2-5.6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function HomeMiniIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <path d="M4 11.5 12 5l8 6.5" />
+      <path d="M7 10.5V19h10v-8.5" />
+    </svg>
+  );
+}
+
+function LogoutMiniIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <path d="M10 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4" />
+      <path d="M14 12H21" />
+      <path d="m18 8 4 4-4 4" />
+    </svg>
+  );
+}
+
 /** Panel izquierdo: marca, correo verificado, saludo y cuenta real (GET /auth/me). */
 function IntroPanel({ account }: Readonly<Pick<ViewProps, "account">>) {
   return (
     <section className="panel onboard-intro" aria-labelledby="onboard-title">
       <div className="onboard-brand">
         <BrandMark className="onboard-logo" />
-        <p className="brand">AGROTECH-T</p>
+        <div className="onboard-brand__copy">
+          <p className="brand">AGROTECH-T</p>
+          <p className="onboard-brand__tag">{BRAND_TAGLINE}</p>
+        </div>
       </div>
       {account.email_verified ? (
-        <p className="onboard-verified" data-verified="">
-          <CheckIcon />
-          <span>{VERIFIED_BADGE}</span>
-        </p>
+        <div className="onboard-status">
+          <span className="onboard-status__bar" aria-hidden="true">
+            <span className="onboard-status__fill" />
+          </span>
+          <p className="onboard-verified" data-verified="">
+            <CheckIcon />
+            <span>{VERIFIED_BADGE}</span>
+          </p>
+        </div>
       ) : null}
       <header className="onboard-heading">
         <h2 id="onboard-title">{WELCOME_TITLE}</h2>
@@ -103,15 +140,18 @@ function IntroPanel({ account }: Readonly<Pick<ViewProps, "account">>) {
           <span className="onboard-account__name">{accountName(account)}</span>
           <span className="onboard-account__mail">{account.correo}</span>
         </span>
+        <span className="onboard-account__chevron" aria-hidden="true">
+          ›
+        </span>
       </div>
     </section>
   );
 }
 
-/** Ilustración decorativa de cada tarjeta (el título ya la nombra). */
-const OPTION_ART: Record<OnboardingOption["option"], string> = {
-  create: fincaArt,
-  guest: invitacionArt,
+/** Navicon de cada opción (mismo set que el menú / listado de fincas). */
+const OPTION_ICON: Record<OnboardingOption["option"], string> = {
+  create: fincaIcon,
+  guest: invitacionIcon,
 };
 
 /** Tarjeta de acción: un solo control enfocable (el botón), sin controles anidados. */
@@ -123,9 +163,9 @@ function ActionCard({
   const textId = `onboard-${item.option}-text`;
   return (
     <article className="onboard-option" aria-labelledby={titleId}>
-      <span className="onboard-option__art" aria-hidden="true">
+      <span className="onboard-option__glow" aria-hidden="true">
         <span className="onboard-option__mark">
-          <img src={OPTION_ART[item.option]} alt="" width={96} height={96} decoding="async" />
+          <img src={OPTION_ICON[item.option]} alt="" width={40} height={40} decoding="async" />
         </span>
       </span>
       <div className="onboard-option__body">
@@ -135,6 +175,14 @@ function ActionCard({
         <p id={textId} className="onboard-option__text">
           {item.text}
         </p>
+        <ul className="onboard-option__points">
+          {item.points.map((point) => (
+            <li key={point}>
+              <PointCheck />
+              <span>{point}</span>
+            </li>
+          ))}
+        </ul>
         <button
           type="button"
           className="solid onboard-option__action"
@@ -142,7 +190,10 @@ function ActionCard({
           aria-describedby={`${titleId} ${textId}`}
           onClick={() => onChoose(item.step)}
         >
-          {item.action}
+          <span>{item.action}</span>
+          <span className="onboard-option__arrow" aria-hidden="true">
+            →
+          </span>
         </button>
       </div>
     </article>
@@ -263,10 +314,12 @@ export function OnboardingView(props: Readonly<ViewProps>) {
         </section>
         {showsFooter(step) ? (
           <nav className="onboard-footer" aria-label="Salidas">
-            <button type="button" className="text-link" onClick={onSkip}>
+            <button type="button" className="onboard-footer__link" onClick={onSkip}>
+              <HomeMiniIcon />
               Ir al inicio
             </button>
-            <button type="button" className="text-link" onClick={onLogout}>
+            <button type="button" className="onboard-footer__link" onClick={onLogout}>
+              <LogoutMiniIcon />
               Cerrar sesión
             </button>
           </nav>

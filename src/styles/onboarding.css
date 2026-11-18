@@ -1,221 +1,547 @@
 /**
- * Bienvenida del onboarding (F10.2; distribución en dos paneles).
+ * Bienvenida del onboarding (F10.2).
  *
- * Propósito: panel de cuenta a la izquierda y opciones (o el paso abierto) a
- * la derecha, sobre un paisaje que ocupa toda la pantalla detrás de los
- * paneles. Las tarjetas se apilan; cada ilustración queda a la izquierda,
- * separada del contenido por una línea vertical.
- * Contexto: reutiliza .shell, .panel, .blob, .brand, .solid, .ghost y
- * .text-link de auth.css, .invite-message e .invite-actions de
- * invitation-accept.css y .farm-form de farms-form.css. Solo usa los tokens de
- * tokens.css; cualquier ajuste a estilos compartidos queda dentro de .onboard-*.
+ * Propósito: composición igual al mockup (panel cuenta + dos tarjetas), con
+ * tokens verdes AGROTECH-T y botones verdes anchos. Navicons e info del sistema.
  * @author Cristian Deysdayr Jimenez
  */
 
 /* --- Composición --------------------------------------------------------- */
 
 .shell.onboard-shell {
+  display: grid;
   grid-template-columns: 1fr;
-  justify-items: center;
+  place-items: center;
+  align-content: center;
   isolation: isolate;
+  padding: 28px 32px;
   background: var(--card) url("../assets/onboard-paisaje.webp") center bottom / cover no-repeat;
 }
 
-/* El paisaje reemplaza a las manchas decorativas en esta pantalla. */
 .onboard-shell .blob { display: none; }
 
 .onboard-layout {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  /* Izquierda más estrecha; derecha más ancha, como la foto. */
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.35fr);
   align-items: stretch;
-  gap: 32px;
-  width: min(1080px, 100%);
+  gap: 28px;
+  width: min(1180px, 100%);
   min-width: 0;
 }
 
 .onboard-intro,
 .onboard-actions {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
   min-width: 0;
+  min-height: 420px;
+  height: 100%;
+  padding: 36px 34px;
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--card) 96%, transparent);
+  backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+  box-shadow: var(--raised);
+  box-sizing: border-box;
+}
+
+.onboard-intro::after {
+  content: "";
+  position: absolute;
+  left: -56px;
+  bottom: -64px;
+  width: 220px;
+  height: 220px;
+  border-radius: 46% 54% 48% 52%;
+  background:
+    radial-gradient(circle at 34% 36%, color-mix(in srgb, var(--mint) 90%, transparent), transparent 60%),
+    radial-gradient(circle at 68% 72%, color-mix(in srgb, var(--foam) 75%, transparent), transparent 58%);
+  opacity: 0.9;
+  pointer-events: none;
 }
 
 /* --- Panel izquierdo ----------------------------------------------------- */
 
 .onboard-intro {
-  justify-content: center;
-  gap: 20px;
+  gap: 22px;
+  z-index: 0;
+}
+
+.onboard-intro > * {
+  position: relative;
+  z-index: 1;
 }
 
 .onboard-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .onboard-logo {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 16px;
   background: var(--forest);
   box-shadow: var(--raised);
   object-fit: cover;
 }
 
-.onboard-brand .brand { color: var(--moss); }
+.onboard-brand__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.onboard-brand .brand {
+  color: var(--forest);
+  font-size: 0.86rem;
+  letter-spacing: 0.14em;
+}
+
+.onboard-brand__tag {
+  margin: 0;
+  max-width: 28ch;
+  color: var(--moss);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.onboard-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.onboard-status__bar {
+  display: block;
+  width: min(200px, 58%);
+  height: 7px;
+  border-radius: 999px;
+  background: var(--field);
+  box-shadow: var(--inset);
+  overflow: hidden;
+}
+
+.onboard-status__fill {
+  display: block;
+  width: 74%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--moss), var(--emerald));
+}
 
 .onboard-verified {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;
   gap: 8px;
-  padding: 6px 14px 6px 10px;
+  padding: 8px 14px 8px 10px;
   border-radius: 999px;
-  background: var(--mint);
+  background: var(--tint);
   color: var(--forest);
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  box-shadow: var(--raised);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--emerald) 40%, transparent);
 }
-.onboard-verified svg { width: 18px; height: 18px; color: var(--leaf); flex: none; }
+
+.onboard-verified svg {
+  width: 18px;
+  height: 18px;
+  color: var(--emerald);
+  flex: none;
+}
 
 .onboard-heading {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
-.onboard-heading h2 { text-align: left; overflow-wrap: anywhere; }
-.onboard-heading p { color: var(--moss); font-size: 1.05rem; }
+
+.onboard-heading h2 {
+  text-align: left;
+  color: var(--forest);
+  font-size: clamp(1.7rem, 2.4vw, 2.15rem);
+  overflow-wrap: anywhere;
+  letter-spacing: -0.04em;
+}
+
+.onboard-heading p {
+  color: var(--moss);
+  font-size: 1.08rem;
+}
 
 .onboard-account {
   display: flex;
   align-items: center;
   gap: 14px;
   min-width: 0;
-  padding: 14px 16px;
+  margin-top: 4px;
+  padding: 16px 18px;
   border-radius: 18px;
-  background: var(--surface);
+  background: var(--tint);
   box-shadow: var(--inset);
 }
 
-.onboard-account__mark,
-.onboard-option__mark {
+.onboard-account__mark {
   display: grid;
   place-items: center;
   flex: none;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
-  background: var(--mint);
+  background: var(--card);
   color: var(--leaf);
+  box-shadow: var(--raised);
 }
-.onboard-account__mark { width: 44px; height: 44px; }
-.onboard-account__mark svg { width: 22px; height: 22px; }
+
+.onboard-account__mark svg {
+  width: 22px;
+  height: 22px;
+}
 
 .onboard-account__text {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
-.onboard-account__name { color: var(--forest); font-weight: 700; overflow-wrap: anywhere; }
-.onboard-account__mail { color: var(--moss); font-size: 0.9rem; overflow-wrap: anywhere; }
 
-/* --- Panel derecho ------------------------------------------------------- */
+.onboard-account__name {
+  color: var(--forest);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
 
-.onboard-actions { justify-content: center; }
+.onboard-account__mail {
+  color: var(--moss);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.onboard-account__chevron {
+  flex: none;
+  color: var(--moss);
+  font-size: 1.4rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+/* --- Panel derecho / opciones -------------------------------------------- */
+
+.onboard-actions {
+  padding: 24px;
+}
 
 .onboard-options {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
   gap: 18px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
 }
 
 .onboard-option {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
   min-width: 0;
+  height: 100%;
   margin: 0;
-  padding: 22px;
-  border-radius: 22px;
+  padding: 26px 24px;
+  border-radius: 24px;
   background: var(--card);
   color: var(--forest);
   box-shadow: var(--raised);
+  transition: box-shadow 0.2s ease, transform 0.18s ease;
 }
-.onboard-option:hover { box-shadow: var(--raised), 0 0 0 2px var(--sage); }
-.onboard-option:focus-within { box-shadow: var(--raised), 0 0 0 2px var(--moss); }
 
-/* Ilustración a la izquierda y línea vertical que la separa del contenido. */
-.onboard-option__art {
-  display: flex;
-  align-items: center;
-  align-self: stretch;
-  padding-right: 22px;
-  border-right: 1px solid var(--line);
+.onboard-option:hover {
+  box-shadow: var(--raised), 0 0 0 2px var(--mist);
+  transform: translateY(-2px);
 }
-.onboard-option__mark { width: 112px; height: 112px; }
+
+.onboard-option:focus-within {
+  box-shadow: var(--raised), 0 0 0 2px var(--emerald);
+}
+
+.onboard-option__glow {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--mint) 90%, transparent) 0%,
+    color-mix(in srgb, var(--tint) 45%, transparent) 68%,
+    transparent 100%
+  );
+}
+
+.onboard-option__mark {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--tint);
+  box-shadow: var(--inset);
+}
+
 .onboard-option__mark img {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: 34px;
+  height: 34px;
   object-fit: contain;
 }
 
 .onboard-option__body {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
   min-width: 0;
 }
-.onboard-option__title { margin: 0; font-size: 1.2rem; font-weight: 700; }
-.onboard-option__text { color: var(--moss); font-size: 0.92rem; }
 
-.onboard-option__action { align-self: stretch; margin-top: 6px; padding-inline: 18px; }
-.onboard-option__action:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; }
-.onboard-option__action:active { box-shadow: var(--inset); }
+.onboard-option__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
 
-.onboard-step { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.onboard-lead { margin: 0; color: var(--leaf); }
+.onboard-option__text {
+  color: var(--moss);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
 
-/* Formularios reutilizados dentro del panel: sin margen inferior suelto y con
-   acciones que pueden pasar de línea en pantallas estrechas. */
-.onboard-actions .farm-form { margin-bottom: 0; }
-.onboard-actions .farm-form__actions { flex-wrap: wrap; }
+.onboard-option__points {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--leaf);
+  font-size: 0.9rem;
+}
+
+.onboard-option__points li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.onboard-option__points svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  color: var(--emerald);
+}
+
+/* Botones verdes anchos (como la foto; no naranja de --action). */
+.onboard-shell .onboard-option__action.solid,
+.onboard-shell .onboard-step .solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  margin-top: auto;
+  padding: 14px 22px;
+  color: #fff;
+  background: var(--leaf);
+  box-shadow: var(--raised), 0 10px 22px color-mix(in srgb, var(--leaf) 28%, transparent);
+  letter-spacing: 0.02em;
+}
+
+.onboard-shell .onboard-option__action.solid:hover:not(:disabled),
+.onboard-shell .onboard-step .solid:hover:not(:disabled) {
+  background: var(--forest);
+  box-shadow: var(--raised), 0 12px 26px color-mix(in srgb, var(--forest) 30%, transparent);
+  transform: translateY(-1px);
+}
+
+.onboard-shell .onboard-option__action.solid:focus-visible,
+.onboard-shell .onboard-step .solid:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--moss) 55%, transparent);
+  outline-offset: 3px;
+}
+
+.onboard-shell .onboard-option__action.solid:active:not(:disabled),
+.onboard-shell .onboard-step .solid:active:not(:disabled) {
+  box-shadow: var(--inset);
+  transform: translateY(1px);
+}
+
+.onboard-option__arrow {
+  font-weight: 700;
+  line-height: 1;
+}
+
+.onboard-step {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.onboard-lead {
+  margin: 0;
+  color: var(--leaf);
+}
+
+.onboard-actions .farm-form {
+  margin-bottom: 0;
+}
+
+.onboard-actions .farm-form__actions {
+  flex-wrap: wrap;
+}
 
 .onboard-footer {
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px 24px;
+  gap: 12px 16px;
+  padding: 4px 8px 0;
+}
+
+.onboard-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 18px;
+  color: var(--forest);
+  background: color-mix(in srgb, var(--card) 82%, transparent);
+  box-shadow: var(--raised);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.onboard-footer__link svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--moss);
+}
+
+.onboard-footer__link:hover {
+  background: var(--card);
+}
+
+.onboard-footer__link:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 3px;
 }
 
 /* --- Adaptación ---------------------------------------------------------- */
 
-@media (max-width: 980px) {
-  .onboard-layout { gap: 24px; }
+@media (max-width: 1100px) {
+  .onboard-layout {
+    width: min(1000px, 100%);
+    gap: 20px;
+  }
+
   .onboard-intro,
-  .onboard-actions { padding: 26px 22px 22px; }
-  .onboard-options { gap: 14px; }
-  .onboard-option { gap: 18px; padding: 18px; }
-  .onboard-option__art { padding-right: 18px; }
-  .onboard-option__mark { width: 92px; height: 92px; }
-  .onboard-option__mark img { width: 60px; height: 60px; }
+  .onboard-actions {
+    padding: 28px 24px;
+    min-height: 380px;
+  }
 }
 
-@media (max-width: 860px) {
-  .onboard-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+@media (max-width: 900px) {
+  .onboard-layout {
+    grid-template-columns: minmax(0, 1fr);
+    width: min(520px, 100%);
+    gap: 16px;
+  }
+
+  .onboard-intro,
+  .onboard-actions {
+    height: auto;
+    min-height: 0;
+  }
+
+  .onboard-intro::after {
+    width: 160px;
+    height: 160px;
+  }
+
+  .onboard-options {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+
+  .onboard-option {
+    height: auto;
+  }
 }
 
 @media (max-width: 560px) {
+  .shell.onboard-shell {
+    padding: 18px 14px;
+  }
+
   .onboard-intro,
-  .onboard-actions { padding: 22px 16px 18px; }
-  .onboard-intro { gap: 16px; }
-  .onboard-heading h2 { font-size: 1.6rem; }
-  .onboard-option { gap: 14px; padding: 16px; }
-  .onboard-option__art { padding-right: 14px; }
-  .onboard-option__mark { width: 64px; height: 64px; }
-  .onboard-option__mark img { width: 42px; height: 42px; }
-  .onboard-actions .farm-form { padding: 18px 16px; }
+  .onboard-actions {
+    padding: 22px 16px;
+  }
+
+  .onboard-intro {
+    gap: 16px;
+  }
+
+  .onboard-heading h2 {
+    font-size: 1.55rem;
+  }
+
+  .onboard-option {
+    padding: 20px 16px;
+  }
+
+  .onboard-option__glow {
+    width: 72px;
+    height: 72px;
+  }
+
+  .onboard-option__mark {
+    width: 50px;
+    height: 50px;
+  }
+
+  .onboard-option__mark img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .onboard-shell .onboard-option__action.solid {
+    min-height: 48px;
+  }
+
+  .onboard-actions .farm-form {
+    padding: 18px 16px;
+  }
 }
