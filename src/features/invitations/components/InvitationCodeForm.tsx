@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import "../../../styles/invitation-code.css";
 import { acceptInvitationCode, previewInvitationCode } from "../services/codeApi.ts";
 import {
@@ -40,6 +41,7 @@ type ViewProps = Texts & {
   preview: InvitationCodePreview | null;
   error: CodeError | null;
   joinedMessage?: string;
+  hideTitle?: boolean;
   onCodeChange: (value: string) => void;
   onPreview: () => void;
   onConfirm: () => void;
@@ -52,7 +54,17 @@ type ViewProps = Texts & {
  * @param props - Paso, código en memoria, previsualización, error y acciones.
  */
 export function InvitationCodeView(props: Readonly<ViewProps>) {
-  const { step, code, preview, error, title, intro, hint, cancelLabel = "Cancelar" } = props;
+  const {
+    step,
+    code,
+    preview,
+    error,
+    title,
+    intro,
+    hint,
+    cancelLabel = "Cancelar",
+    hideTitle = false,
+  } = props;
   const busy = step === "checking" || step === "accepting";
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -61,25 +73,29 @@ export function InvitationCodeView(props: Readonly<ViewProps>) {
   const summary = preview ? previewSummary(preview) : null;
   return (
     <form className="farm-form invite-code" data-code-step={step} onSubmit={submit} noValidate>
-      <h2 className="farm-form__title">{title}</h2>
-      {intro ? <p className="onboard-lead">{intro}</p> : null}
+      <header className="invite-code__head">
+        {hideTitle ? null : <h2 className="farm-form__title invite-code__title">{title}</h2>}
+        {intro ? <p className="invite-code__intro">{intro}</p> : null}
+      </header>
 
       {step === "enter" || step === "checking" ? (
-        <label className="farm-form__field">
-          <span>Código de invitación</span>
-          <input
-            type="text"
-            name="invitation-code"
-            maxLength={CODE_MAX_LENGTH}
-            autoComplete="one-time-code"
-            autoCapitalize="characters"
-            spellCheck={false}
-            placeholder="Ejemplo: ABCDE-23456"
-            value={code}
-            disabled={busy}
-            onChange={(event) => props.onCodeChange(event.target.value)}
-          />
-        </label>
+        <div className="farm-form__block invite-code__block">
+          <label className="farm-form__field">
+            <span>Código de invitación</span>
+            <input
+              type="text"
+              name="invitation-code"
+              maxLength={CODE_MAX_LENGTH}
+              autoComplete="one-time-code"
+              autoCapitalize="characters"
+              spellCheck={false}
+              placeholder="Ejemplo: ABCDE-23456"
+              value={code}
+              disabled={busy}
+              onChange={(event) => props.onCodeChange(event.target.value)}
+            />
+          </label>
+        </div>
       ) : null}
 
       {summary && (step === "confirm" || step === "accepting") ? (
@@ -108,16 +124,18 @@ export function InvitationCodeView(props: Readonly<ViewProps>) {
         </p>
       ) : null}
 
-      {hint && (step === "enter" || step === "checking") ? <p className="hint">{hint}</p> : null}
+      {hint && (step === "enter" || step === "checking") ? (
+        <p className="invite-code__hint">{hint}</p>
+      ) : null}
 
       {step !== "joined" ? (
-        <div className="farm-form__actions">
+        <div className="farm-form__actions invite-code__actions">
           {step === "confirm" || step === "accepting" ? (
             <>
               <button type="button" className="btn-secondary" disabled={busy} onClick={props.onBack}>
                 Cambiar código
               </button>
-              <button type="button" className="btn-primary" disabled={busy} onClick={props.onConfirm}>
+              <button type="button" className="btn-primary invite-code__go" disabled={busy} onClick={props.onConfirm}>
                 {step === "accepting" ? "Uniéndote..." : "Unirme a la finca"}
               </button>
             </>
@@ -128,7 +146,7 @@ export function InvitationCodeView(props: Readonly<ViewProps>) {
                   {cancelLabel}
                 </button>
               ) : null}
-              <button type="submit" className="btn-primary" disabled={busy}>
+              <button type="submit" className="btn-primary invite-code__go" disabled={busy}>
                 {step === "checking" ? "Comprobando..." : "Continuar"}
               </button>
             </>
@@ -147,13 +165,22 @@ type Props = Texts & {
   joinedMessage?: (result: InvitationAcceptResult, preview: InvitationCodePreview) => string;
   /** Llamadas HTTP (inyectables en pruebas). */
   api?: CodeApi;
+  /** Mostrar dentro de una ventana (Fincas), igual que Nueva finca. */
+  inWindow?: boolean;
 };
 
 /**
  * Controla el formulario: escribir → comprobar → confirmar → unirse.
  * @param props - Textos, salida tras aceptar y cancelación.
  */
-export function InvitationCodeForm({ onAccepted, onCancel, joinedMessage, api, ...texts }: Readonly<Props>) {
+export function InvitationCodeForm({
+  onAccepted,
+  onCancel,
+  joinedMessage,
+  api,
+  inWindow = false,
+  ...texts
+}: Readonly<Props>) {
   const runner = useRef<CodeRunner | null>(null);
   if (runner.current === null) runner.current = createCodeRunner(api ?? DEFAULT_API);
   const mounted = useRef(true);
@@ -209,9 +236,10 @@ export function InvitationCodeForm({ onAccepted, onCancel, joinedMessage, api, .
     if (outcome.error.kind === "not_found") setPreview(null);
   };
 
-  return (
+  const view = (
     <InvitationCodeView
       {...texts}
+      hideTitle={inWindow}
       step={step}
       code={code}
       preview={preview}
@@ -230,5 +258,13 @@ export function InvitationCodeForm({ onAccepted, onCancel, joinedMessage, api, .
       }}
       onCancel={onCancel}
     />
+  );
+
+  return inWindow ? (
+    <FormWindow title={texts.title} onClose={onCancel ?? (() => undefined)}>
+      {view}
+    </FormWindow>
+  ) : (
+    view
   );
 }
