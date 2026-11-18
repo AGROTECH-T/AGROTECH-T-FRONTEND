@@ -45,10 +45,19 @@
   width: 100%;
 }
 
-.farm-invitation {
+.farm-invitation,
+.farm-detail .farm-invitation.farm-members__item {
+  display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  grid-template-columns: none;
+  cursor: default;
 }
 
 .farm-invitation.is-highlighted {
@@ -58,21 +67,28 @@
 
 .farm-invitation__main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px 12px;
+  width: 100%;
   min-width: 0;
 }
 
 .farm-invitation__main .farm-members__name {
+  flex: 1 1 12rem;
+  min-width: 0;
+  max-width: 100%;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .farm-invitation__main .farm-members__meta {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
 }
 
 .farm-invitation__facts {
@@ -80,11 +96,16 @@
   flex-wrap: wrap;
   gap: 6px 18px;
   margin: 0;
+  width: 100%;
+  min-width: 0;
 }
 
 .farm-invitation__facts div {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
+  min-width: 0;
+  max-width: 100%;
   font-size: 0.88rem;
 }
 
@@ -95,7 +116,9 @@
 
 .farm-invitation__facts dd {
   margin: 0;
+  min-width: 0;
   color: var(--leaf);
+  overflow-wrap: anywhere;
 }
 
 .farm-invitation-status,
@@ -140,6 +163,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
+  min-width: 0;
 }
 
 .farm-invitation__admin .farm-form__error {
@@ -150,12 +175,22 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.farm-invitation__actions > button {
+  flex: 1 1 10rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .farm-invitation__role-editor {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
+  min-width: 0;
 }
 
 .farm-invitation__role-editor .farm-members__filter:disabled {
@@ -169,8 +204,18 @@
   font-weight: 600;
 }
 
-@media (max-width: 520px) {
+@media (max-width: 640px) {
   .farm-invitation__facts {
     flex-direction: column;
+    gap: 8px;
+  }
+
+  .farm-invitation__actions {
+    flex-direction: column;
+  }
+
+  .farm-invitation__actions > button {
+    flex: 1 1 auto;
+    width: 100%;
   }
 }
