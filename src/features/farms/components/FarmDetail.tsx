@@ -1,21 +1,18 @@
 /**
  * Detalle de una finca.
  *
- * Propósito: organizar la ficha en pestañas (Resumen, Integrantes,
- * Invitaciones, Historial y Configuración); editar, desactivar o reactivar
- * (administrador) y abandonar la finca (cualquier integrante).
- * Distribución: banner con nombre, rol y estado; Resumen solo de lectura; los
- * cambios sobre la finca viven en la pestaña Configuración, en tarjetas
- * horizontales.
- * Contexto: PUT/DELETE/reactivate solo para administrador; DELETE es baja
- * lógica y el detalle sigue abierto para poder reactivar.
- * La visibilidad de pestañas es comodidad de interfaz: el backend autoriza.
- * Tras un cambio de rol se relee la finca para conocer el rol real de la
- * cuenta; mientras no se confirme, las opciones de administración se ocultan.
+ * Propósito: cabecera con nombre/estado/rol y una barra de pestañas igual a
+ * la del listado (Todas / roles), con: Inventarios, Galpones, Integrantes,
+ * Invitaciones, Historial y Configuración. Cada pestaña muestra solo su
+ * contenido.
+ * Contexto: PUT/DELETE/reactivate solo para administrador. Tras un cambio de
+ * rol se relee la finca; mientras no se confirme, se ocultan opciones de
+ * administración.
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog.tsx";
 import "../../../styles/farm-detail.css";
 import {
@@ -37,8 +34,9 @@ import {
   type LifecycleApi,
 } from "../services/farmLifecycle.ts";
 import { unconfirmedAccessView } from "../services/capabilityGuards.ts";
-import fincaArt from "../../../assets/onboard-finca.webp";
-import { detailTabs, resolveTab, tabForKey, type FarmTabId } from "../services/farmTabs.ts";
+import { shortDate } from "../services/farmFilter.ts";
+import fincaIcon from "../../../assets/icons/finca.png";
+import { detailTabs, resolveTab, type FarmTabId } from "../services/farmTabs.ts";
 import { canManageInvitations } from "../services/invitationAdmin.ts";
 import {
   canManageMembers,
@@ -49,21 +47,14 @@ import {
 import { accessNotice, refreshAccess, type AccessRefresh } from "../services/roleChange.ts";
 import { roleLabel } from "../services/roleLabel.ts";
 import type { Farm, FarmMember } from "../types/index.ts";
-import { DetailIcon, type DetailIconName } from "./DetailIcon.tsx";
+import { DetailIcon } from "./DetailIcon.tsx";
 import { FarmHistory } from "./FarmHistory.tsx";
 import { FarmInvitations } from "./FarmInvitations.tsx";
 import { FarmMembers } from "./FarmMembers.tsx";
+import { FarmModuleAccess } from "./FarmModuleAccess.tsx";
 import { FarmOverview } from "./FarmOverview.tsx";
 
 const DEFAULT_API: LifecycleApi = { getFarm, deleteFarm, reactivateFarm, leaveFarm };
-
-const TAB_ICONS: Record<FarmTabId, DetailIconName> = {
-  resumen: "grid",
-  integrantes: "users",
-  invitaciones: "mail",
-  historial: "history",
-  configuracion: "gear",
-};
 
 type LifecycleAction = "deactivate" | "reactivate" | "leave";
 
@@ -98,18 +89,14 @@ const DIALOG: Record<
 type Props = {
   farm: Farm;
   onBack: () => void;
-  /** La finca cambió (nombre, desactivación o reactivación); el detalle sigue abierto. */
   onUpdated: (farm: Farm) => void;
-  /** La cuenta abandonó la finca; ya no tiene acceso a ella. */
   onLeft: (farmId: number) => void;
-  /** Operaciones HTTP del ciclo de vida (inyectables en pruebas). */
   api?: LifecycleApi;
-  /** Pestaña inicial (por defecto Resumen). */
   initialTab?: FarmTabId;
-  /** Muestra un aviso en la pila de notificaciones de la pantalla. */
   onNotice?: (text: string, tone: "ok" | "warn") => void;
-  /** Acceso pendiente de confirmar al montar (pruebas de renderizado). */
   initialAccessPending?: boolean;
+  onOpenInventory?: (inventoryId?: string) => void;
+  onOpenGalpon?: (houseId?: number) => void;
 };
 
 function validateName(value: string): string {
@@ -128,28 +115,22 @@ export function FarmDetail({
   onUpdated,
   onLeft,
   api = DEFAULT_API,
-  initialTab = "resumen",
+  initialTab = "inventarios",
   onNotice,
   initialAccessPending = false,
+  onOpenInventory,
+  onOpenGalpon,
 }: Readonly<Props>) {
-  // Si un cambio de rol se guardó pero no se pudo releer la finca, no se
-  // conoce el rol real de la cuenta: se calcula la vista sin permisos de
-  // administración hasta confirmarlo (nunca permisos ficticios).
   const [accessPending, setAccessPending] = useState(initialAccessPending);
   const [accessRefreshing, setAccessRefreshing] = useState(false);
-  // Sin acceso confirmado no se conserva ninguna capacidad anterior (F6).
   const view: Farm = accessPending ? unconfirmedAccessView(farm) : farm;
   const isAdmin = view.role === "administrador";
   const hasSettings =
     canEditName(view) || canDeactivate(view) || canReactivate(view) || canLeave(view);
-  const tabs = detailTabs(view, hasSettings);
-  const tabVisible = (id: FarmTabId) => tabs.some((tab) => tab.id === id);
+  const sections = detailTabs(view, hasSettings);
   const roleText = accessPending ? "pendiente de confirmar" : roleLabel(farm.role);
-  const [requestedTab, setRequestedTab] = useState<FarmTabId>(initialTab);
-  const activeTab = resolveTab(tabs, requestedTab);
-  // Las pestañas se montan al visitarlas por primera vez y luego se conservan.
-  const [visited, setVisited] = useState<ReadonlySet<FarmTabId>>(() => new Set([activeTab]));
-  const tabRefs = useRef<Partial<Record<FarmTabId, HTMLButtonElement | null>>>({});
+  const createdText = shortDate(farm.created_at);
+  const [tab, setTab] = useState<FarmTabId>(() => resolveTab(sections, initialTab));
   const baseId = useId();
 
   const [name, setName] = useState(farm.name);
@@ -165,42 +146,38 @@ export function FarmDetail({
     setGap("");
   }, [farm.id, farm.name]);
 
-  useEffect(() => {
-    setRequestedTab(initialTab);
-    setVisited(new Set([initialTab]));
-  }, [farm.id, initialTab]);
+  const sectionKey = sections.map((item) => item.id).join("|");
 
-  // Al cambiar el estado de la finca cambian las pestañas visibles: se
-  // descartan las secciones ya cargadas para no mostrar datos anteriores.
+  useEffect(() => {
+    setTab(resolveTab(detailTabs(view, hasSettings), initialTab));
+  }, [farm.id, farm.role, farm.is_active, farm.capabilities, accessPending, hasSettings, initialTab]);
+
   const lastActive = useRef(farm.is_active);
   useEffect(() => {
     if (lastActive.current === farm.is_active) return;
     lastActive.current = farm.is_active;
-    setRequestedTab("resumen");
-    setVisited(new Set(["resumen"]));
-  }, [farm.is_active]);
+    setTab(resolveTab(sections, "inventarios"));
+  }, [farm.is_active, sectionKey, sections]);
 
-  function backToSummary() {
-    setRequestedTab("resumen");
-    setVisited(new Set(["resumen"]));
+  useEffect(() => {
+    setTab((current) => resolveTab(sections, current));
+  }, [sectionKey, sections]);
+
+  function backToModules() {
+    setTab(resolveTab(sections, "inventarios"));
   }
 
-  /** Aplica el acceso releído: sin confirmarlo, se ocultan las opciones de administración. */
   function applyAccess(result: AccessRefresh) {
     if (result.status === "ok") {
       setAccessPending(false);
-      if (result.lostAdmin) backToSummary();
+      if (result.lostAdmin) backToModules();
       onUpdated(result.farm);
     } else {
       setAccessPending(true);
-      backToSummary();
+      backToModules();
     }
   }
 
-  /**
-   * Tras revocar o transferir (F8) se relee GET /farms/{id}/: la
-   * transferencia deja a la cuenta como Operador y sus capacidades cambian.
-   */
   async function refreshAfterMemberChange(successText: string) {
     setAccessRefreshing(true);
     const result = await refreshAccess(api.getFarm, farm);
@@ -210,7 +187,6 @@ export function FarmDetail({
     onNotice?.(notice.text, notice.tone);
   }
 
-  /** Relee la finca tras un cambio de rol exitoso y ajusta el acceso. */
   async function syncAccess(member: FarmMember | null) {
     setAccessRefreshing(true);
     const result = await refreshAccess(api.getFarm, farm);
@@ -229,19 +205,6 @@ export function FarmDetail({
     } else {
       onNotice?.(`No se pudo actualizar tu acceso: ${result.error}`, "warn");
     }
-  }
-
-  function selectTab(id: FarmTabId, focus = false) {
-    setRequestedTab(id);
-    setVisited((current) => (current.has(id) ? current : new Set([...current, id])));
-    if (focus) tabRefs.current[id]?.focus();
-  }
-
-  function onTabKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
-    const next = tabForKey(tabs, activeTab, event.key);
-    if (!next) return;
-    event.preventDefault();
-    selectTab(next, true);
   }
 
   async function save(event: FormEvent) {
@@ -302,22 +265,8 @@ export function FarmDetail({
     }
   }
 
-  const tabId = (id: FarmTabId) => `${baseId}-tab-${id}`;
-  const panelId = (id: FarmTabId) => `${baseId}-panel-${id}`;
+  const panelId = `${baseId}-panel`;
 
-  const summary = (
-    <FarmOverview
-      farm={farm}
-      roleText={roleText}
-      showMembers={tabVisible("integrantes")}
-      showInvitations={tabVisible("invitaciones")}
-      showHistory={tabVisible("historial")}
-      canReactivate={canReactivate(view)}
-      onOpenTab={(id) => selectTab(id)}
-    />
-  );
-
-  // Configuración: tarjetas horizontales con las acciones sobre la finca.
   const settings = (
     <div className="farm-settings">
       {canEditName(view) ? (
@@ -331,18 +280,20 @@ export function FarmDetail({
           </span>
           <h3 className="farm-form__title">Editar nombre</h3>
           <p className="farm-empty__hint">Lo ven todos los integrantes de la finca.</p>
-          <label className="farm-form__field">
-            Nombre
-            <input
-              type="text"
-              name="name"
-              maxLength={100}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              disabled={pending}
-              autoComplete="off"
-            />
-          </label>
+          <div className="farm-form__block">
+            <label className="farm-form__field">
+              Nombre
+              <input
+                type="text"
+                name="name"
+                maxLength={100}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                disabled={pending}
+                autoComplete="off"
+              />
+            </label>
+          </div>
           {gap ? <span className="farm-form__gap">{gap}</span> : null}
           {error ? (
             <p className="farm-form__error" role="alert">
@@ -432,8 +383,33 @@ export function FarmDetail({
     </div>
   );
 
-  function renderPanel(id: FarmTabId) {
-    if (id === "resumen") return summary;
+  function renderTab(id: FarmTabId) {
+    if (id === "inventarios") {
+      return onOpenInventory && onOpenGalpon ? (
+        <FarmModuleAccess
+          farmId={farm.id}
+          farmActive={farm.is_active}
+          kind="inventarios"
+          onOpenInventory={onOpenInventory}
+          onOpenGalpon={onOpenGalpon}
+        />
+      ) : (
+        <p className="farm-access__hint">No hay acceso al módulo de inventarios.</p>
+      );
+    }
+    if (id === "galpones") {
+      return onOpenInventory && onOpenGalpon ? (
+        <FarmModuleAccess
+          farmId={farm.id}
+          farmActive={farm.is_active}
+          kind="galpones"
+          onOpenInventory={onOpenInventory}
+          onOpenGalpon={onOpenGalpon}
+        />
+      ) : (
+        <p className="farm-access__hint">No hay acceso al módulo de galpones.</p>
+      );
+    }
     if (id === "configuracion") return settings;
     if (id === "integrantes") {
       return (
@@ -461,34 +437,26 @@ export function FarmDetail({
 
   return (
     <section className="farm-detail" aria-labelledby="farm-detail-title">
-      <header className="farm-detail-hero">
-        <button
-          type="button"
-          className="btn-secondary farm-detail-hero__back"
-          onClick={onBack}
-          disabled={pending}
-        >
-          <DetailIcon name="arrow-left" />
-          Volver al listado
-        </button>
-        <span className="farm-detail-hero__art" aria-hidden="true">
-          <img src={fincaArt} alt="" width={36} height={36} decoding="async" />
-        </span>
-        <div className="farm-detail-hero__text">
-          <div className="farm-detail-hero__title">
-            <h2 id="farm-detail-title" className="panel__title">
-              {farm.name}
-            </h2>
-            {accessPending ? null : (
-              <span className="farm-card__role" data-role={farm.role}>
-                {roleLabel(farm.role)}
+      <header className="farm-detail__hero">
+        <BackButton onClick={onBack} disabled={pending} />
+        <div className="farm-detail__identity">
+          <span className="farm-detail__art" aria-hidden="true">
+            <img src={fincaIcon} alt="" width={28} height={28} decoding="async" />
+          </span>
+          <div className="farm-detail__titles">
+            <div className="farm-detail__title-row">
+              <h2 id="farm-detail-title" className="panel__title">
+                {farm.name}
+              </h2>
+              <span className="overview-status" data-active={farm.is_active ? "true" : "false"}>
+                {farm.is_active ? "Activa" : "Desactivada"}
               </span>
-            )}
-            <span className="overview-status" data-active={farm.is_active ? "true" : "false"}>
-              {farm.is_active ? "Activa" : "Desactivada"}
-            </span>
+            </div>
+            <p className="panel__lead farm-detail__role">
+              Tu rol en esta finca: {roleText}
+              {createdText ? ` · Creada el ${createdText}` : ""}
+            </p>
           </div>
-          <p className="panel__lead">Tu rol en esta finca: {roleText}</p>
         </div>
       </header>
 
@@ -512,51 +480,38 @@ export function FarmDetail({
         </div>
       ) : null}
 
-      {tabs.length > 1 ? (
-        <div className="farm-tabs" role="tablist" aria-label="Secciones de la finca">
-          {tabs.map((tab) => {
-            const selected = tab.id === activeTab;
-            return (
-              <button
-                key={tab.id}
-                ref={(node) => {
-                  tabRefs.current[tab.id] = node;
-                }}
-                type="button"
-                role="tab"
-                id={tabId(tab.id)}
-                aria-selected={selected}
-                aria-controls={panelId(tab.id)}
-                tabIndex={selected ? 0 : -1}
-                className={selected ? "farm-tabs__tab is-active" : "farm-tabs__tab"}
-                onClick={() => selectTab(tab.id)}
-                onKeyDown={onTabKeyDown}
-              >
-                <DetailIcon name={TAB_ICONS[tab.id]} />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
+      <FarmOverview farm={farm} canReactivate={canReactivate(view)} />
 
-      {tabs.map((tab) => {
-        const selected = tab.id === activeTab;
-        if (!selected && !visited.has(tab.id)) return null;
-        return (
-          <div
-            key={tab.id}
-            className="farm-tabs__panel"
-            data-tab={tab.id}
-            role={tabs.length > 1 ? "tabpanel" : undefined}
-            id={panelId(tab.id)}
-            aria-labelledby={tabs.length > 1 ? tabId(tab.id) : undefined}
-            hidden={!selected}
-          >
-            {renderPanel(tab.id)}
-          </div>
-        );
-      })}
+      <div className="farm-roles farm-detail__tabs" role="tablist" aria-label="Secciones de la finca">
+        {sections.map((section) => {
+          const selected = tab === section.id;
+          return (
+            <button
+              key={section.id}
+              type="button"
+              role="tab"
+              id={`${baseId}-tab-${section.id}`}
+              className="farm-roles__option"
+              aria-selected={selected}
+              aria-controls={panelId}
+              tabIndex={selected ? 0 : -1}
+              onClick={() => setTab(section.id)}
+            >
+              {section.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div
+        id={panelId}
+        className="farm-detail__panel"
+        role="tabpanel"
+        data-section={tab}
+        aria-labelledby={`${baseId}-tab-${tab}`}
+      >
+        {renderTab(tab)}
+      </div>
 
       <ConfirmDialog
         open={action !== null}

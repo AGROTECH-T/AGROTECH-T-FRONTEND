@@ -30,18 +30,22 @@
   white-space: nowrap;
 }
 
-.farm-search input,
-.farm-form__field input {
+.farm-search input {
   width: 100%;
   min-height: 44px;
   padding: 10px 16px;
   border: 0;
   border-radius: 18px;
   color: var(--ink);
-  background: var(--field);
+  background: #fff;
   box-shadow: var(--inset);
   font: inherit;
   box-sizing: border-box;
+}
+
+.farm-search input:focus {
+  outline: none;
+  box-shadow: var(--inset), 0 0 0 3px color-mix(in srgb, var(--emerald) 35%, transparent);
 }
 
 /* --- Selector de rol: franja hundida con opciones sólidas ---------------- */
@@ -73,8 +77,9 @@
 .farm-roles__option:hover { color: var(--forest); background: var(--card); }
 .farm-roles__option:focus-visible { outline: 2px solid var(--moss); outline-offset: 2px; }
 .farm-roles__option[aria-pressed="true"] {
-  color: var(--card);
-  background: var(--forest);
+  color: #fff;
+  /* Esmeralda de Galpón (#0F5C45 / --emerald). */
+  background: #0f5c45;
   box-shadow: var(--raised);
 }
 
@@ -82,15 +87,17 @@
   min-width: 22px;
   padding: 1px 7px;
   border-radius: 999px;
-  color: var(--forest);
-  background: var(--mint);
+  color: var(--ink);
+  background: var(--tint);
+  box-shadow: inset 0 0 0 1.5px #0f5c45;
   font-size: 0.75rem;
   text-align: center;
   box-sizing: border-box;
 }
 .farm-roles__option[aria-pressed="true"] .farm-roles__count {
-  color: var(--mint);
-  background: var(--leaf);
+  color: #fff;
+  background: color-mix(in srgb, #0f5c45 78%, black);
+  box-shadow: none;
 }
 
 /* --- Cuadrícula de tarjetas ----------------------------------------------- */
@@ -108,42 +115,36 @@
 .farm-card {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
   width: 100%;
   min-width: 0;
-  overflow: hidden;
+  padding: 18px;
   border-radius: 22px;
   background: var(--card);
   box-shadow: var(--raised);
 }
-.farm-card:hover { box-shadow: var(--raised), 0 0 0 2px var(--sage); }
-.farm-card:focus-within { box-shadow: var(--raised), 0 0 0 2px var(--moss); }
-
-.farm-card__band {
-  position: relative;
-  height: 64px;
-  background: repeating-linear-gradient(160deg, var(--mint) 0 14px, var(--foam) 14px 28px);
-}
+.farm-card:hover { box-shadow: var(--raised), 0 0 0 2px var(--mist); }
+.farm-card:focus-within { box-shadow: var(--raised), 0 0 0 2px var(--emerald); }
 
 .farm-card__mark {
-  position: absolute;
-  left: 16px;
-  bottom: -26px;
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--card);
-  box-shadow: var(--raised);
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background: var(--tint);
+  box-shadow: var(--inset);
 }
-.farm-card__mark img { display: block; width: 32px; height: 32px; object-fit: contain; }
+.farm-card__mark img { display: block; width: 28px; height: 28px; object-fit: contain; }
 
 .farm-card__body {
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: 8px;
-  padding: 36px 16px 16px;
+  width: 100%;
+  min-width: 0;
 }
 
 .farm-card__head {
@@ -157,7 +158,7 @@
 .farm-card__name {
   margin: 0;
   min-width: 0;
-  color: var(--forest);
+  color: var(--ink);
   font-size: 1.1rem;
   font-weight: 700;
   overflow-wrap: anywhere;
@@ -171,9 +172,20 @@
   font-weight: 700;
   white-space: nowrap;
 }
-.farm-card__role[data-role="administrador"] { color: var(--card); background: var(--forest); }
-.farm-card__role[data-role="operador"] { color: var(--forest); background: var(--mint); }
-.farm-card__role[data-role="consulta"] { color: var(--leaf); background: var(--field); box-shadow: inset 0 0 0 1px var(--line); }
+.farm-card__role[data-role="administrador"] {
+  color: var(--ink);
+  background: var(--tint);
+  box-shadow: inset 0 0 0 1.5px var(--emerald);
+}
+.farm-card__role[data-role="operador"] {
+  color: var(--ink);
+  background: var(--tint);
+}
+.farm-card__role[data-role="consulta"] {
+  color: var(--ink);
+  background: var(--field);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
 
 .farm-card__meta {
   display: flex;
@@ -188,7 +200,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--moss);
+  background: var(--emerald);
 }
 
 .farm-card__open {
@@ -197,54 +209,48 @@
   padding: 10px 16px;
   border: 0;
   border-radius: 999px;
-  color: var(--card);
-  background: var(--forest);
+  color: #fff;
+  background: var(--action);
   box-shadow: var(--raised);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
 }
+.farm-card__open:hover { background: var(--action-deep); }
 .farm-card__open:focus-visible { outline: 2px solid var(--moss); outline-offset: 3px; }
 .farm-card__open:active { box-shadow: var(--inset); }
 
 /* Finca desactivada: hundida y apagada. */
 .farm-card[data-active="false"] { background: var(--surface); box-shadow: var(--inset); }
-.farm-card[data-active="false"] .farm-card__band {
-  background: repeating-linear-gradient(160deg, var(--surface) 0 14px, var(--line) 14px 28px);
-}
+.farm-card[data-active="false"] .farm-card__mark { background: var(--field); }
 .farm-card[data-active="false"] .farm-card__mark img { filter: grayscale(1); opacity: 0.6; }
 .farm-card[data-active="false"] .farm-card__name { color: var(--moss); }
-.farm-card[data-active="false"] .farm-card__dot { background: transparent; border: 1.5px solid var(--sage); box-sizing: border-box; }
-.farm-card[data-active="false"] .farm-card__open { color: var(--forest); background: var(--card); }
+.farm-card[data-active="false"] .farm-card__dot {
+  background: transparent;
+  border: 1.5px solid var(--sage);
+  box-sizing: border-box;
+}
+.farm-card[data-active="false"] .farm-card__open {
+  color: var(--action-deep);
+  background: var(--card);
+}
 
 /* --- Banner superior: título, total y acciones --------------------------- */
 
 .farm-hero {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 22px;
   padding: 22px 24px;
-  overflow: hidden;
   border-radius: 24px;
-  background: var(--card);
+  /* Encabezado «Tus fincas»: tint claro (--tint / #e7f3ee). */
+  background: var(--tint);
   box-shadow: var(--raised);
 }
 
-/* Franja de surcos a la derecha, cortada en diagonal. */
-.farm-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 0 auto;
-  width: 42%;
-  background: repeating-linear-gradient(160deg, var(--mint) 0 16px, var(--foam) 16px 32px);
-  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
-}
-
 .farm-hero__text {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -263,8 +269,9 @@
 .farm-hero__count {
   padding: 4px 10px;
   border-radius: 999px;
-  color: var(--forest);
-  background: var(--mint);
+  color: var(--ink);
+  background: var(--tint);
+  box-shadow: inset 0 0 0 1.5px var(--tint);
   font-size: 0.8rem;
   font-weight: 700;
 }
@@ -282,38 +289,57 @@
   box-shadow: var(--raised);
   font-weight: 700;
 }
-.farm-hero__actions .btn-secondary { color: var(--forest); background: var(--field); }
+/* Solo «Nueva finca» (primary) va naranja; «Unirme» usa secundario. */
+.farm-hero__actions .btn-primary {
+  color: #fff;
+  background: var(--action);
+}
+.farm-hero__actions .btn-primary:hover:not(:disabled) {
+  color: #fff;
+  background: var(--action-deep);
+}
+.farm-hero__actions .btn-secondary {
+  color: #fff;
+  background: var(--ash);
+}
+.farm-hero__actions .btn-secondary:hover:not(:disabled) {
+  color: #fff;
+  background: var(--ash-deep);
+}
 
-.farm-hero__lookup {
-  margin-top: 8px;
-  padding: 0;
-  font: inherit;
-  font-size: 0.85rem;
-  cursor: pointer;
+/* Botones naranja de Fincas: texto blanco (como Galpón). */
+.panel[aria-labelledby="farms-title"] .btn-primary,
+.panel[aria-label="Detalle de finca"] .btn-primary,
+.farm-detail .btn-primary,
+.farm-card__open,
+.farm-access__open {
+  color: #fff;
+}
+.panel[aria-labelledby="farms-title"] .btn-primary:hover:not(:disabled),
+.panel[aria-label="Detalle de finca"] .btn-primary:hover:not(:disabled),
+.farm-detail .btn-primary:hover:not(:disabled) {
+  color: #fff;
 }
 
 .farm-hero__art {
-  position: relative;
   display: grid;
   place-items: center;
   flex: none;
-  width: 84px;
-  height: 84px;
-  margin-right: 12px;
-  border-radius: 50%;
-  background: var(--card);
-  box-shadow: var(--raised);
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: var(--tint);
+  box-shadow: var(--inset);
 }
-.farm-hero__art img { display: block; width: 48px; height: 48px; object-fit: contain; }
+.farm-hero__art img { display: block; width: 40px; height: 40px; object-fit: contain; }
 
 @media (max-width: 560px) {
   .farm-roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 100%; padding: 4px; box-sizing: border-box; border-radius: 22px; }
   .farm-roles__option { justify-content: space-between; gap: 4px; min-width: 0; padding: 8px; font-size: 0.78rem; }
   .farm-grid { grid-template-columns: minmax(0, 1fr); }
-  /* En pantallas estrechas los surcos pasan a una franja superior. */
-  .farm-hero { padding: 54px 16px 18px; }
-  .farm-hero::before { inset: 0 0 auto 0; width: auto; height: 36px; clip-path: none; }
-  .farm-hero__art { display: none; }
+  .farm-hero { padding: 18px 16px; }
+  .farm-hero__art { width: 56px; height: 56px; border-radius: 18px; }
+  .farm-hero__art img { width: 32px; height: 32px; }
 }
 
 .farm-empty,
@@ -415,17 +441,18 @@
   padding: 8px 14px;
   border: 0;
   border-radius: 999px;
-  color: var(--leaf);
-  background: var(--surface);
-  box-shadow: var(--raised);
+  color: var(--ink);
+  background: var(--tint);
+  box-shadow: inset 0 0 0 1.5px transparent, var(--raised);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
 }
 
 .farm-members__filter.is-active {
-  color: var(--field);
-  background: var(--forest);
+  color: #fff;
+  background: var(--action);
+  box-shadow: var(--raised);
 }
 
 .farm-members__list {

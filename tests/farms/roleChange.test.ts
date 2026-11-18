@@ -75,7 +75,7 @@ describe("selección de los tres roles", () => {
     expect(html).toContain('role="radiogroup"');
     expect(html.match(/role="radio"/g)?.length).toBe(3);
     expect(html).toMatch(/aria-checked="true"[^>]*data-role="operador"/);
-    expect(html).toContain("Operador (actual)");
+    expect(html).toContain("Operador · actual");
     expect(html).toContain("Cambiar rol");
   });
 
@@ -238,8 +238,8 @@ describe("cambio del propio rol y actualización de farm.role", () => {
 
   it("con farm.role degradado se ocultan las pestañas administrativas y se vuelve a Resumen", () => {
     const tabs = visibleTabs(farm("operador"));
-    expect(tabs.map((t) => t.id)).toEqual(["resumen"]);
-    expect(resolveTab(tabs, "integrantes")).toBe("resumen");
+    expect(tabs.map((t) => t.id)).toEqual(["inventarios", "galpones"]);
+    expect(resolveTab(tabs, "integrantes")).toBe("inventarios");
   });
 
   it("FarmDetail con el rol devuelto (operador) no muestra pestañas ni acciones de admin", () => {
@@ -252,8 +252,11 @@ describe("cambio del propio rol y actualización de farm.role", () => {
         onLeft: () => undefined,
       }),
     );
-    // Solo Resumen y Configuración (abandonar); ninguna pestaña de administración.
-    expect(html.match(/role="tab"/g)?.length).toBe(2);
+    // Inventarios, Galpones y Configuración (abandonar); sin administración.
+    expect(html).toContain(">Inventarios<");
+    expect(html).toContain(">Galpones<");
+    expect(html).toContain(">Configuración<");
+    expect(html).not.toContain(">Integrantes<");
     expect(html).toContain("Tu rol en esta finca: Operador");
     expect(html).not.toContain("Editar nombre");
     expect(html).not.toContain("Integrantes de la finca");
@@ -308,8 +311,10 @@ describe("fallo al releer la finca tras un PATCH exitoso", () => {
         onLeft: () => undefined,
       }),
     );
-    // Solo Resumen y Configuración (abandonar); ninguna pestaña de administración.
-    expect(html.match(/role="tab"/g)?.length).toBe(2);
+    // Con acceso pendiente: módulos + Configuración (abandonar); sin admin.
+    expect(html).toContain(">Inventarios<");
+    expect(html).toContain(">Configuración<");
+    expect(html).not.toContain(">Integrantes<");
     expect(html).toContain("pendiente de confirmar");
     expect(html).toContain("El cambio de rol se guardó");
     expect(html).toContain("Actualizar acceso");

@@ -1,21 +1,20 @@
 /**
  * Pantalla de fincas.
  *
- * Propósito: listar, crear y consultar las fincas de la cuenta, abrir por
- * identificador una finca que no aparece en el listado (p. ej. desactivada) y
- * unirse a otra finca con un código de invitación (F10.3.5).
- * Contexto: GET /farms/ solo devuelve fincas activas; el administrador puede
- * consultar una finca desactivada con GET /farms/{id}/. «Unirme a una finca»
+ * Propósito: listar, crear y consultar las fincas de la cuenta, y unirse a
+ * otra finca con un código de invitación (F10.3.5).
+ * Contexto: GET /farms/ solo devuelve fincas activas. «Unirme a una finca»
  * está siempre disponible: una cuenta puede pertenecer a varias fincas con
  * roles distintos, también si ya administra otras.
  * Distribución: banner superior con el título, el total y las acciones
- * («Nueva finca», «Unirme a una finca» y «Abrir por identificador»); debajo,
- * el selector de rol, el buscador y la cuadrícula de tarjetas.
+ * («Nueva finca», «Unirme a una finca»); debajo, el selector de rol, el
+ * buscador y la cuadrícula de tarjetas. Desde el detalle se abre inventario
+ * o galpón de esa finca.
  * @author Cristian Deysdayr Jimenez
  */
 
-import fincaArt from "../../../assets/onboard-finca.webp";
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import fincaIcon from "../../../assets/icons/finca.png";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { InvitationCodeForm } from "../../invitations/components/InvitationCodeForm.tsx";
 import { joinedMessage, type CodeApi } from "../../invitations/services/codeFlow.ts";
@@ -25,7 +24,6 @@ import { roleLabel } from "../services/roleLabel.ts";
 import {
   applyFarmToList,
   openByIdErrorMessage,
-  parseFarmId,
   removeFarmFromList,
 } from "../services/farmLifecycle.ts";
 import { getFarm, listFarms } from "../services/farmsApi.ts";
@@ -52,10 +50,14 @@ type Props = {
   onView?: (view: "lista" | "crear") => void;
   /** Salir del formulario de creación (el menú decide a dónde volver). */
   onLeaveCreate?: () => void;
+  /** Abrir inventario de la finca abierta (opcionalmente uno concreto). */
+  onOpenInventory?: (farmId: number, inventoryId?: string) => void;
+  /** Abrir galpón de la finca abierta (opcionalmente uno concreto). */
+  onOpenGalpon?: (farmId: number, houseId?: number) => void;
 };
 
 /**
- * Indica si se muestran "Nueva finca" y "Abrir por identificador".
+ * Indica si se muestra "Nueva finca".
  * Sin el campo (backend anterior a F6, donde crear era libre) se conserva el
  * comportamiento previo. El backend rechaza igualmente lo no autorizado.
  */
@@ -66,6 +68,7 @@ export function farmScreenActions(
   const firstFarm = account?.can_create_first_farm === true;
   return {
     canCreate: firstFarm || (account?.can_create_farms ?? true),
+    // Se conserva por compatibilidad de tests; la UI ya no ofrece abrir por id.
     canOpenById: account?.can_open_inactive_farms ?? true,
   };
 }
@@ -89,6 +92,8 @@ export function FarmsScreen({
   tick = 0,
   onView,
   onLeaveCreate,
+  onOpenInventory,
+  onOpenGalpon,
 }: Readonly<Props>) {
   const actions = farmScreenActions(account);
   const canCreate = actions.canCreate;
@@ -113,10 +118,6 @@ export function FarmsScreen({
   const [joinSession, setJoinSession] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [lookupOpen, setLookupOpen] = useState(false);
-  const [lookupId, setLookupId] = useState("");
-  const [lookupError, setLookupError] = useState("");
-  const [lookupPending, setLookupPending] = useState(false);
   const notices = useNotices();
 
   const load = useCallback(async () => {
@@ -154,34 +155,8 @@ export function FarmsScreen({
       .catch((cause: unknown) => notices.push([openByIdErrorMessage(cause)], "warn"));
   }, [initialFarmId]);
 
-  // Una finca recién creada convierte a la cuenta en administradora sin
-  // recargar /auth/me; el listado actual también habilita la consulta por id.
-  const canOpenById =
-    actions.canOpenById || farms.some((farm) => farm.role === "administrador");
-
   const filtered = useMemo(() => filterFarms(farms, role, query), [farms, role, query]);
   const counts = useMemo(() => roleCounts(farms), [farms]);
-
-  async function openById(event: FormEvent) {
-    event.preventDefault();
-    const farmId = parseFarmId(lookupId);
-    if (farmId === null) {
-      setLookupError("Escribe un identificador numérico válido.");
-      return;
-    }
-    setLookupPending(true);
-    setLookupError("");
-    try {
-      const farm = await getFarm(farmId);
-      setLookupOpen(false);
-      setLookupId("");
-      setSelected(farm);
-    } catch (cause) {
-      setLookupError(openByIdErrorMessage(cause));
-    } finally {
-      setLookupPending(false);
-    }
-  }
 
   const openJoinedFarm = (farmId: number) => {
     // La membresía nueva aparece en el listado; se relee y se abre la finca.
@@ -215,6 +190,14 @@ export function FarmsScreen({
             setSelected(null);
           }}
           onNotice={(text, tone) => notices.push([text], tone)}
+          onOpenInventory={
+            onOpenInventory
+              ? (inventoryId) => onOpenInventory(selected.id, inventoryId)
+              : undefined
+          }
+          onOpenGalpon={
+            onOpenGalpon ? (houseId) => onOpenGalpon(selected.id, houseId) : undefined
+          }
         />
         {noticeStack}
       </section>
@@ -249,33 +232,21 @@ export function FarmsScreen({
             ) : null}
             <button
               type="button"
-              className={canCreate ? "btn-secondary" : "btn-primary"}
+              className="btn-secondary"
               data-action="join-farm"
+              aria-haspopup="dialog"
               aria-expanded={joining}
               onClick={() => {
                 if (!joining) setJoinSession((value) => value + 1);
-                setJoining((open) => !open);
+                setJoining(true);
               }}
             >
               {JOIN_FARM_LABEL}
             </button>
           </div>
-          {canOpenById ? (
-            <button
-              type="button"
-              className="text-link farm-hero__lookup"
-              aria-expanded={lookupOpen}
-              onClick={() => {
-                setLookupOpen((open) => !open);
-                setLookupError("");
-              }}
-            >
-              Abrir por identificador
-            </button>
-          ) : null}
         </div>
         <span className="farm-hero__art" aria-hidden="true">
-          <img src={fincaArt} alt="" width={48} height={48} decoding="async" />
+          <img src={fincaIcon} alt="" width={40} height={40} decoding="async" />
         </span>
       </header>
 
@@ -309,53 +280,10 @@ export function FarmsScreen({
         </label>
       </div>
 
-      {lookupOpen && canOpenById ? (
-        <form className="farm-form" onSubmit={(event) => void openById(event)} noValidate>
-          <h2 className="farm-form__title">Abrir finca por identificador</h2>
-          <p className="farm-empty__hint">
-            Las fincas desactivadas no aparecen en el listado. Si eres su administrador
-            puedes abrirlas con su identificador para consultarlas o reactivarlas.
-          </p>
-          <label className="farm-form__field">
-            <span>Identificador</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              name="farm-id"
-              placeholder="Ejemplo: 2"
-              value={lookupId}
-              autoComplete="off"
-              disabled={lookupPending}
-              onChange={(event) => {
-                setLookupId(event.target.value);
-                setLookupError("");
-              }}
-            />
-          </label>
-          {lookupError ? (
-            <p className="farm-form__error" role="alert">
-              {lookupError}
-            </p>
-          ) : null}
-          <div className="farm-form__actions">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => setLookupOpen(false)}
-              disabled={lookupPending}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className="btn-primary" disabled={lookupPending}>
-              {lookupPending ? "Abriendo..." : "Abrir finca"}
-            </button>
-          </div>
-        </form>
-      ) : null}
-
       {joining ? (
         <InvitationCodeForm
           key={joinSession}
+          inWindow
           title={JOIN_FARM_LABEL}
           intro={JOIN_FARM_INTRO}
           api={codeApi}

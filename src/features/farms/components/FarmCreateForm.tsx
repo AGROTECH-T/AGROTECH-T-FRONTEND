@@ -86,23 +86,25 @@ export function FarmCreateForm({
       noValidate
     >
       {inWindow ? null : <h2 className="farm-form__title">{title}</h2>}
-      <label className={gap ? "farm-form__field is-miss" : "farm-form__field"}>
-        <span>Nombre</span>
-        <input
-          type="text"
-          name="name"
-          maxLength={NAME_MAX_LENGTH}
-          placeholder="Ejemplo: La Esperanza"
-          value={name}
-          autoComplete="off"
-          disabled={pending}
-          onChange={(event) => {
-            setName(event.target.value);
-            setGap("");
-          }}
-        />
-        {gap ? <span className="farm-form__gap">{gap}</span> : null}
-      </label>
+      <div className="farm-form__block">
+        <label className={gap ? "farm-form__field is-miss" : "farm-form__field"}>
+          <span>Nombre</span>
+          <input
+            type="text"
+            name="name"
+            maxLength={NAME_MAX_LENGTH}
+            placeholder="Ejemplo: La Esperanza"
+            value={name}
+            autoComplete="off"
+            disabled={pending}
+            onChange={(event) => {
+              setName(event.target.value);
+              setGap("");
+            }}
+          />
+          {gap ? <span className="farm-form__gap">{gap}</span> : null}
+        </label>
+      </div>
       {error ? (
         <p className="farm-form__error" role="alert">
           {error}

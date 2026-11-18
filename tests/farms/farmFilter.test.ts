@@ -50,7 +50,7 @@ describe("filtro por rol", () => {
 });
 
 describe("cuadrícula de fincas", () => {
-  it("cada tarjeta tiene un solo botón y muestra su rol", () => {
+  it("cada tarjeta tiene Abrir finca y muestra su rol", () => {
     const html = renderToStaticMarkup(createElement(FarmList, { farms: FARMS, onSelect: () => undefined }));
     const cards = html.match(/<article[\s\S]*?<\/article>/g) ?? [];
     expect(cards).toHaveLength(4);
