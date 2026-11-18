@@ -101,3 +101,29 @@
   gap: 10px;
   margin-left: auto;
 }
+
+@media (max-width: 620px) {
+  .top-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 22px;
+  }
+
+  .top-bar__actions {
+    order: 2;
+  }
+
+  .top-bar__search {
+    order: 1;
+    flex: 1 1 150px;
+    min-width: 0;
+    max-width: none;
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .top-bar__search input {
+    font-size: 0.9rem;
+  }
+}

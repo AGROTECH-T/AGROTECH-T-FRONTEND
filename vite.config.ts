@@ -29,6 +29,6 @@ export default defineConfig(({ command, mode }) => {
   return {
     plugins: [react()],
     server: { port: 5173, strictPort: true },
-    test: { environment: "node", include: ["tests/**/*.test.ts"] },
+    test: { environment: "node", include: ["tests/**/*.test.{ts,tsx}"] },
   };
 });

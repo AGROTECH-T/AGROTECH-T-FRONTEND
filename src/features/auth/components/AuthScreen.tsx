@@ -70,7 +70,6 @@ export function AuthScreen() {
   // (StrictMode repite efectos; un cierre de sesión invalida lo pendiente).
   const restoreRun = useRef(0);
   const farmCheck = useRef(0);
-  const formFirst = mode === "signup";
   const signedIn = account !== null;
   const hasInvitation = invitation !== null;
 
@@ -136,6 +135,12 @@ export function AuthScreen() {
         if (farmCheck.current === id) setFarmAccess("error");
       });
   }, [account, stage, farmAccess]);
+
+  useEffect(() => {
+    if (account) return;
+    document.body.classList.add("is-auth");
+    return () => document.body.classList.remove("is-auth");
+  }, [account]);
 
   const leave = async () => {
     const token = readToken();
@@ -291,11 +296,17 @@ export function AuthScreen() {
   }
 
   let form = (
-    <SignInForm notice={notice} onForgot={() => setMode("recover")} onSuccess={signIn} />
+    <SignInForm
+      notice={notice}
+      onForgot={() => setMode("recover")}
+      onSignUp={() => setMode("signup")}
+      onSuccess={signIn}
+    />
   );
   if (mode === "signup") {
     form = (
       <SignUpForm
+        onSignIn={() => setMode("signin")}
         onSuccess={(created) => {
           setJustRegistered(true);
           signIn(created);
@@ -315,18 +326,17 @@ export function AuthScreen() {
   }
 
   const welcome = (
-    <WelcomeSide
-      mode={mode === "signup" ? "signup" : "signin"}
-      onSwitch={() => setMode(mode === "signup" ? "signin" : "signup")}
-    />
+    <WelcomeSide mode={mode === "signup" ? "signup" : "signin"} />
   );
 
   return (
-    <main className={formFirst ? "shell signin" : "shell signup"}>
+    <main className="shell">
       <div className="blob blob-a" aria-hidden="true" />
       <div className="blob blob-b" aria-hidden="true" />
-      {formFirst ? form : welcome}
-      {formFirst ? welcome : form}
+      <div className={mode === "signup" ? "auth-card is-signup" : "auth-card is-signin"}>
+        <div className="auth-slot auth-slot--form">{form}</div>
+        <div className="auth-slot auth-slot--welcome">{welcome}</div>
+      </div>
     </main>
   );
 }

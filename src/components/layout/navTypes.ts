@@ -6,19 +6,59 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-export type AppSection = "home" | "fincas" | "inventario" | "iot" | "configuracion" | "perfil";
+export type AppSection = "home" | "fincas" | "inventario" | "galpon" | "iot" | "configuracion" | "perfil";
+
+export type NavChild = {
+  id: string;
+  label: string;
+};
 
 export type NavItem = {
   id: AppSection;
   label: string;
-  icon: "home" | "land" | "box" | "iot" | "gear";
+  icon: "home" | "land" | "box" | "bird" | "iot" | "gear";
+  children?: readonly NavChild[];
 };
 
 /** Ítems fijos del menú lateral. */
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "home", label: "Inicio", icon: "home" },
-  { id: "fincas", label: "Fincas", icon: "land" },
-  { id: "inventario", label: "Inventario", icon: "box" },
+  {
+    id: "fincas",
+    label: "Fincas",
+    icon: "land",
+    children: [
+      { id: "lista", label: "Mis fincas" },
+      { id: "crear", label: "Crear finca" },
+    ],
+  },
+  {
+    id: "inventario",
+    label: "Inventario",
+    icon: "box",
+    children: [
+      { id: "lista", label: "Ver inventario" },
+      { id: "inventarios", label: "Inventarios" },
+      { id: "crear", label: "Crear producto" },
+      { id: "catalogo", label: "Crear catálogo" },
+    ],
+  },
+  {
+    id: "galpon",
+    label: "Galpón",
+    icon: "bird",
+    children: [{ id: "galpones", label: "Lotes" }],
+  },
   { id: "iot", label: "IoT", icon: "iot" },
   { id: "configuracion", label: "Configuración", icon: "gear" },
 ];
+
+/**
+ * Filtra el menú a los módulos que la cuenta puede abrir.
+ * @param modulos - Identificadores permitidos que entrega la sesión.
+ * @returns Ítems visibles en el orden del menú.
+ */
+export function visibleNavItems(modulos: readonly string[]): readonly NavItem[] {
+  const allowed = new Set(modulos);
+  return NAV_ITEMS.filter((item) => allowed.has(item.id));
+}

@@ -138,8 +138,8 @@ export function putJson<T>(path: string, body: unknown, token: string): Promise<
  * @param token - Sesión Bearer.
  * @returns Cuerpo JSON de la respuesta.
  */
-export function getJson<T>(path: string, token: string): Promise<T> {
-  return send<T>(path, { method: "GET" }, token);
+export function getJson<T>(path: string, token: string, cache?: RequestCache): Promise<T> {
+  return send<T>(path, { method: "GET", cache }, token);
 }
 
 /**

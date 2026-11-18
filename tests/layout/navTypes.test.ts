@@ -7,14 +7,15 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { NAV_ITEMS } from "../../src/components/layout/navTypes.ts";
+import { NAV_ITEMS, visibleNavItems } from "../../src/components/layout/navTypes.ts";
 
 describe("menú del shell", () => {
-  it("expone Inicio, Fincas, Inventario, IoT y Configuración en ese orden", () => {
+  it("expone Inicio, Fincas, Inventario, Galpón, IoT y Configuración en ese orden", () => {
     expect(NAV_ITEMS.map((item) => item.id)).toEqual([
       "home",
       "fincas",
       "inventario",
+      "galpon",
       "iot",
       "configuracion",
     ]);
@@ -22,8 +23,29 @@ describe("menú del shell", () => {
       "Inicio",
       "Fincas",
       "Inventario",
+      "Galpón",
       "IoT",
       "Configuración",
     ]);
+  });
+
+  it("una cuenta nueva solo ve Inicio", () => {
+    expect(visibleNavItems(["home"]).map((item) => item.id)).toEqual(["home"]);
+  });
+
+  it("el superadmin y el administrador ven todos los módulos", () => {
+    expect(
+      visibleNavItems(["home", "fincas", "inventario", "galpon", "configuracion"]).map(
+        (item) => item.id,
+      ),
+    ).toEqual(["home", "fincas", "inventario", "galpon", "configuracion"]);
+  });
+
+  it("Inventario no lista Estadísticas ni Reportes en el desplegable", () => {
+    const inventario = NAV_ITEMS.find((item) => item.id === "inventario");
+    const labels = (inventario?.children ?? []).map((child) => child.label);
+    expect(labels).toEqual(["Ver inventario", "Inventarios", "Crear producto", "Crear catálogo"]);
+    expect(labels).not.toContain("Estadísticas");
+    expect(labels).not.toContain("Reportes");
   });
 });

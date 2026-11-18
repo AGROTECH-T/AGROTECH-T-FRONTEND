@@ -7,7 +7,6 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import campo from "../../../assets/campo-rocio.png";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { CodeBoxes } from "./CodeBoxes.tsx";
 import { PasswordGuide } from "./PasswordGuide.tsx";
@@ -102,8 +101,6 @@ export function CodeStage({ pending, onBack, onResend, onCheck, onConfirm }: Rea
 
   return (
     <section className="otp-scene" aria-labelledby="otp-title">
-      <img src={campo} alt="" />
-      {["uno", "dos", "tres", "cuatro", "cinco"].map((item) => <span key={item} className="otp-fly" />)}
       <form className="otp-card" noValidate onSubmit={(event) => { event.preventDefault(); if (phase === "password") onConfirm(code, password); }}>
         {phase === "code" || phase === "password" ? (
           <button type="button" className="otp-back" onClick={goBack}>← Volver atrás</button>

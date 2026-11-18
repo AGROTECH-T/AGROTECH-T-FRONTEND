@@ -11,7 +11,6 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import campo from "../../../assets/campo-rocio.png";
 import "../../../styles/email-verification.css";
 import { readToken } from "../services/session.ts";
 import {
@@ -80,10 +79,6 @@ export function EmailVerificationView({
 
   return (
     <section className="otp-scene" aria-labelledby="verify-title">
-      <img src={campo} alt="" />
-      {["uno", "dos", "tres", "cuatro", "cinco"].map((item) => (
-        <span key={item} className="otp-fly" />
-      ))}
       <form
         className="otp-card verify-card"
         noValidate

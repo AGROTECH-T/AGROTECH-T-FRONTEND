@@ -7,6 +7,7 @@
  */
 
 .panel {
+  min-width: 0;
   min-height: calc(100vh - 140px);
   padding: 32px 36px;
   border-radius: 28px;
@@ -19,18 +20,35 @@
   margin-bottom: 28px;
 }
 
+.panel__kicker {
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 .panel__title {
   margin: 0 0 8px;
-  color: var(--forest);
+  overflow-wrap: anywhere;
+  color: var(--ink);
   font-size: 1.85rem;
   font-weight: 700;
   line-height: 1.15;
 }
 
+.panel--home .panel__title {
+  margin: 0;
+  font-size: 2.4rem;
+  letter-spacing: -0.02em;
+}
+
 .panel__lead {
   margin: 0;
+  max-width: 42rem;
   color: var(--sage);
   font-size: 1rem;
+  line-height: 1.5;
 }
 
 .btn-primary {
@@ -41,12 +59,16 @@
   padding: 10px 18px;
   border: 0;
   border-radius: 18px;
-  color: var(--field);
-  background: var(--forest);
+  color: #fff;
+  background: var(--action);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--raised);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--action-deep);
 }
 
 .btn-primary:disabled {
@@ -62,12 +84,134 @@
   padding: 10px 18px;
   border: 0;
   border-radius: 18px;
-  color: var(--leaf);
-  background: var(--surface);
+  color: var(--ink);
+  background: var(--card);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--raised);
+}
+
+.form-window {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.form-window__shade {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(20, 43, 27, 0.4);
+  cursor: pointer;
+}
+
+.form-window__card {
+  position: relative;
+  z-index: 1;
+  width: min(480px, 100%);
+  max-height: 90vh;
+  margin: 0;
+  padding: 0 0 16px;
+  overflow: auto;
+  border: 0;
+  border-radius: 22px;
+  color: var(--ink);
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.form-window__card.is-wide {
+  width: min(920px, 100%);
+}
+
+.form-window__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  position: sticky;
+  top: 0;
+  background: var(--card);
+}
+
+.form-window__head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.15rem;
+}
+
+.form-window__x {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--ink);
+  background: var(--field);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.form-window__body {
+  padding: 0 16px 8px;
+}
+
+.form-window .inv-form__actions .btn-primary,
+.form-window .inv-form__actions .btn-danger {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 128px;
+  min-height: 40px;
+  padding: 8px 18px;
+  border-radius: 14px;
+}
+
+.form-window .inv-form--create,
+.form-window .inv-form,
+.form-window .farm-form {
+  width: 100%;
+  margin: 0;
+  padding: 0 16px 4px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.screen-back,
+.btn-secondary.screen-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 44px;
+  margin-bottom: 16px;
+  padding: 10px 18px;
+  gap: 8px;
+  border: 0;
+  border-radius: 18px;
+  color: #f4f6f5;
+  background: var(--ash);
+  box-shadow: 4px 4px 10px rgba(20, 43, 27, 0.16), -3px -3px 8px rgba(255, 255, 255, 0.55);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.screen-back:hover:not(:disabled),
+.btn-secondary.screen-back:hover:not(:disabled) {
+  background: var(--ash-deep);
+}
+
+.screen-back__arrow {
+  width: 20px;
+  height: 20px;
+  flex: none;
 }
 
 .btn-secondary:disabled {
@@ -86,6 +230,7 @@
   color: var(--field);
   background: var(--danger);
   font: inherit;
+  gap: 8px;
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--raised);
@@ -99,4 +244,31 @@
 .btn-danger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+@media (max-width: 820px) {
+  .panel {
+    min-height: 0;
+    padding: 20px 16px;
+    border-radius: 22px;
+  }
+
+  .panel__header {
+    margin-bottom: 18px;
+  }
+
+  .panel__title {
+    font-size: 1.45rem;
+  }
+
+  .panel--home .panel__title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 440px) {
+  .panel {
+    padding: 16px 12px;
+    border-radius: 18px;
+  }
 }
