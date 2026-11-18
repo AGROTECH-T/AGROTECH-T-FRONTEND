@@ -6,15 +6,40 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell, type AppSection } from "../../../components/layout/index.ts";
+import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import type { Account } from "../../auth/types/index.ts";
 import { ConfiguracionScreen } from "../../configuracion/index.ts";
 import { FarmsScreen } from "../../farms/index.ts";
-import { InventarioPanel } from "../../inventario/index.ts";
+import { GalponPanel } from "../../galpon/components/GalponPanel.tsx";
+import { InventarioPanel, type StockView } from "../../inventario/index.ts";
 import { IotScreen } from "../../iot/index.ts";
 import { ProfileScreen } from "../../profile/index.ts";
 import { HomeHub } from "./HomeHub.tsx";
+
+function asStockView(view?: string): StockView {
+  if (
+    view === "crear" ||
+    view === "entrada" ||
+    view === "salida" ||
+    view === "historial" ||
+    view === "inventarios" ||
+    view === "catalogo" ||
+    view === "categorias" ||
+    view === "unidades" ||
+    view === "medidas" ||
+    view === "reportes" ||
+    view === "ajustes" ||
+    view === "consumo" ||
+    view === "prestamos" ||
+    view === "pedido" ||
+    view === "bajo"
+  ) {
+    return view;
+  }
+  return "lista";
+}
 
 type Props = {
   account: Account;
@@ -38,12 +63,44 @@ function renderSection(
   section: AppSection,
   account: Account,
   onAccountChange: (account: Account) => void,
+  farmView: "lista" | "crear",
+  farmTick: number,
+  onFarmView: (view: "lista" | "crear") => void,
+  stockView: StockView,
+  onStockView: (view: StockView) => void,
+  stockTick: number,
+  galponTick: number,
+  onCreateFarm: () => void,
+  onLeaveCreate: () => void,
   focusFarmId?: number,
 ) {
-  if (section === "fincas") return <FarmsScreen initialFarmId={focusFarmId} account={account} />;
-  if (section === "inventario") return <InventarioPanel account={account} />;
+  if (section === "fincas") {
+    return (
+      <FarmsScreen
+        initialFarmId={focusFarmId}
+        account={account}
+        view={farmView}
+        tick={farmTick}
+        onView={onFarmView}
+        onLeaveCreate={onLeaveCreate}
+      />
+    );
+  }
+  if (section === "inventario") {
+    return (
+      <InventarioPanel
+        view={stockView}
+        tick={stockTick}
+        onView={onStockView}
+        onCreateFarm={onCreateFarm}
+      />
+    );
+  }
+  if (section === "galpon") {
+    return <GalponPanel tick={galponTick} onCreateFarm={onCreateFarm} />;
+  }
   if (section === "iot") return <IotScreen />;
-  if (section === "configuracion") return <ConfiguracionScreen />;
+  if (section === "configuracion") return <ConfiguracionScreen account={account} />;
   if (section === "perfil") {
     return <ProfileScreen account={account} onAccountChange={onAccountChange} />;
   }
@@ -64,14 +121,79 @@ export function HomeScreen({
 }: Readonly<Props>) {
   const [section, setSection] = useState<AppSection>(initialSection ?? "home");
   const [focusFarmId, setFocusFarmId] = useState<number | undefined>(initialFarmId);
-  const content = renderSection(section, account, onAccountChange, focusFarmId);
-  const navigate = (next: AppSection) => {
+  const [farmView, setFarmView] = useState<"lista" | "crear">("lista");
+  const [farmTick, setFarmTick] = useState(0);
+  const [stockView, setStockView] = useState<StockView>("lista");
+  const [stockTick, setStockTick] = useState(0);
+  const [galponTick, setGalponTick] = useState(0);
+  const [backToInventory, setBackToInventory] = useState(false);
+  const notices = useNotices();
+
+  const go = (next: AppSection, view?: string) => {
+    if (next !== "perfil" && !account.modulos.includes(next)) return;
     setFocusFarmId(undefined);
     setSection(next);
+    if (next === "fincas") {
+      setFarmView(view === "crear" ? "crear" : "lista");
+      setFarmTick((current) => current + 1);
+    }
+    if (next === "inventario") {
+      setStockView(asStockView(view));
+      setStockTick((current) => current + 1);
+    }
+    if (next === "galpon") {
+      setGalponTick((current) => current + 1);
+    }
   };
 
+  const content = renderSection(
+    section,
+    account,
+    onAccountChange,
+    farmView,
+    farmTick,
+    setFarmView,
+    stockView,
+    setStockView,
+    stockTick,
+    galponTick,
+    () => {
+      setBackToInventory(section === "inventario");
+      go("fincas", "crear");
+    },
+    () => {
+      if (backToInventory) {
+        setBackToInventory(false);
+        setSection("inventario");
+        return;
+      }
+      setFarmView("lista");
+    },
+    focusFarmId,
+  );
+
+  useEffect(() => {
+    if (section !== "perfil" && !account.modulos.includes(section)) {
+      setSection("home");
+    }
+  }, [account.modulos, section]);
+
+  useEffect(() => {
+    const flash = sessionStorage.getItem("agrotech-t.flash");
+    if (!flash) return;
+    sessionStorage.removeItem("agrotech-t.flash");
+    notices.push([flash], "ok");
+  }, [notices]);
+
   return (
-    <AppShell account={account} section={section} onNavigate={navigate} onLogout={onLogout}>
+    <AppShell
+      account={account}
+      section={section}
+      view={section === "inventario" ? stockView : section === "galpon" ? "galpones" : farmView}
+      onNavigate={go}
+      onLogout={onLogout}
+    >
+      <NoticeStack items={notices.items} onClose={notices.close} />
       {content}
     </AppShell>
   );

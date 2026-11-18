@@ -1,59 +1,17 @@
 /**
  * Submódulo Roles y permisos.
  *
- * Propósito: cargar el catálogo y mostrar estados de espera o error.
- * Contexto: contenido de Configuración; refleja la definición Farms.
+ * Propósito: asignar el rol de cada persona en sus fincas.
+ * Contexto: contenido de Configuración.
  * @author Cristian Deysdayr Jimenez
  */
 
-import { useCallback, useEffect, useState } from "react";
-import type { CatalogoRoles } from "../types/index.ts";
-import { fetchRolesPermisos } from "../services/rolesPermisos.ts";
-import { RolesCatalogo } from "./RolesCatalogo.tsx";
+import { AsignacionRoles } from "./AsignacionRoles.tsx";
 
 /**
- * Contenido del submódulo con carga, error y catálogo.
- * @returns Roles, actores, matriz, reglas y pendientes.
+ * Contenido de Roles y permisos.
+ * @returns Asignación de roles.
  */
 export function RolesPermisosPanel() {
-  const [catalogo, setCatalogo] = useState<CatalogoRoles | null>(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      setCatalogo(await fetchRolesPermisos());
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "No se pudo cargar el catálogo");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  if (loading) {
-    return (
-      <p className="config-state" role="status">
-        Cargando roles y permisos...
-      </p>
-    );
-  }
-
-  if (error || !catalogo) {
-    return (
-      <div className="config-state" role="alert">
-        <p>{error || "No se pudo cargar el catálogo"}</p>
-        <button type="button" className="btn-primary" onClick={() => void load()}>
-          Reintentar
-        </button>
-      </div>
-    );
-  }
-
-  return <RolesCatalogo catalogo={catalogo} />;
+  return <AsignacionRoles />;
 }

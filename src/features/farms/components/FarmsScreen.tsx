@@ -42,6 +42,16 @@ type Props = {
   account?: Pick<Account, "can_create_farms" | "can_create_first_farm" | "can_open_inactive_farms">;
   /** Llamadas de preview y accept por código (inyectables en pruebas). */
   codeApi?: CodeApi;
+  /**
+   * INT-02: vista elegida desde el menú lateral ("Mis fincas" / "Crear finca").
+   * Sin estas props la pantalla maneja la vista por sí misma.
+   */
+  view?: "lista" | "crear";
+  /** Cambia en cada clic del menú: vuelve al listado aunque la vista sea la misma. */
+  tick?: number;
+  onView?: (view: "lista" | "crear") => void;
+  /** Salir del formulario de creación (el menú decide a dónde volver). */
+  onLeaveCreate?: () => void;
 };
 
 /**
@@ -71,14 +81,33 @@ export function emptyHint(noFarms: boolean, canCreate: boolean): string {
  * Orquesta listado, alta y detalle.
  * @returns Panel de Fincas.
  */
-export function FarmsScreen({ initialFarmId, account, codeApi }: Readonly<Props>) {
+export function FarmsScreen({
+  initialFarmId,
+  account,
+  codeApi,
+  view,
+  tick = 0,
+  onView,
+  onLeaveCreate,
+}: Readonly<Props>) {
   const actions = farmScreenActions(account);
   const canCreate = actions.canCreate;
   const [farms, setFarms] = useState<Farm[]>([]);
   const [query, setQuery] = useState("");
   const [role, setRole] = useState<RoleFilter>("todas");
   const [selected, setSelected] = useState<Farm | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [creatingLocal, setCreatingLocal] = useState(false);
+  // INT-02: con menú, "crear" lo decide la vista recibida; sin menú, el estado local.
+  const creating = view === undefined ? creatingLocal : view === "crear";
+  const keepSelection = useRef(false);
+  const setCreating = (next: boolean) => {
+    if (view === undefined || !onView) {
+      setCreatingLocal(next);
+      return;
+    }
+    if (next) onView("crear");
+    else (onLeaveCreate ?? (() => onView("lista")))();
+  };
   const [joining, setJoining] = useState(false);
   // Cambia en cada apertura: el formulario empieza vacío y sin estado previo.
   const [joinSession, setJoinSession] = useState(0);
@@ -105,6 +134,16 @@ export function FarmsScreen({ initialFarmId, account, codeApi }: Readonly<Props>
   useEffect(() => {
     void load();
   }, [load]);
+
+  // INT-02: cada clic del menú vuelve al listado, salvo justo tras crear una finca.
+  useEffect(() => {
+    if (view === undefined) return;
+    if (keepSelection.current) {
+      keepSelection.current = false;
+      return;
+    }
+    setSelected(null);
+  }, [view, tick]);
 
   const openedInitial = useRef(false);
   useEffect(() => {
@@ -331,10 +370,13 @@ export function FarmsScreen({ initialFarmId, account, codeApi }: Readonly<Props>
 
       {creating && canCreate ? (
         <FarmCreateForm
+          inWindow
           onCancel={() => setCreating(false)}
           onCreated={(farm) => {
             setFarms((current) => [...current, farm].sort((a, b) => a.id - b.id));
-            setCreating(false);
+            keepSelection.current = true;
+            if (view === undefined || !onView) setCreating(false);
+            else onView("lista");
             setSelected(farm);
           }}
         />

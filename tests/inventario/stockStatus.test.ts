@@ -17,6 +17,6 @@ describe("stockStatus", () => {
   it("etiqueta los estados en español", () => {
     expect(stockStatusLabel("agotado")).toBe("Agotado");
     expect(stockStatusLabel("bajo")).toBe("Bajo");
-    expect(stockStatusLabel("ok")).toBe("OK");
+    expect(stockStatusLabel("ok")).toBe("Activo");
   });
 });

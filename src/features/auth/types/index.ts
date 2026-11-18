@@ -16,6 +16,9 @@ export type Account = {
   phone: string;
   correo: string;
   is_active: boolean;
+  is_superadmin: boolean;
+  is_administrador: boolean;
+  modulos: string[];
   /** Solo lectura: lo decide el backend (GET /api/v1/auth/me/). */
   email_verified: boolean;
   /** Capacidad global de crear fincas (F6, solo lectura). */
