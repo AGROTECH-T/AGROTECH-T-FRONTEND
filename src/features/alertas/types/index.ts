@@ -1,11 +1,11 @@
 /**
  * Contratos de los avisos del sistema.
  *
- * Propósito: tipar las alertas de stock que muestra la campana.
+ * Propósito: tipar alertas de stock y recordatorios de bitácora.
  * @author Cristian Deysdayr Jimenez
  */
 
-export type AlertKind = "bajo" | "agotado";
+export type AlertKind = "bajo" | "agotado" | "bitacora";
 
 export type Alert = {
   id: string;
@@ -14,11 +14,15 @@ export type Alert = {
   detail: string;
   farm_id: number;
   farm: string;
-  product_id: number;
-  product: string;
-  quantity: string;
-  min: string;
-  unit: string;
+  product_id?: number;
+  product?: string;
+  quantity?: string;
+  min?: string;
+  unit?: string;
+  lot_id?: number;
+  lot?: string;
+  house_id?: number;
+  house?: string;
 };
 
 export type AlertList = {

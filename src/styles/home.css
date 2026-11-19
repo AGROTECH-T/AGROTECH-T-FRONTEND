@@ -1,0 +1,242 @@
+/**
+ * Estilos de Inicio.
+ *
+ * Propósito: hub compacto con atajos y avisos, sin saturar.
+ * Contexto: misma lectura visual que Galpón (blanco, esmeralda, naranja).
+ * @author Cristian Deysdayr Jimenez
+ */
+
+.home-hub {
+  --home-mark: #0f5c45;
+  --home-tint: #e7f3ee;
+  --home-soft: #f3f1ee;
+  --home-line: #d5e0da;
+  --home-warn: #8a5a12;
+  --home-warn-soft: #f4e6b8;
+  display: grid;
+  gap: 18px;
+  color: var(--ink);
+}
+
+.home-hub.panel {
+  padding: clamp(18px, 2.4vw, 32px) clamp(18px, 2.8vw, 36px);
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.home-hub__head {
+  display: grid;
+  gap: 4px;
+}
+
+.home-hub__head .panel__kicker {
+  margin: 0;
+  color: var(--sage);
+}
+
+.home-hub__head .panel__title {
+  margin: 0;
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+}
+
+.home-hub__lead {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--sage);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.home-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.home-shortcut {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  min-height: 108px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 20px;
+  color: var(--ink);
+  background: var(--card);
+  box-shadow: var(--raised);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.home-shortcut:hover {
+  background: color-mix(in srgb, var(--home-tint) 55%, var(--card));
+}
+
+.home-shortcut__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--home-tint);
+  box-shadow: var(--inset);
+}
+
+.home-shortcut__icon img,
+.home-shortcut__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.home-shortcut__icon--iot {
+  color: var(--home-mark);
+}
+
+.home-shortcut strong {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.home-shortcut span {
+  color: var(--sage);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.home-pulse {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.home-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--home-tint) 45%, var(--card));
+  box-shadow: var(--inset);
+}
+
+.home-card--ok {
+  background: var(--home-tint);
+}
+
+.home-card--warn {
+  background: color-mix(in srgb, var(--home-warn-soft) 55%, var(--card));
+}
+
+.home-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.home-card__head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.home-card__count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  color: var(--home-mark);
+  background: var(--card);
+  box-shadow: var(--raised);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.home-card--warn .home-card__count {
+  color: var(--home-warn);
+}
+
+.home-card__list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-card__list li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: var(--raised);
+}
+
+.home-card__list strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.home-card__list span {
+  color: var(--sage);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.home-card__more,
+.home-card__empty {
+  margin: 0;
+  color: var(--sage);
+  font-size: 0.8rem;
+}
+
+.home-card__action {
+  justify-self: start;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--action);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--raised);
+}
+
+.home-card__action:hover {
+  background: var(--action-deep);
+}
+
+.home-card__action--ghost {
+  color: var(--ink);
+  background: var(--card);
+}
+
+.home-status {
+  padding: 14px 16px;
+  border-radius: 18px;
+  color: var(--sage);
+  background: var(--home-soft);
+  box-shadow: var(--inset);
+  font-size: 0.88rem;
+}
+
+.home-status[role="alert"] {
+  color: var(--danger-deep);
+  background: var(--danger-soft);
+}
+
+@media (max-width: 820px) {
+  .home-shortcuts,
+  .home-pulse {
+    grid-template-columns: 1fr;
+  }
+}

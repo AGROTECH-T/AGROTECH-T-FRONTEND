@@ -156,6 +156,10 @@
   font-weight: 700;
 }
 
+.notifications__item.is-bitacora .notifications__item-title {
+  color: var(--home-warn, #8a5a12);
+}
+
 .notifications__item.is-agotado .notifications__item-title {
   color: var(--danger);
 }

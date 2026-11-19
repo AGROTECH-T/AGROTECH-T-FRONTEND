@@ -80,6 +80,7 @@ function renderSection(
   onLeaveCreate: () => void,
   onOpenInventory: (farmId: number, inventoryId?: string) => void,
   onOpenGalpon: (farmId: number, houseId?: number) => void,
+  onNavigate: (section: AppSection, view?: string) => void,
   focusFarmId?: number,
   inventoryFocus?: { farmId: number; inventoryId?: string } | null,
   galponFocus?: { farmId: number; houseId?: number } | null,
@@ -125,7 +126,7 @@ function renderSection(
   if (section === "perfil") {
     return <ProfileScreen account={account} onAccountChange={onAccountChange} />;
   }
-  return <HomeHub account={account} />;
+  return <HomeHub account={account} onNavigate={onNavigate} onOpenGalpon={onOpenGalpon} />;
 }
 
 /**
@@ -284,6 +285,7 @@ export function HomeScreen({
     },
     openInventory,
     openGalpon,
+    go,
     focusFarmId,
     inventoryFocus,
     galponFocus,

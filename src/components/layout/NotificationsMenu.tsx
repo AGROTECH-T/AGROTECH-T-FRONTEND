@@ -47,6 +47,12 @@ export function NotificationsMenu({ open, onToggle, onNavigate }: Readonly<Props
     if (open) void load();
   }, [open, load]);
 
+  const openAlert = (alert: Alert) => {
+    if (alert.kind === "bitacora") onNavigate?.("galpon");
+    else onNavigate?.("inventario", "bajo");
+    onToggle();
+  };
+
   const openLowStock = () => {
     onNavigate?.("inventario", "bajo");
     onToggle();
@@ -97,7 +103,7 @@ export function NotificationsMenu({ open, onToggle, onNavigate }: Readonly<Props
             <div className="notifications__empty">
               <p className="notifications__empty-title">Todo en orden</p>
               <p className="notifications__empty-hint">
-                Ningún producto está en o bajo su mínimo.
+                Sin stock bajo ni bitácoras pendientes de hoy.
               </p>
             </div>
           ) : null}
@@ -111,7 +117,7 @@ export function NotificationsMenu({ open, onToggle, onNavigate }: Readonly<Props
                       type="button"
                       role="menuitem"
                       className={`notifications__item is-${alert.kind}`}
-                      onClick={openLowStock}
+                      onClick={() => openAlert(alert)}
                     >
                       <span className="notifications__item-title">{alert.title}</span>
                       <span className="notifications__item-detail">{alert.detail}</span>
@@ -120,9 +126,22 @@ export function NotificationsMenu({ open, onToggle, onNavigate }: Readonly<Props
                   </li>
                 ))}
               </ul>
-              <button type="button" className="notifications__all" onClick={openLowStock}>
-                Ver qué pedir
-              </button>
+              {alerts.some((item) => item.kind === "bajo" || item.kind === "agotado") ? (
+                <button type="button" className="notifications__all" onClick={openLowStock}>
+                  Ver qué pedir
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="notifications__all"
+                  onClick={() => {
+                    onNavigate?.("galpon");
+                    onToggle();
+                  }}
+                >
+                  Ir a galpón
+                </button>
+              )}
             </>
           ) : null}
         </div>
