@@ -133,22 +133,14 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
           *<span className="visually-hidden"> obligatorio</span>
         </span>
       </div>
-      <button type="submit" className="solid" disabled={pending}>
-        {pending ? "Creando" : "+ Crear cuenta"}
-      </button>
-      <button type="button" className="auth-switch" onClick={onSignIn}>
-        <svg className="auth-switch__arrow" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M14.5 5.5 8 12l6.5 6.5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        Ingresar con mi cuenta
-      </button>
+      <div className="signup-actions">
+        <button type="button" className="auth-switch" onClick={onSignIn}>
+          Volver
+        </button>
+        <button type="submit" className="solid" disabled={pending}>
+          {pending ? "Creando" : "Crear cuenta"}
+        </button>
+      </div>
       <NoticeStack items={notices.items} onClose={notices.close} />
       {policy ? <PolicyWindow part="terminos" onClose={() => setPolicy(false)} /> : null}
     </form>

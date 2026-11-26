@@ -3,7 +3,7 @@
  * Pruebas del cambio entre ingreso y registro.
  *
  * Propósito: asegurar que "Crear cuenta" vive bajo el botón de entrar y que
- * desde el registro se vuelve con "Ingresar con mi cuenta".
+ * desde el registro se vuelve con "Volver".
  * Contexto: no se envía ningún formulario, solo se alterna el panel.
  * @author Cristian Deysdayr Jimenez
  */
@@ -18,11 +18,11 @@ describe("AuthScreen", () => {
   it("abre el registro y vuelve al ingreso con el botón de abajo", () => {
     render(<AuthScreen />);
 
-    expect(screen.queryByRole("button", { name: "Ingresar con mi cuenta" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Volver" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "+ Crear cuenta" }));
     expect(screen.getByRole("heading", { name: "Crear cuenta" })).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Ingresar con mi cuenta" }));
+    fireEvent.click(screen.getByRole("button", { name: "Volver" }));
     expect(screen.getByRole("heading", { name: "Ingresar" })).toBeTruthy();
   });
 
