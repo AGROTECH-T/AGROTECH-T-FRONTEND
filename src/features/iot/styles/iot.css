@@ -577,12 +577,19 @@
   margin-bottom: 2px;
 }
 
-.iot-reveal {
+.btn-secondary.iot-reveal {
   align-self: center;
   min-height: 36px;
   padding: 6px 14px;
   border-radius: 999px;
+  color: #fff;
+  background: var(--action);
   font-weight: 700;
+}
+
+.btn-secondary.iot-reveal:hover:not(:disabled) {
+  color: #fff;
+  background: var(--action-deep);
 }
 
 .iot-link-state {
