@@ -40,8 +40,7 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
   const [gaps, setGaps] = useState<Gaps>({});
   const [pending, setPending] = useState(false);
   const [terms, setTerms] = useState(false);
-  const [cookies, setCookies] = useState(false);
-  const [policy, setPolicy] = useState<"terminos" | "cookies" | null>(null);
+  const [policy, setPolicy] = useState(false);
   const notices = useNotices();
 
   const edit = (key: string, kind: AccountKind, setValue: (value: string) => void) => (value: string) => {
@@ -68,7 +67,6 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
       reviewField("contraseña", next.password),
     ].filter(Boolean);
     if (!terms) failed.push("Acepta los términos y condiciones para crear la cuenta.");
-    if (!cookies) failed.push("Acepta el uso de cookies para crear la cuenta.");
     if (failed.length) {
       notices.push(failed, "warn");
       return;
@@ -128,22 +126,12 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
           />
           <span>Acepto los</span>
         </label>
-        <button type="button" onClick={() => setPolicy("terminos")}>
+        <button type="button" onClick={() => setPolicy(true)}>
           términos y condiciones
         </button>
-      </div>
-      <div className="signup-consent">
-        <label>
-          <input
-            type="checkbox"
-            checked={cookies}
-            onChange={(event) => setCookies(event.target.checked)}
-          />
-          <span>Acepto el uso de</span>
-        </label>
-        <button type="button" onClick={() => setPolicy("cookies")}>
-          cookies
-        </button>
+        <span className="signup-required" title="Obligatorio">
+          *<span className="visually-hidden"> obligatorio</span>
+        </span>
       </div>
       <button type="submit" className="solid" disabled={pending}>
         {pending ? "Creando" : "+ Crear cuenta"}
@@ -162,7 +150,7 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
         Ingresar con mi cuenta
       </button>
       <NoticeStack items={notices.items} onClose={notices.close} />
-      {policy ? <PolicyWindow part={policy} onClose={() => setPolicy(null)} /> : null}
+      {policy ? <PolicyWindow part="terminos" onClose={() => setPolicy(false)} /> : null}
     </form>
   );
 }

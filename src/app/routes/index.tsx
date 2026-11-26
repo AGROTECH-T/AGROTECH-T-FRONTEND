@@ -6,9 +6,15 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CookieNotice } from "../../features/auth/components/CookieNotice.tsx";
 import { AuthPage } from "../../features/auth/pages/AuthPage.tsx";
 
 /** @returns La página que corresponde a la ruta actual. */
 export function AppRoutes() {
-  return <AuthPage />;
+  return (
+    <>
+      <AuthPage />
+      <CookieNotice />
+    </>
+  );
 }
