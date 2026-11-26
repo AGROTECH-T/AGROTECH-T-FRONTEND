@@ -21,6 +21,8 @@ type Props = {
 
 type Panel = "profile" | "notifications" | null;
 
+const HANDHELD = "(max-width: 1080px)";
+
 /**
  * Buscador global, avisos y perfil.
  * @param props - Cuenta, navegación y cierre de sesión.
@@ -29,8 +31,18 @@ type Panel = "profile" | "notifications" | null;
 export function TopBar({ account, onNavigate, onLogout }: Readonly<Props>) {
   const [query, setQuery] = useState("");
   const [panel, setPanel] = useState<Panel>(null);
+  const [handheld, setHandheld] = useState(
+    () => typeof window !== "undefined" && window.matchMedia(HANDHELD).matches,
+  );
   const bar = useRef<HTMLElement>(null);
   const matches = useMemo(() => searchEntries(query, account.modulos), [query, account.modulos]);
+
+  useEffect(() => {
+    const query = window.matchMedia(HANDHELD);
+    const sync = () => setHandheld(query.matches);
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     if (!panel) return;
@@ -109,6 +121,14 @@ export function TopBar({ account, onNavigate, onLogout }: Readonly<Props>) {
           account={account}
           open={panel === "profile"}
           onToggle={() => toggle("profile")}
+          onEdit={
+            handheld
+              ? () => {
+                  setPanel(null);
+                  onNavigate("perfil");
+                }
+              : undefined
+          }
           onLogout={() => {
             setPanel(null);
             onLogout();

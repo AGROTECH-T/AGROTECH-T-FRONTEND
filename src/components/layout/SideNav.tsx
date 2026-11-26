@@ -10,7 +10,7 @@ import type { Account } from "../../features/auth/types/index.ts";
 import { BrandMark } from "../ui/BrandMark.tsx";
 import { AccountChip } from "./AccountChip.tsx";
 import { NavIcon } from "./NavIcon.tsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { visibleNavItems, type AppSection } from "./navTypes.ts";
 
 type Props = {
@@ -27,13 +27,23 @@ type Props = {
  * @param props - Cuenta, sección y callbacks.
  * @returns Navegación semántica del shell.
  */
+const HANDHELD = "(max-width: 1080px)";
+
 export function SideNav({ account, section, view, expanded, onNavigate, onToggle }: Readonly<Props>) {
   const [openGroup, setOpenGroup] = useState<AppSection | null>(section === "fincas" ? "fincas" : null);
+  const [handheld, setHandheld] = useState(() => typeof window !== "undefined" && window.matchMedia(HANDHELD).matches);
   const navClass = expanded ? "side-nav" : "side-nav is-collapsed";
   const toggleLabel = expanded ? "Ocultar" : "Mostrar";
   const profileOpen = section === "perfil";
   const profileClass = profileOpen ? "account-button is-active" : "account-button";
   const items = visibleNavItems(account.modulos ?? ["home"]);
+
+  useEffect(() => {
+    const query = window.matchMedia(HANDHELD);
+    const sync = () => setHandheld(query.matches);
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
 
   const openModule = (itemId: AppSection, childId?: string) => {
     const item = items.find((entry) => entry.id === itemId);
@@ -112,18 +122,20 @@ export function SideNav({ account, section, view, expanded, onNavigate, onToggle
           })}
         </ul>
       </nav>
-      <div className="side-nav__foot">
-        <button
-          type="button"
-          className={profileClass}
-          aria-current={profileOpen ? "page" : undefined}
-          aria-label="Abrir mi perfil"
-          title="Mi perfil"
-          onClick={() => onNavigate("perfil")}
-        >
-          <AccountChip account={account} withChevron={expanded} />
-        </button>
-      </div>
+      {handheld ? null : (
+        <div className="side-nav__foot">
+          <button
+            type="button"
+            className={profileClass}
+            aria-current={profileOpen ? "page" : undefined}
+            aria-label="Abrir mi perfil"
+            title="Mi perfil"
+            onClick={() => onNavigate("perfil")}
+          >
+            <AccountChip account={account} withChevron={expanded} />
+          </button>
+        </div>
+      )}
     </aside>
   );
 }
