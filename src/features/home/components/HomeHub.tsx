@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppSection } from "../../../components/layout/index.ts";
 import galponIcon from "../../../assets/icons/galpon.png";
 import inventarioIcon from "../../../assets/icons/inventario.png";
+import sensorIcon from "../../../assets/icons/sensor.png";
 import { listAlerts } from "../../alertas/index.ts";
 import { alertsNow } from "../../alertas/services/alertsApi.ts";
 import type { Alert } from "../../alertas/types/index.ts";
@@ -53,21 +54,7 @@ const SHORTCUTS: Shortcut[] = [
 ];
 
 function ShortcutIcon({ name }: { name: Shortcut["icon"] }) {
-  if (name === "iot") {
-    return (
-      <span className="home-shortcut__icon home-shortcut__icon--iot" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <circle cx="12" cy="12" r="2.2" />
-          <path d="M12 4v2.2M12 17.8V20M4 12h2.2M17.8 12H20" strokeLinecap="round" />
-          <path
-            d="M6.6 6.6l1.5 1.5M15.9 15.9l1.5 1.5M17.4 6.6l-1.5 1.5M8.1 15.9l-1.5 1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      </span>
-    );
-  }
-  const src = name === "inventario" ? inventarioIcon : galponIcon;
+  const src = name === "inventario" ? inventarioIcon : name === "iot" ? sensorIcon : galponIcon;
   return (
     <span className="home-shortcut__icon" aria-hidden="true">
       <img src={src} alt="" />
