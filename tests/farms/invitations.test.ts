@@ -59,7 +59,7 @@ describe("validación del formulario y roles", () => {
   it("rechaza correos mal formados o demasiado largos", () => {
     expect(validateInvitationForm("persona", "operador").email).toBe("Escribe un correo válido.");
     expect(validateInvitationForm("a@b", "operador").email).toBe("Escribe un correo válido.");
-    expect(validateInvitationForm(`${"a".repeat(250)}@x.co`, "operador").email).toContain("254");
+    expect(validateInvitationForm(`${"a".repeat(30)}@x.co`, "operador").email).toContain("25");
   });
 
   it("acepta un correo y un rol válidos", () => {

@@ -7,6 +7,7 @@
  */
 
 import { CharLeft } from "../../../components/ui/CharLeft.tsx";
+import { TEXT_MAX, textCap } from "../../../limits.ts";
 import { useEffect, useState, type FormEvent } from "react";
 import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
@@ -149,7 +150,7 @@ export function InventoryManager({
             <span>Nuevo inventario</span>
             <input
               type="text"
-              maxLength={100}
+              maxLength={TEXT_MAX}
               placeholder="Ejemplo: Bodega"
               value={name}
               autoComplete="off"
@@ -158,7 +159,7 @@ export function InventoryManager({
                 setError("");
               }}
             />
-            <CharLeft value={name} max={100} />
+            <CharLeft value={name} max={TEXT_MAX} />
             {!editing && error ? <span className="field-miss">{error}</span> : null}
           </label>
           <button type="submit" className="btn-primary inv-save">Guardar</button>
@@ -172,11 +173,11 @@ export function InventoryManager({
               <form className="inv-book__edit" onSubmit={saveName}>
                 <input
                   type="text"
-                  maxLength={100}
+                  maxLength={textCap(draft)}
                   value={draft}
                   onChange={(event) => { setDraft(event.target.value); setError(""); }}
                 />
-                <CharLeft value={draft} max={100} />
+                <CharLeft value={draft} max={textCap(draft)} />
                 {error ? <span className="field-miss">{error}</span> : null}
                 <button type="submit" className="btn-primary">Guardar</button>
                 <button type="button" className="btn-danger" onClick={() => setEditing(null)}>

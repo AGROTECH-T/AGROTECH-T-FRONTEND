@@ -12,7 +12,7 @@
 import { isApiError } from "../../../services/api/client.ts";
 import type { Farm } from "../types/index.ts";
 
-export const NAME_MAX_LENGTH = 100;
+export const NAME_MAX_LENGTH = 25;
 export const FORBIDDEN_MESSAGE = "Tu cuenta no tiene permiso para crear fincas.";
 export const SESSION_MESSAGE = "Tu sesión terminó. Vuelve a iniciar sesión.";
 export const NETWORK_MESSAGE =
@@ -27,7 +27,7 @@ export const FALLBACK_MESSAGE = "No se pudo crear la finca";
 export function nameMessage(name: string): string {
   const trimmed = name.trim();
   if (!trimmed) return "Escribe el nombre de la finca.";
-  if (trimmed.length > NAME_MAX_LENGTH) return "El nombre no puede superar 100 caracteres.";
+  if (trimmed.length > NAME_MAX_LENGTH) return "El nombre no puede superar 25 caracteres.";
   return "";
 }
 

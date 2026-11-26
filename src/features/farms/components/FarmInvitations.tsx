@@ -513,7 +513,7 @@ export function FarmInvitations({
               name="email"
               inputMode="email"
               autoComplete="off"
-              maxLength={254}
+              maxLength={25}
               placeholder="persona@ejemplo.com"
               value={email}
               disabled={submitting}
@@ -523,7 +523,7 @@ export function FarmInvitations({
                 setFieldErrors((current) => ({ ...current, email: undefined }));
               }}
             />
-            <CharLeft value={email} max={254} />
+            <CharLeft value={email} max={25} />
             {fieldErrors.email ? (
               <span className="farm-form__gap">{fieldErrors.email}</span>
             ) : null}

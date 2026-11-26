@@ -60,7 +60,7 @@ export function validateInvitationForm(
   const errors: InvitationFormErrors = {};
   const trimmed = email.trim();
   if (!trimmed) errors.email = "Escribe el correo de la persona invitada.";
-  else if (trimmed.length > 254) errors.email = "El correo no puede superar 254 caracteres.";
+  else if (trimmed.length > 25) errors.email = "El correo no puede superar 25 caracteres.";
   else if (!EMAIL_SHAPE.test(trimmed)) errors.email = "Escribe un correo válido.";
   if (!role || !INVITATION_ROLES.includes(role)) errors.role = "Elige el rol de la invitación.";
   return errors;

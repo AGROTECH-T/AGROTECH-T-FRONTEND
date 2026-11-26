@@ -9,6 +9,7 @@
 
 import { useState } from "react";
 import { CharLeft, clip } from "../../../components/ui/CharLeft.tsx";
+import { textCap } from "../../../limits.ts";
 import { OBSERVATION_MAX } from "../limits.ts";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import type { LotEvent } from "../types/index.ts";
@@ -253,9 +254,9 @@ export function EventForm({
                 value={draft.responsible}
                 onChange={edit("responsible")}
                 placeholder="Nombre de quien anota"
-                maxLength={80}
+                maxLength={textCap(draft.responsible)}
               />
-              <CharLeft value={draft.responsible} max={80} />
+              <CharLeft value={draft.responsible} max={textCap(draft.responsible)} />
             </Field>
             {pideValor ? (
               <NumberField
@@ -342,18 +343,18 @@ export function EventForm({
                   value={draft.product}
                   onChange={edit("product")}
                   placeholder="Nombre del producto"
-                  maxLength={80}
+                  maxLength={textCap(draft.product)}
                 />
-                <CharLeft value={draft.product} max={80} />
+                <CharLeft value={draft.product} max={textCap(draft.product)} />
               </Field>
               <Field label="Quién lo indicó" error={gaps.prescriptor}>
                 <input
                   value={draft.prescriptor}
                   onChange={edit("prescriptor")}
                   placeholder="Nombre del veterinario"
-                  maxLength={80}
+                  maxLength={textCap(draft.prescriptor)}
                 />
-                <CharLeft value={draft.prescriptor} max={80} />
+                <CharLeft value={draft.prescriptor} max={textCap(draft.prescriptor)} />
               </Field>
             </div>
           </fieldset>

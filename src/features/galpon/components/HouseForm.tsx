@@ -8,6 +8,7 @@
  */
 
 import { CharLeft } from "../../../components/ui/CharLeft.tsx";
+import { textCap } from "../../../limits.ts";
 import { useState } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import type { House, HouseDraft } from "../types/index.ts";
@@ -124,19 +125,19 @@ export function HouseForm({ house, saving, error = "", onClose, onSave }: Readon
                 value={draft.name}
                 onChange={edit("name")}
                 placeholder="Galpón 1"
-                maxLength={80}
+                maxLength={textCap(draft.name)}
                 autoFocus
               />
-              <CharLeft value={draft.name} max={80} />
+              <CharLeft value={draft.name} max={textCap(draft.name)} />
             </Field>
             <Field label="Ubicación" error={gaps.location}>
               <input
                 value={draft.location}
                 onChange={edit("location")}
                 placeholder="Zona alta, opcional"
-                maxLength={120}
+                maxLength={textCap(draft.location)}
               />
-              <CharLeft value={draft.location} max={120} />
+              <CharLeft value={draft.location} max={textCap(draft.location)} />
             </Field>
           </div>
         </fieldset>

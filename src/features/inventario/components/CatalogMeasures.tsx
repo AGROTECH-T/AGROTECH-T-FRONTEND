@@ -7,6 +7,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { CharLeft } from "../../../components/ui/CharLeft.tsx";
+import { TEXT_MAX, textCap } from "../../../limits.ts";
 import { matchesCatalogQuery } from "../services/catalogSearch.ts";
 import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
@@ -213,8 +214,8 @@ export function CatalogMeasures({
               <form onSubmit={(event) => void saveEdit(event)}>
                 <label className={gaps.editName ? "is-miss" : ""}>
                   <span>¿Cómo se llama? Ahí va kilo, litro o unidad.</span>
-                  <input value={editName} maxLength={60} placeholder="Kilo" onChange={(event) => { setEditName(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
-                  <CharLeft value={editName} max={60} />
+                  <input value={editName} maxLength={textCap(editName)} placeholder="Kilo" onChange={(event) => { setEditName(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
+                  <CharLeft value={editName} max={textCap(editName)} />
                   {gaps.editName ? <span className="field-miss">{gaps.editName}</span> : null}
                 </label>
                 <label className={gaps.editSymbol ? "is-miss" : ""}>
@@ -277,12 +278,12 @@ export function CatalogMeasures({
             <span>¿Cómo se llama? Ahí va kilo, litro o unidad.</span>
             <input
               value={name}
-              maxLength={60}
+              maxLength={TEXT_MAX}
               placeholder="Kilo"
               onChange={(event) => { setName(event.target.value); setGaps((current) => ({ ...current, name: "" })); }}
               disabled={pending}
             />
-            <CharLeft value={name} max={60} />
+            <CharLeft value={name} max={TEXT_MAX} />
             {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
           </label>
           <label className={gaps.symbol ? "is-miss" : ""}>

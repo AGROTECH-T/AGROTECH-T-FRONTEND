@@ -12,6 +12,7 @@
  */
 
 import { CharLeft } from "../../../components/ui/CharLeft.tsx";
+import { textCap } from "../../../limits.ts";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog.tsx";
@@ -287,13 +288,13 @@ export function FarmDetail({
               <input
                 type="text"
                 name="name"
-                maxLength={100}
+                maxLength={textCap(name)}
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 disabled={pending}
                 autoComplete="off"
               />
-              <CharLeft value={name} max={100} />
+              <CharLeft value={name} max={textCap(name)} />
             </label>
           </div>
           {gap ? <span className="farm-form__gap">{gap}</span> : null}

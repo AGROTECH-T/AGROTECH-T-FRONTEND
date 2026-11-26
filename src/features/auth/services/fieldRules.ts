@@ -9,13 +9,13 @@
 import { passwordRules } from "./passwordRules.ts";
 
 export const ACCOUNT_MAX = {
-  name: 40,
-  lastName: 40,
+  name: 25,
+  lastName: 25,
   identification: 15,
   phone: 15,
-  mail: 254,
-  password: 72,
-  loginPassword: 72,
+  mail: 25,
+  password: 25,
+  loginPassword: 25,
 } as const;
 
 export type AccountKind = keyof typeof ACCOUNT_MAX;
@@ -38,7 +38,7 @@ export function typedMessage(kind: AccountKind, value: string): string {
 
 const LETTERS = /^\p{L}+(?: \p{L}+)*$/u;
 const MAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD = "8 caracteres, una mayúscula, una minúscula, un número y un signo.";
+const PASSWORD = "De 8 a 25 caracteres, una mayúscula, una minúscula, un número y un signo.";
 
 /**
  * Exige solo letras.

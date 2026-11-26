@@ -7,6 +7,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { CharLeft } from "../../../components/ui/CharLeft.tsx";
+import { TEXT_MAX, textCap } from "../../../limits.ts";
 import { matchesCatalogQuery } from "../services/catalogSearch.ts";
 import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
@@ -248,8 +249,8 @@ export function CatalogUnits({
               <form onSubmit={(event) => void saveEdit(event)}>
                 <label className={gaps.editName ? "is-miss" : ""}>
                   <span>¿Qué unidad es?</span>
-                  <input type="text" maxLength={80} value={draft} onChange={(event) => { setDraft(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
-                  <CharLeft value={draft} max={80} />
+                  <input type="text" maxLength={textCap(draft)} value={draft} onChange={(event) => { setDraft(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
+                  <CharLeft value={draft} max={textCap(draft)} />
                   {gaps.editName ? <span className="field-miss">{gaps.editName}</span> : null}
                 </label>
                 <p className="easy-hint">
@@ -319,13 +320,13 @@ export function CatalogUnits({
             <span>¿Qué unidad es? Ahí va bulto, caja o caneca. Si sale suelto, va kilo.</span>
             <input
               type="text"
-              maxLength={80}
+              maxLength={TEXT_MAX}
               placeholder="Bulto"
               value={label}
               onChange={(event) => { setLabel(event.target.value); setGaps((current) => ({ ...current, name: "" })); }}
               disabled={pending}
             />
-            <CharLeft value={label} max={80} />
+            <CharLeft value={label} max={TEXT_MAX} />
             {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
           </label>
           <label>

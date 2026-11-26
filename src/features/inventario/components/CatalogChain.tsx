@@ -6,6 +6,7 @@
  */
 
 import { CharLeft } from "../../../components/ui/CharLeft.tsx";
+import { TEXT_MAX } from "../../../limits.ts";
 import { useEffect, useState, type FormEvent } from "react";
 import { createBaseUnit, createCategory, createCustomUnit, getInventoryCatalog } from "../services/inventoryApi.ts";
 import type { InventoryCatalog } from "../types/index.ts";
@@ -136,12 +137,12 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
             <>
               <input
                 value={measureName}
-                maxLength={60}
+                maxLength={TEXT_MAX}
                 placeholder="Kilo"
                 onChange={(event) => { setMeasureName(event.target.value); setGaps((current) => ({ ...current, measureName: "" })); }}
                 disabled={pending}
               />
-              <CharLeft value={measureName} max={60} />
+              <CharLeft value={measureName} max={TEXT_MAX} />
               <input
                 value={symbol}
                 maxLength={10}
@@ -167,12 +168,12 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
         <div className="cat-chain__fields">
           <input
             value={countName}
-            maxLength={80}
+            maxLength={TEXT_MAX}
             placeholder="Bulto, caja o el kilo suelto"
             onChange={(event) => { setCountName(event.target.value); setGaps((current) => ({ ...current, countName: "" })); }}
             disabled={pending}
           />
-          <CharLeft value={countName} max={80} />
+          <CharLeft value={countName} max={TEXT_MAX} />
         </div>
       </div>
       {gaps.countName ? <p className="field-miss">{gaps.countName}</p> : null}
@@ -204,12 +205,12 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
             <>
               <input
                 value={groupName}
-                maxLength={80}
+                maxLength={TEXT_MAX}
                 placeholder="Semilla, abono o herramienta"
                 onChange={(event) => { setGroupName(event.target.value); setGaps((current) => ({ ...current, groupName: "" })); }}
                 disabled={pending}
               />
-              <CharLeft value={groupName} max={80} />
+              <CharLeft value={groupName} max={TEXT_MAX} />
             </>
           ) : null}
         </div>

@@ -178,7 +178,7 @@ export function ProfileScreen({ account, onAccountChange }: Readonly<Props>) {
                 label="Correo"
                 type="email"
                 icon="mail"
-                max={ACCOUNT_MAX.mail}
+                max={Math.max(ACCOUNT_MAX.mail, form.correo.length)}
                 value={form.correo}
                 autoComplete="email"
                 message={gaps.correo}

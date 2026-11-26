@@ -7,6 +7,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { CharLeft } from "../../../components/ui/CharLeft.tsx";
+import { TEXT_MAX, textCap } from "../../../limits.ts";
 import { matchesCatalogQuery } from "../services/catalogSearch.ts";
 import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
@@ -221,8 +222,8 @@ export function CatalogCategories({
                 <form onSubmit={(event) => void saveEdit(event)}>
                   <label className={gaps.editName ? "is-miss" : ""}>
                     <span>¿Cómo se llama?</span>
-                    <input type="text" maxLength={80} value={draft} onChange={(event) => { setDraft(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
-                    <CharLeft value={draft} max={80} />
+                    <input type="text" maxLength={textCap(draft)} value={draft} onChange={(event) => { setDraft(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
+                    <CharLeft value={draft} max={textCap(draft)} />
                     {gaps.editName ? <span className="field-miss">{gaps.editName}</span> : null}
                   </label>
                   <p>Lo que está en verde se quita al tocarlo. Tiene que quedar al menos una.</p>
@@ -298,13 +299,13 @@ export function CatalogCategories({
             <span>¿Cómo se llama la categoría? Ahí va semilla, abono o herramienta.</span>
             <input
               type="text"
-              maxLength={80}
+              maxLength={TEXT_MAX}
               placeholder="Semilla"
               value={name}
               onChange={(event) => { setName(event.target.value); setGaps({}); }}
               disabled={pending}
             />
-            <CharLeft value={name} max={80} />
+            <CharLeft value={name} max={TEXT_MAX} />
             {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
           </label>
           <p>¿Qué unidades van aquí? Toca bulto, kilo o caja. El verde queda. Se pueden tocar varias.</p>

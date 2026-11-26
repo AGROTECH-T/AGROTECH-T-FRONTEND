@@ -9,6 +9,7 @@
 
 import { useState } from "react";
 import { CharLeft, clip } from "../../../components/ui/CharLeft.tsx";
+import { textCap } from "../../../limits.ts";
 import { OBSERVATION_MAX } from "../limits.ts";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import type { House, Lot, LotDraft } from "../types/index.ts";
@@ -216,9 +217,9 @@ export function LotForm({
                 value={draft.code}
                 onChange={edit("code")}
                 placeholder="L-2026-01"
-                maxLength={40}
+                maxLength={textCap(draft.code)}
               />
-              <CharLeft value={draft.code} max={40} />
+              <CharLeft value={draft.code} max={textCap(draft.code)} />
             </Field>
             <Field label="Llegada" error={gaps.arrived_at} required>
               <input
@@ -251,9 +252,9 @@ export function LotForm({
                 value={draft.receiver_name}
                 onChange={edit("receiver_name")}
                 placeholder="Nombre de quien recibió"
-                maxLength={80}
+                maxLength={textCap(draft.receiver_name)}
               />
-              <CharLeft value={draft.receiver_name} max={80} />
+              <CharLeft value={draft.receiver_name} max={textCap(draft.receiver_name)} />
             </Field>
           </div>
         </fieldset>
@@ -279,18 +280,18 @@ export function LotForm({
                     value={draft.supplier}
                     onChange={edit("supplier")}
                     placeholder="Quién trajo las aves"
-                    maxLength={120}
+                    maxLength={textCap(draft.supplier)}
                   />
-                  <CharLeft value={draft.supplier} max={120} />
+                  <CharLeft value={draft.supplier} max={textCap(draft.supplier)} />
                 </Field>
                 <Field label="Documentos">
                   <input
                     value={draft.documents}
                     onChange={edit("documents")}
                     placeholder="Factura o guía"
-                    maxLength={200}
+                    maxLength={textCap(draft.documents)}
                   />
-                  <CharLeft value={draft.documents} max={200} />
+                  <CharLeft value={draft.documents} max={textCap(draft.documents)} />
                 </Field>
                 <NumberField
                   label="Edad inicial (días)"
@@ -312,9 +313,9 @@ export function LotForm({
                     value={draft.feed_type}
                     onChange={edit("feed_type")}
                     placeholder="Iniciador"
-                    maxLength={80}
+                    maxLength={textCap(draft.feed_type)}
                   />
-                  <CharLeft value={draft.feed_type} max={80} />
+                  <CharLeft value={draft.feed_type} max={textCap(draft.feed_type)} />
                 </Field>
               </div>
             </fieldset>
