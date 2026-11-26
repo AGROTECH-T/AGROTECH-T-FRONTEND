@@ -101,6 +101,7 @@ export function IotScreen() {
   const [sensorLoading, setSensorLoading] = useState(false);
   const [sensorError, setSensorError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showReadings, setShowReadings] = useState(false);
   const [error, setError] = useState("");
   const requestGuard = useRef(new IotRequestGuard());
   const sensorGuard = useRef(new IotRequestGuard());
@@ -436,18 +437,28 @@ export function IotScreen() {
                 </span>
                 <div>
                   <h2 id="iot-history-title">Últimas mediciones</h2>
-                  <p>Muestra rápida de las lecturas más recientes recibidas en esta finca.</p>
+                  <p>La tabla empieza oculta. Ábrela solo cuando quieras ver las lecturas.</p>
                 </div>
               </div>
-              <span className="iot-section-chip">
-                {readings.length ? `Mostrando ${Math.min(20, readings.length)}` : "Sin datos"}
-              </span>
+              <button
+                type="button"
+                className="btn-secondary iot-reveal"
+                aria-expanded={showReadings}
+                aria-controls="iot-history-data"
+                onClick={() => setShowReadings((current) => !current)}
+              >
+                {showReadings ? "Ocultar datos" : "Ver datos"}
+              </button>
             </div>
-            {readings.length ? (
-              <ReadingsTable readings={readings.slice(0, 20)} />
-            ) : (
-              <div className="iot-message">No hay mediciones en los últimos días consultados.</div>
-            )}
+            {showReadings ? (
+              <div id="iot-history-data">
+                {readings.length ? (
+                  <ReadingsTable readings={readings.slice(0, 20)} />
+                ) : (
+                  <div className="iot-message">No hay mediciones en los últimos días consultados.</div>
+                )}
+              </div>
+            ) : null}
           </section>
         </div>
       );
@@ -475,7 +486,7 @@ export function IotScreen() {
     {farmError ? <div className="iot-message iot-error" role="alert"><p>{farmError}</p><button type="button" className="btn-secondary" onClick={() => void loadFarms()}>Reintentar</button></div> : null}
     <div className="iot-farm-picker">
       <label htmlFor="iot-farm">Finca
-        {farmLoading ? <span role="status">Cargando fincas…</span> : farms.length ? <select id="iot-farm" value={farmId ?? ""} onChange={(event) => { requestGuard.current.invalidate(); sensorGuard.current.invalidate(); setLoading(false); setData({}); setRefreshedAt(null); setSensorData(null); dispatch({ type: "farmChanged" }); setFarmError(""); setFarmId(Number(event.target.value)); }}><option value="" disabled>Selecciona una finca</option>{farms.map((farm) => <option key={farm.id} value={farm.id}>{farm.name}</option>)}</select> : !farmError ? <span role="status">No tienes fincas disponibles.</span> : null}
+        {farmLoading ? <span role="status">Cargando fincas…</span> : farms.length ? <select id="iot-farm" value={farmId ?? ""} onChange={(event) => { requestGuard.current.invalidate(); sensorGuard.current.invalidate(); setLoading(false); setData({}); setRefreshedAt(null); setSensorData(null); setShowReadings(false); dispatch({ type: "farmChanged" }); setFarmError(""); setFarmId(Number(event.target.value)); }}><option value="" disabled>Selecciona una finca</option>{farms.map((farm) => <option key={farm.id} value={farm.id}>{farm.name}</option>)}</select> : !farmError ? <span role="status">No tienes fincas disponibles.</span> : null}
       </label>
       {selectedFarm ? <span className="iot-selected-farm"><span>Finca seleccionada</span><strong>{selectedFarm.name}</strong></span> : null}
     </div>

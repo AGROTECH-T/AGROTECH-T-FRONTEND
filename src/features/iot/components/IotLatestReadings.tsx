@@ -17,7 +17,6 @@ import {
   readingStatus,
   readingValueText,
   RECENT_ACTIVITY_WINDOW_MS,
-  SUMMARY_READING_SAMPLE,
   SUMMARY_WINDOW_DAYS,
   trendGeometry,
   trendSeries,
@@ -91,6 +90,13 @@ function EmptySensorIcon() {
   );
 }
 
+function updatedAgo(at: number): string {
+  const minutes = Math.max(0, Math.round((Date.now() - at) / 60000));
+  if (minutes < 1) return "hace un momento";
+  if (minutes === 1) return "hace 1 min";
+  return `hace ${minutes} min`;
+}
+
 function metricTone(metric: string): "humidity" | "temp" | "default" {
   if (metric === "relative_humidity" || metric === "moisture") return "humidity";
   if (metric === "temperature") return "temp";
@@ -145,9 +151,8 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
           <div>
             <h2 id="iot-latest-title">Panel de sensores</h2>
             <p>
-              Última lectura de cada sensor, tomada de las {SUMMARY_READING_SAMPLE} mediciones más
-              recientes ({SUMMARY_WINDOW_DAYS} días). La actividad es una estimación según la
-              recepción en servidor (últimos {minutes} min).
+              Monitoreo de tus sensores · última actualización {updatedAgo(refreshedAt)}. La
+              actividad de los últimos {minutes} min es una estimación.
             </p>
           </div>
         </div>
@@ -181,6 +186,7 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
                           {sensor.unit ? ` · ${sensor.unit}` : ""}
                         </span>
                       </div>
+                      <span className="iot-link-state is-off">Sin conexión</span>
                     </header>
                     <div className="iot-sensor-card__empty">
                       <EmptySensorIcon />
@@ -212,8 +218,8 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
                         {sensor.unit ? ` · ${sensor.unit}` : ""}
                       </span>
                     </div>
-                    <span className={`iot-badge iot-badge--${status}`}>
-                      {READING_STATUS_LABEL[status]}
+                    <span className={status === "valid" ? "iot-link-state is-on" : `iot-badge iot-badge--${status}`}>
+                      {status === "valid" ? "En línea" : READING_STATUS_LABEL[status]}
                     </span>
                   </header>
 
