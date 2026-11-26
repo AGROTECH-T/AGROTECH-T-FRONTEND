@@ -25,7 +25,7 @@ import {
 import { formatIotDate, metricLabel } from "./iotFormat.ts";
 
 const SPARK_W = 280;
-const SPARK_H = 64;
+const SPARK_H = 36;
 /** Sensores visibles por página en el resumen. */
 export const LATEST_SENSORS_PAGE_SIZE = 20;
 

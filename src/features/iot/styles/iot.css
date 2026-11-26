@@ -572,7 +572,7 @@
 
 .iot-sensor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 2px;
 }
@@ -622,14 +622,14 @@
 .iot-sensor-card {
   position: relative;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   align-content: start;
   min-width: 0;
-  padding: 16px 16px 12px;
+  padding: 14px 14px 10px;
   border: 1px solid color-mix(in srgb, var(--line) 70%, white);
-  border-radius: 20px;
+  border-radius: 18px;
   background: var(--card);
-  box-shadow: 0 10px 24px rgba(20, 43, 27, 0.06);
+  box-shadow: 0 8px 18px rgba(20, 43, 27, 0.05);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -638,24 +638,13 @@
   content: "";
   position: absolute;
   inset: 0 0 auto 0;
-  height: 4px;
-  background: var(--leaf);
+  height: 3px;
+  background: var(--mist);
 }
 
-.iot-sensor-card--humidity::before {
-  background: var(--moss);
-}
-
+.iot-sensor-card--humidity::before,
 .iot-sensor-card--temp::before {
-  background: var(--action);
-}
-
-.iot-sensor-card--temp .iot-value {
-  color: var(--action-deep);
-}
-
-.iot-sensor-card--humidity .iot-value {
-  color: var(--leaf);
+  background: var(--emerald);
 }
 
 .iot-sensor-card__head {
@@ -704,14 +693,10 @@
   height: 16px;
 }
 
-.iot-sensor-card__icon--humidity {
-  color: var(--moss);
-  background: color-mix(in srgb, var(--moss) 12%, var(--field));
-}
-
+.iot-sensor-card__icon--humidity,
 .iot-sensor-card__icon--temp {
-  color: var(--action-deep);
-  background: color-mix(in srgb, var(--action) 14%, var(--field));
+  color: var(--forest);
+  background: var(--tint);
 }
 
 .iot-sensor-card__hero {
@@ -721,12 +706,13 @@
 }
 
 .iot-sensor-card__hero .iot-value {
-  font-size: clamp(1.85rem, 2.6vw, 2.2rem);
+  color: var(--ink);
+  font-size: 1.45rem;
 }
 
 .iot-sensor-card__chart {
-  min-height: 64px;
-  margin: 0 -4px;
+  height: 36px;
+  margin: 0;
 }
 
 .iot-sensor-card__empty {
@@ -903,12 +889,12 @@
 }
 
 .iot-activity--stale {
-  color: var(--action-deep);
-  background: color-mix(in srgb, var(--action) 16%, var(--card));
+  color: var(--ash-deep);
+  background: var(--field);
 }
 
 .iot-activity--stale .iot-activity__dot {
-  background: var(--action);
+  background: var(--ash);
 }
 
 @keyframes iot-pulse {
@@ -926,53 +912,31 @@
 .iot-spark {
   display: block;
   width: 100%;
-  height: 64px;
+  height: 36px;
 }
 
 .iot-spark__line {
   fill: none;
-  stroke: var(--leaf);
-  stroke-width: 2.4;
+  stroke: var(--emerald);
+  stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-.iot-spark--temp .iot-spark__line,
-.iot-spark--temp .iot-spark__dot {
-  stroke: var(--action);
-}
-
-.iot-spark--temp .iot-spark__line {
-  stroke: var(--action);
-}
-
-.iot-spark--humidity .iot-spark__line {
-  stroke: var(--leaf);
-}
-
 .iot-spark__fade-start {
-  stop-color: var(--leaf);
-  stop-opacity: 0.32;
+  stop-color: var(--emerald);
+  stop-opacity: 0.18;
 }
 
 .iot-spark__fade-end {
-  stop-color: var(--leaf);
-  stop-opacity: 0;
-}
-
-.iot-spark--temp .iot-spark__fade-start,
-.iot-spark--temp .iot-spark__fade-end {
-  stop-color: var(--action);
-}
-
-.iot-spark--temp .iot-spark__fade-end {
+  stop-color: var(--emerald);
   stop-opacity: 0;
 }
 
 .iot-spark__dot {
   fill: var(--card);
-  stroke: var(--leaf);
-  stroke-width: 2;
+  stroke: var(--emerald);
+  stroke-width: 1.6;
 }
 
 .iot-spark--empty {
@@ -1028,9 +992,21 @@
   font-size: 0.78rem;
 }
 
+@media (max-width: 1100px) {
+  .iot-sensor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
   .iot-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .iot-sensor-grid {
+    grid-template-columns: 1fr;
   }
 }
 
