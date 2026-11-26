@@ -119,6 +119,11 @@
   object-fit: contain;
 }
 
+.side-nav__icon--sensor {
+  width: 30px;
+  height: 22px;
+}
+
 .side-nav__chevron {
   width: 16px;
   height: 16px;

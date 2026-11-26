@@ -34,5 +34,6 @@ const PICTURES: Record<Name, string> = {
  * @returns Imagen decorativa.
  */
 export function NavIcon({ name }: Readonly<Props>) {
-  return <img className="side-nav__icon" src={PICTURES[name]} alt="" />;
+  const wide = name === "iot" ? " side-nav__icon--sensor" : "";
+  return <img className={`side-nav__icon${wide}`} src={PICTURES[name]} alt="" />;
 }
