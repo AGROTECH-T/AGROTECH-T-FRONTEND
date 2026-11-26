@@ -9,7 +9,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { IotReading, IotSensor } from "../services/iotApi.ts";
 import {
-  ACTIVITY_ESTIMATE_LABEL,
   activityEstimate,
   adjustedOriginalText,
   latestReadingsBySensor,
@@ -22,10 +21,10 @@ import {
   trendGeometry,
   trendSeries,
 } from "../services/iotState.ts";
-import { formatIotDate, metricLabel } from "./iotFormat.ts";
+import { metricLabel } from "./iotFormat.ts";
 
 const SPARK_W = 280;
-const SPARK_H = 36;
+const SPARK_H = 28;
 /** Sensores visibles por página en el resumen. */
 export const LATEST_SENSORS_PAGE_SIZE = 20;
 
@@ -90,19 +89,6 @@ function MetricIcon({ metric }: { metric: string }) {
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M10 14.5V6a2 2 0 1 1 4 0v8.5a3.5 3.5 0 1 1-4 0Z" strokeLinejoin="round" />
         <path d="M12 17.5v-6" strokeLinecap="round" />
-      </svg>
-    </span>
-  );
-}
-
-function EmptySensorIcon() {
-  return (
-    <span className="iot-sensor-card__empty-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <path d="M4 9.5a12 12 0 0 1 16 0" strokeLinecap="round" />
-        <path d="M7.5 13a7 7 0 0 1 9 0" strokeLinecap="round" />
-        <path d="M4 4l16 16" strokeLinecap="round" />
-        <circle cx="12" cy="17" r="1.3" fill="currentColor" stroke="none" />
       </svg>
     </span>
   );
@@ -191,87 +177,40 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
               const reading = latest.get(sensor.uid);
               if (!reading) {
                 return (
-                  <article
-                    className={`iot-sensor-card iot-sensor-card--empty iot-sensor-card--${tone}`}
-                    key={sensor.uid}
-                  >
+                  <article className="iot-sensor-card iot-sensor-card--empty" key={sensor.uid}>
                     <header className="iot-sensor-card__head">
                       <MetricIcon metric={sensor.metric} />
-                      <div>
-                        <strong>{metricLabel(sensor.metric)}</strong>
-                        <span className="iot-muted">
-                          Canal {sensor.channel}
-                          {sensor.unit ? ` · ${sensor.unit}` : ""}
-                        </span>
-                      </div>
-                      <span className="iot-link-state is-off">Sin conexión</span>
+                      <strong>{metricLabel(sensor.metric)}</strong>
                     </header>
-                    <div className="iot-sensor-card__empty">
-                      <EmptySensorIcon />
-                      <p>
-                        <strong>Sin mediciones</strong>
-                        <span>Aún no llegan datos de este sensor</span>
-                      </p>
-                    </div>
-                    <footer className="iot-sensor-card__foot">
-                      <code>{sensor.uid}</code>
-                    </footer>
+                    <p className="iot-sensor-card__hero iot-sensor-card__hero--empty">Sin mediciones</p>
+                    <p className="iot-sensor-card__meta">
+                      <span>Canal {sensor.channel}</span>
+                      <span>Sin conexión</span>
+                    </p>
                   </article>
                 );
               }
               const status = readingStatus(reading);
               const original = adjustedOriginalText(reading);
               const activity = activityEstimate(reading.server_received_at, refreshedAt);
+              const stateLabel = status === "valid" ? "En línea" : READING_STATUS_LABEL[status];
               return (
-                <article
-                  className={`iot-sensor-card iot-sensor-card--${tone} iot-sensor-card--${activity}`}
-                  key={sensor.uid}
-                >
+                <article className="iot-sensor-card" key={sensor.uid}>
                   <header className="iot-sensor-card__head">
                     <MetricIcon metric={sensor.metric} />
-                    <div className="iot-sensor-card__titles">
-                      <strong>{metricLabel(sensor.metric)}</strong>
-                      <span className="iot-muted">
-                        Canal {sensor.channel}
-                        {sensor.unit ? ` · ${sensor.unit}` : ""}
-                      </span>
-                    </div>
-                    <span className={status === "valid" ? "iot-link-state is-on" : `iot-badge iot-badge--${status}`}>
-                      {status === "valid" ? "En línea" : READING_STATUS_LABEL[status]}
-                    </span>
+                    <strong>{metricLabel(sensor.metric)}</strong>
                   </header>
-
-                  <div className="iot-sensor-card__hero">
-                    <span className={`iot-value iot-value--${status}`}>{readingValueText(reading)}</span>
-                    {original ? <small className="iot-muted">Ajustada · original {original}</small> : null}
-                  </div>
-
+                  <p className={`iot-sensor-card__hero iot-value iot-value--${status}`}>
+                    {readingValueText(reading)}
+                  </p>
+                  {original ? <p className="iot-sensor-card__note">Ajustada · original {original}</p> : null}
+                  <p className="iot-sensor-card__meta">
+                    <span>Canal {sensor.channel}</span>
+                    <span>{activity === "stale" ? "Sin recepción reciente" : stateLabel}</span>
+                  </p>
                   <div className="iot-sensor-card__chart">
                     <Sparkline readings={readings} sensorUid={sensor.uid} tone={tone} />
                   </div>
-
-                  <dl className="iot-sensor-card__times">
-                    <div>
-                      <dt>Medición</dt>
-                      <dd>
-                        {formatIotDate(reading.measured_at)}
-                        {reading.measured_at_approximate ? " (aprox.)" : ""}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Recepción</dt>
-                      <dd>{formatIotDate(reading.server_received_at)}</dd>
-                    </div>
-                  </dl>
-
-                  <div className={`iot-activity iot-activity--${activity}`} role="status">
-                    <span className="iot-activity__dot" aria-hidden="true" />
-                    <span>{ACTIVITY_ESTIMATE_LABEL[activity]}</span>
-                  </div>
-
-                  <footer className="iot-sensor-card__foot">
-                    <code>{sensor.uid}</code>
-                  </footer>
                 </article>
               );
             })}
