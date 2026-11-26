@@ -7,8 +7,9 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useState } from "react";
+import { CharLeft, clip } from "../../../components/ui/CharLeft.tsx";
+import { OBSERVATION_MAX } from "../limits.ts";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import type { House, Lot, LotDraft } from "../types/index.ts";
 import { Field, NumberField, STAGES, plainNumber } from "./galponUi.tsx";
@@ -144,7 +145,9 @@ export function LotForm({
   const editing = lot !== null;
 
   const edit = (key: keyof LotDraft) => (event: { target: { value: string } }) => {
-    setDraft((current) => ({ ...current, [key]: event.target.value }));
+    const value =
+      key === "reception_notes" ? clip(event.target.value, OBSERVATION_MAX) : event.target.value;
+    setDraft((current) => ({ ...current, [key]: value }));
     setGaps((current) => ({ ...current, [key]: undefined }));
   };
 
@@ -344,8 +347,10 @@ export function LotForm({
                   <textarea
                     value={draft.reception_notes}
                     onChange={edit("reception_notes")}
+                    maxLength={OBSERVATION_MAX}
                     rows={3}
                   />
+                  <CharLeft value={draft.reception_notes} max={OBSERVATION_MAX} />
                 </Field>
               </div>
             </fieldset>

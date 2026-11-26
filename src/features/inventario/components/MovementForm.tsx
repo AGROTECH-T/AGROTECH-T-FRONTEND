@@ -7,6 +7,7 @@
  */
 
 import { useState, type FormEvent } from "react";
+import { CharLeft, clip } from "../../../components/ui/CharLeft.tsx";
 import type { FarmRole } from "../../farms/types/index.ts";
 import { createMovement, getProduct } from "../services/inventoryApi.ts";
 import {
@@ -193,10 +194,12 @@ export function MovementForm({
         <span>{kind === "ajuste" ? "Nota (obligatoria)" : "Nota (opcional)"}</span>
         <input
           value={note}
+          maxLength={200}
           placeholder={kind === "ajuste" ? "Ej. merma por humedad" : "Ej. compra o consumo del día"}
-          onChange={(event) => { setNote(event.target.value); setMiss((current) => ({ ...current, note: "" })); }}
+          onChange={(event) => { setNote(clip(event.target.value, 200)); setMiss((current) => ({ ...current, note: "" })); }}
           disabled={pending}
         />
+        <CharLeft value={note} max={200} />
         {miss.note ? <span className="field-miss">{miss.note}</span> : null}
       </label>
       {error ? (

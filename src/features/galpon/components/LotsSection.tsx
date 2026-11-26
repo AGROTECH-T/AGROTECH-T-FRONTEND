@@ -8,6 +8,8 @@
 
 import { useMemo, useState } from "react";
 import { ConfirmModal } from "../../inventario/components/ConfirmModal.tsx";
+import { CharLeft, clip } from "../../../components/ui/CharLeft.tsx";
+import { OBSERVATION_MAX } from "../limits.ts";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import {
   closeLot,
@@ -344,9 +346,11 @@ export function LotsSection({
                 <Field label="Nota de cierre" hint="Opcional">
                   <textarea
                     value={closeNote}
-                    onChange={(event) => setCloseNote(event.target.value)}
+                    maxLength={OBSERVATION_MAX}
+                    onChange={(event) => setCloseNote(clip(event.target.value, OBSERVATION_MAX))}
                     rows={3}
                   />
+                  <CharLeft value={closeNote} max={OBSERVATION_MAX} />
                 </Field>
               </>
             )}

@@ -7,8 +7,9 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useState } from "react";
+import { CharLeft, clip } from "../../../components/ui/CharLeft.tsx";
+import { OBSERVATION_MAX } from "../limits.ts";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import type { LotEvent } from "../types/index.ts";
 import { EVENT_KINDS, Field, kindHint, NumberField, STAGES, plainNumber } from "./galponUi.tsx";
@@ -145,7 +146,8 @@ export function EventForm({
   const editing = event !== null;
 
   const edit = (key: keyof Draft) => (input: { target: { value: string } }) => {
-    setDraft((current) => ({ ...current, [key]: input.target.value }));
+    const value = key === "notes" ? clip(input.target.value, OBSERVATION_MAX) : input.target.value;
+    setDraft((current) => ({ ...current, [key]: value }));
     setGaps((current) => omitGap(current, key));
   };
 
@@ -366,7 +368,13 @@ export function EventForm({
               error={gaps.notes}
               required={draft.kind === "ajuste"}
             >
-              <textarea value={draft.notes} onChange={edit("notes")} rows={3} />
+              <textarea
+                value={draft.notes}
+                onChange={edit("notes")}
+                maxLength={OBSERVATION_MAX}
+                rows={3}
+              />
+              <CharLeft value={draft.notes} max={OBSERVATION_MAX} />
             </Field>
           </div>
         </fieldset>

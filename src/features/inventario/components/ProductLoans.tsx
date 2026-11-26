@@ -5,7 +5,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
-import { CharLeft } from "../../../components/ui/CharLeft.tsx";
+import { CharLeft, clip } from "../../../components/ui/CharLeft.tsx";
 import { useEffect, useState, type FormEvent } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { displayQuantity } from "../services/equivalence.ts";
@@ -241,10 +241,12 @@ export function ReturnWindow({
                       <input
                         className="give__note"
                         placeholder="Opcional"
+                        maxLength={160}
                         value={notes[loan.id] ?? ""}
-                        onChange={(event) => setNotes((current) => ({ ...current, [loan.id]: event.target.value }))}
+                        onChange={(event) => setNotes((current) => ({ ...current, [loan.id]: clip(event.target.value, 160) }))}
                         disabled={pendingId != null}
                       />
+                      <CharLeft value={notes[loan.id] ?? ""} max={160} />
                     </td>
                     <td>
                       <button type="button" className="btn-primary" disabled={pendingId != null} onClick={() => void giveBack(loan)}>
