@@ -20,22 +20,15 @@ export function useProductPhoto(farmId: number, product: Product): string {
       return;
     }
     let alive = true;
-    let current = "";
     void productImageUrl(farmId, product.id)
       .then((url) => {
-        if (!alive) {
-          URL.revokeObjectURL(url);
-          return;
-        }
-        current = url;
-        setPhoto(url);
+        if (alive) setPhoto(url);
       })
       .catch(() => {
         if (alive) setPhoto("");
       });
     return () => {
       alive = false;
-      if (current) URL.revokeObjectURL(current);
     };
   }, [farmId, product.id, product.updated_at, product.has_image]);
 

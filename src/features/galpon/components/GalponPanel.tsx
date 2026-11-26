@@ -11,9 +11,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
-import { listFarms } from "../../farms/services/farmsApi.ts";
+import { farmsNow, listFarms } from "../../farms/services/farmsApi.ts";
 import type { Farm } from "../../farms/types/index.ts";
-import { getLot, listHouses, listLots } from "../services/galponApi.ts";
+import { galponNow, getLot, listHouses, listLots } from "../services/galponApi.ts";
 import { canWriteGalpon } from "../services/galponAccess.ts";
 import type { House, Lot } from "../types/index.ts";
 import { HouseWorkspace } from "./HouseWorkspace.tsx";
@@ -34,6 +34,13 @@ function message(cause: unknown, fallback: string): string {
   return cause instanceof Error ? cause.message : fallback;
 }
 
+function pickFarm(items: Farm[], initialFarmId?: number): number | null {
+  if (initialFarmId != null && items.some((item) => item.id === initialFarmId)) {
+    return initialFarmId;
+  }
+  return items[0]?.id ?? null;
+}
+
 /**
  * Opera el engorde de la finca elegida.
  * @param props - Acción para crear una finca cuando todavía no hay ninguna.
@@ -45,15 +52,19 @@ export function GalponPanel({
   initialFarmId,
   initialHouseId,
 }: Readonly<Props> = {}) {
-  const [farms, setFarms] = useState<Farm[]>([]);
-  const [farmId, setFarmId] = useState<number | null>(null);
-  const [houses, setHouses] = useState<House[]>([]);
-  const [lots, setLots] = useState<Lot[]>([]);
+  const known = farmsNow();
+  const startId = known ? pickFarm(known, initialFarmId) : null;
+  const board = startId != null ? galponNow(startId) : null;
+  const [farms, setFarms] = useState<Farm[]>(() => known ?? []);
+  const [farmId, setFarmId] = useState<number | null>(startId);
+  const [houses, setHouses] = useState<House[]>(() => board?.houses ?? []);
+  const [lots, setLots] = useState<Lot[]>(() => board?.lots ?? []);
+  const [loadedFarm, setLoadedFarm] = useState<number | null>(board ? startId : null);
   const [houseId, setHouseId] = useState<number | null>(null);
   const [lotId, setLotId] = useState<number | null>(null);
   const [detail, setDetail] = useState<Lot | null>(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(board == null);
   const notices = useNotices();
 
   const notify = useCallback(
@@ -91,17 +102,24 @@ export function GalponPanel({
   }, [farmId, lotId]);
 
   useEffect(() => {
+    let alive = true;
+    if (farmsNow() == null) setLoading(true);
     void listFarms()
       .then((items) => {
+        if (!alive) return;
         setFarms(items);
-        const preferred =
-          initialFarmId != null && items.some((item) => item.id === initialFarmId)
-            ? initialFarmId
-            : items[0]?.id ?? null;
+        const preferred = pickFarm(items, initialFarmId);
         setFarmId(preferred);
+        if (preferred == null) setLoading(false);
       })
-      .catch((cause) => setError(message(cause, "No se pudieron cargar las fincas")))
-      .finally(() => setLoading(false));
+      .catch((cause) => {
+        if (!alive) return;
+        setError(message(cause, "No se pudieron cargar las fincas"));
+        setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, [tick, initialFarmId]);
 
   useEffect(() => {
@@ -114,10 +132,25 @@ export function GalponPanel({
 
   useEffect(() => {
     if (farmId == null) return;
+    let alive = true;
     setError("");
-    void reload(farmId).catch((cause) =>
-      setError(message(cause, "No se pudo cargar el galpón")),
-    );
+    if (galponNow(farmId) == null) {
+      setLoading(true);
+      setLoadedFarm(null);
+    }
+    void reload(farmId)
+      .then(() => {
+        if (alive) setLoadedFarm(farmId);
+      })
+      .catch((cause) => {
+        if (alive) setError(message(cause, "No se pudo cargar el galpón"));
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, [farmId, reload]);
 
   useEffect(() => {
@@ -159,10 +192,20 @@ export function GalponPanel({
   };
 
   const changeFarm = (id: number) => {
+    const ready = galponNow(id);
     setFarmId(id);
     setHouseId(null);
     setLotId(null);
     setDetail(null);
+    if (ready) {
+      setHouses(ready.houses);
+      setLots(ready.lots);
+      setLoadedFarm(id);
+      setLoading(false);
+      return;
+    }
+    setLoadedFarm(null);
+    setLoading(true);
   };
 
   const afterChange = async () => {
@@ -226,7 +269,7 @@ export function GalponPanel({
           </p>
         ) : null}
 
-        {!loading && farmId == null ? (
+        {!loading && farmId == null && !error ? (
           <Empty
             title="Primero crea una finca"
             action={
@@ -241,7 +284,7 @@ export function GalponPanel({
           </Empty>
         ) : null}
 
-        {!loading && farmId != null ? (
+        {!loading && farmId != null && loadedFarm === farmId ? (
           <>
             {houseId == null ? (
               <HousesView

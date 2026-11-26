@@ -7,7 +7,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { listFarms } from "../../farms/services/farmsApi.ts";
+import { farmsNow, listFarms } from "../../farms/services/farmsApi.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
 import type { Farm, FarmRole } from "../../farms/types/index.ts";
 import { downloadInventory } from "../services/inventoryApi.ts";
@@ -52,6 +52,13 @@ export type StockView =
   | "pedido"
   | "bajo";
 
+function pickFarm(items: Farm[], initialFarmId?: number): number | null {
+  if (initialFarmId != null && items.some((item) => item.id === initialFarmId)) {
+    return initialFarmId;
+  }
+  return items[0]?.id ?? null;
+}
+
 type Props = {
   view: StockView;
   tick: number;
@@ -75,8 +82,12 @@ export function InventarioPanel({
   initialFarmId,
   initialInventoryId,
 }: Readonly<Props>) {
-  const [farms, setFarms] = useState<Farm[]>([]);
-  const [farmId, setFarmId] = useState<number | null>(null);
+  const known = farmsNow();
+  const [farms, setFarms] = useState<Farm[]>(() => known ?? []);
+  const [farmId, setFarmId] = useState<number | null>(() =>
+    known ? pickFarm(known, initialFarmId) : null,
+  );
+  const [farmsReady, setFarmsReady] = useState(known != null);
   const [selected, setSelected] = useState<Product | null>(null);
   const [detailMode, setDetailMode] = useState<{
     intent: "ver" | "actualizar" | "ajuste";
@@ -103,18 +114,24 @@ export function InventarioPanel({
   };
 
   useEffect(() => {
+    let alive = true;
+    if (farmsNow() == null) setFarmsReady(false);
     void listFarms()
       .then((items) => {
+        if (!alive) return;
         setFarms(items);
-        const preferred =
-          initialFarmId != null && items.some((item) => item.id === initialFarmId)
-            ? initialFarmId
-            : items[0]?.id ?? null;
-        setFarmId(preferred);
+        setFarmId(pickFarm(items, initialFarmId));
       })
       .catch((cause) => {
+        if (!alive) return;
         setError(cause instanceof Error ? cause.message : "No se pudieron cargar las fincas");
+      })
+      .finally(() => {
+        if (alive) setFarmsReady(true);
       });
+    return () => {
+      alive = false;
+    };
   }, [tick, initialFarmId]);
 
   useEffect(() => {
@@ -278,7 +295,7 @@ export function InventarioPanel({
   return (
     <>
     <NoticeStack items={notices.items} onClose={notices.close} />
-    <div className="inv-quick">
+    {farmsReady ? <div className="inv-quick">
       {canWrite ? (
         <button type="button" className="inv-pill is-in" onClick={() => onView("entrada")}>
           <Mark kind="in" /> Registrar entrada
@@ -316,7 +333,7 @@ export function InventarioPanel({
       >
         <Mark kind="down" /> {downloading ? "Preparando..." : "Descargar inventario"}
       </button>
-    </div>
+    </div> : null}
     <section className="panel" aria-labelledby="inventario-title">
       <header className="panel__header">
         <h1 id="inventario-title" className="panel__title">
@@ -327,7 +344,19 @@ export function InventarioPanel({
         </p>
       </header>
 
-      {farms.length > 0 ? (
+      {!farmsReady ? (
+        <p className="inventario-empty__hint" role="status">
+          Cargando inventario...
+        </p>
+      ) : null}
+
+      {error ? (
+        <p className="field-miss" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      {farmsReady && farms.length > 0 ? (
         <div className="inv-switch">
         {canWrite ? (
           <div className="inv-switch__action">
@@ -388,14 +417,14 @@ export function InventarioPanel({
         </div>
       ) : null}
 
-      {farms.length === 0 && !error ? (
+      {farmsReady && farms.length === 0 && !error ? (
         <div className="inventario-empty" role="status">
           <p className="inventario-empty__title">Primero crea una finca</p>
           <p className="inventario-empty__hint">El inventario vive dentro de una finca.</p>
         </div>
       ) : null}
 
-      {farmId != null ? (
+      {farmsReady && farmId != null ? (
         <InventarioBrowser
           farmId={farmId}
           inventoryId={inventoryId}

@@ -8,6 +8,7 @@
 import { deleteJson, getJson, patchJson, postJson } from "../../../services/api/client.ts";
 import { apiRoot } from "../../../services/api/config.ts";
 import { limitNotice } from "../../../services/api/limitNotice.ts";
+import { onSessionEnd } from "../../../services/sessionMemory.ts";
 import { readToken } from "../../auth/services/session.ts";
 import type {
   AdjustmentReport,
@@ -153,13 +154,81 @@ export type ProductQuery = {
   page?: number;
 };
 
+const productPages = new Map<string, Promise<ProductPage>>();
+const productPhotos = new Map<string, Promise<string>>();
+
+function pageKey(farmId: number, query: ProductQuery): string {
+  return [
+    farmId,
+    query.page ?? 1,
+    query.status ?? "all",
+    query.order ?? "",
+    query.category ?? "",
+    query.q ?? "",
+  ].join("\u0000");
+}
+
+function isOpeningList(query: ProductQuery): boolean {
+  return (
+    (query.page ?? 1) === 1 &&
+    (query.status ?? "all") === "all" &&
+    query.order === "name" &&
+    !query.category &&
+    !query.q
+  );
+}
+
+function forgetProducts(farmId?: number): void {
+  if (farmId == null) {
+    productPages.clear();
+    return;
+  }
+  const prefix = `${farmId}\u0000`;
+  for (const key of productPages.keys()) {
+    if (key.startsWith(prefix)) productPages.delete(key);
+  }
+}
+
+function savedStock<T>(farmId: number, work: Promise<T>): Promise<T> {
+  return work.then((value) => {
+    forgetProducts(farmId);
+    return value;
+  });
+}
+
+function warmPhotos(farmId: number, page: ProductPage): void {
+  let left = 12;
+  for (const product of page.results) {
+    if (!product.has_image || left === 0) continue;
+    left -= 1;
+    void productImageUrl(farmId, product.id);
+  }
+}
+
+/** Trae la primera página para que el inventario abra con los productos listos. */
+export function preloadProducts(farmId: number): void {
+  void listProducts(farmId, { page: 1, status: "all", order: "name" });
+}
+
+onSessionEnd(() => {
+  forgetProducts();
+  for (const pending of productPhotos.values()) {
+    void pending.then((url) => URL.revokeObjectURL(url)).catch(() => undefined);
+  }
+  productPhotos.clear();
+});
+
 /**
  * Lista insumos de una finca, de 25 en 25.
+ * La misma consulta se reutiliza hasta que el stock cambie.
  * @param farmId - Finca activa.
  * @param query - Filtros y página.
  * @returns Página de productos.
  */
 export function listProducts(farmId: number, query: ProductQuery = {}): Promise<ProductPage> {
+  const key = pageKey(farmId, query);
+  const current = productPages.get(key);
+  if (current) return current;
   const params = new URLSearchParams();
   params.set("page", String(query.page ?? 1));
   params.set("page_size", String(INV_PAGE_SIZE));
@@ -173,11 +242,17 @@ export function listProducts(farmId: number, query: ProductQuery = {}): Promise<
   if (query.category) params.set("category", query.category);
   if (query.q) params.set("q", query.q);
   if (query.order) params.set("order", query.order);
-  return getJson<ProductPage>(
+  const pending = getJson<ProductPage>(
     `${productsPath(farmId)}?${params.toString()}`,
     readToken(),
     "no-store",
-  );
+  ).catch((error: unknown) => {
+    if (productPages.get(key) === pending) productPages.delete(key);
+    throw error;
+  });
+  productPages.set(key, pending);
+  if (isOpeningList(query)) void pending.then((page) => warmPhotos(farmId, page));
+  return pending;
 }
 
 /**
@@ -200,7 +275,7 @@ export async function listAllProducts(farmId: number): Promise<Product[]> {
  * Crea un insumo eligiendo unidad y categoría del catálogo.
  */
 export function createProduct(farmId: number, draft: ProductDraft): Promise<Product> {
-  return postJson<Product>(
+  return savedStock(farmId, postJson<Product>(
     productsPath(farmId),
     {
       name: draft.name.trim(),
@@ -210,7 +285,7 @@ export function createProduct(farmId: number, draft: ProductDraft): Promise<Prod
       min_stock: draft.min_stock.trim() || "0",
     },
     readToken(),
-  );
+  ));
 }
 
 /**
@@ -221,14 +296,17 @@ export function updateProduct(
   productId: number,
   patch: ProductPatch,
 ): Promise<Product> {
-  return patchJson<Product>(`${productsPath(farmId)}${productId}/`, patch, readToken());
+  return savedStock(
+    farmId,
+    patchJson<Product>(`${productsPath(farmId)}${productId}/`, patch, readToken()),
+  );
 }
 
 /**
  * Quita el insumo de la lista y conserva sus movimientos.
  */
 export function deleteProduct(farmId: number, productId: number): Promise<void> {
-  return deleteJson(`${productsPath(farmId)}${productId}/`, readToken());
+  return savedStock(farmId, deleteJson(`${productsPath(farmId)}${productId}/`, readToken()));
 }
 
 /**
@@ -259,7 +337,10 @@ export function lendProduct(
   productId: number,
   draft: { borrower_name: string; document_number: string; quantity: string },
 ): Promise<{ loan: ProductLoan; product: Product }> {
-  return postJson(`${productsPath(farmId)}${productId}/loans/`, draft, readToken());
+  return savedStock(
+    farmId,
+    postJson(`${productsPath(farmId)}${productId}/loans/`, draft, readToken()),
+  );
 }
 
 /**
@@ -272,34 +353,60 @@ export function returnLoan(
   quantity: string,
   note = "",
 ): Promise<{ loan: ProductLoan; product: Product }> {
-  return postJson(
-    `${productsPath(farmId)}${productId}/loans/${loanId}/return/`,
-    { quantity, note },
-    readToken(),
+  return savedStock(
+    farmId,
+    postJson(
+      `${productsPath(farmId)}${productId}/loans/${loanId}/return/`,
+      { quantity, note },
+      readToken(),
+    ),
   );
 }
 
 /**
  * Sube la foto ya comprimida y devuelve el producto.
  */
+function forgetPhoto(farmId: number, productId: number): void {
+  productPhotos.delete(`${farmId}:${productId}`);
+}
+
 export async function removeProductImage(farmId: number, productId: number): Promise<Product> {
   const response = await authed(`${productsPath(farmId)}${productId}/image/`, { method: "DELETE" });
+  forgetPhoto(farmId, productId);
+  forgetProducts(farmId);
   return response.json() as Promise<Product>;
 }
 
-export async function uploadProductImage(farmId: number, productId: number, file: File): Promise<Product> {
+export async function uploadProductImage(
+  farmId: number,
+  productId: number,
+  file: File,
+): Promise<Product> {
   const body = new FormData();
   body.append("image", file);
   const response = await authed(`${productsPath(farmId)}${productId}/image/`, { method: "POST", body });
+  forgetPhoto(farmId, productId);
+  forgetProducts(farmId);
   return response.json() as Promise<Product>;
 }
 
 /**
  * Trae la foto con la sesión y deja una dirección local para mostrarla.
+ * La misma foto se reutiliza mientras no se cambie.
  */
-export async function productImageUrl(farmId: number, productId: number): Promise<string> {
-  const response = await authed(`${productsPath(farmId)}${productId}/image/`, { method: "GET" });
-  return URL.createObjectURL(await response.blob());
+export function productImageUrl(farmId: number, productId: number): Promise<string> {
+  const key = `${farmId}:${productId}`;
+  const current = productPhotos.get(key);
+  if (current) return current;
+  const pending = authed(`${productsPath(farmId)}${productId}/image/`, { method: "GET" })
+    .then((response) => response.blob())
+    .then((blob) => URL.createObjectURL(blob))
+    .catch((error: unknown) => {
+      if (productPhotos.get(key) === pending) productPhotos.delete(key);
+      throw error;
+    });
+  productPhotos.set(key, pending);
+  return pending;
 }
 
 /**
@@ -425,7 +532,9 @@ export async function importInventory(farmId: number, file: File): Promise<Impor
     method: "POST",
     body,
   });
-  return response.json() as Promise<ImportReport>;
+  const report = (await response.json()) as ImportReport;
+  forgetProducts(farmId);
+  return report;
 }
 
 /**
@@ -436,7 +545,7 @@ export function createMovement(
   productId: number,
   draft: MovementDraft,
 ): Promise<Movement> {
-  return postJson<Movement>(
+  return savedStock(farmId, postJson<Movement>(
     `${productsPath(farmId)}${productId}/movements/`,
     {
       kind: draft.kind,
@@ -447,7 +556,7 @@ export function createMovement(
       idempotency_key: draft.idempotencyKey ?? "",
     },
     readToken(),
-  );
+  ));
 }
 
 /**

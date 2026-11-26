@@ -13,6 +13,7 @@ import {
   postJson,
   putJson,
 } from "../../../services/api/client.ts";
+import { onSessionEnd } from "../../../services/sessionMemory.ts";
 import { readToken } from "../../auth/services/session.ts";
 import type {
   ChangeMemberRoleRequest,
@@ -26,12 +27,65 @@ import type {
 
 const FARMS_PATH = "/api/v1/farms/";
 
+let farmsPromise: Promise<Farm[]> | null = null;
+let farmsSnapshot: Farm[] | null = null;
+let warmGeneration = 0;
+
+/** Fincas ya traídas en esta sesión, o null si todavía no hay respuesta. */
+export function farmsNow(): Farm[] | null {
+  return farmsSnapshot;
+}
+
+/** Obliga a volver a pedir las fincas la próxima vez. */
+export function forgetFarms(): void {
+  warmGeneration += 1;
+  farmsPromise = null;
+  farmsSnapshot = null;
+}
+
+function warmFarms(generation: number, items: Farm[]): void {
+  if (generation !== warmGeneration) return;
+  const active = items.filter((farm) => farm.is_active);
+  void import("../../galpon/services/galponApi.ts").then(({ preloadGalpon }) => {
+    if (generation !== warmGeneration) return;
+    for (const farm of active) preloadGalpon(farm.id);
+  });
+  void import("../../inventario/services/inventoryApi.ts").then(({ preloadProducts }) => {
+    if (generation !== warmGeneration) return;
+    for (const farm of active) preloadProducts(farm.id);
+  });
+}
+
 /**
  * Lista las fincas donde la cuenta tiene membresía.
+ * La primera respuesta se reutiliza hasta que una finca cambie.
  * @returns Fincas propias.
  */
 export function listFarms(): Promise<Farm[]> {
-  return getJson<Farm[]>(FARMS_PATH, readToken());
+  if (farmsPromise) return farmsPromise;
+  const generation = warmGeneration;
+  const pending = getJson<Farm[]>(FARMS_PATH, readToken())
+    .then((items) => {
+      if (generation !== warmGeneration) return items;
+      farmsSnapshot = items;
+      warmFarms(generation, items);
+      return items;
+    })
+    .catch((error: unknown) => {
+      if (farmsPromise === pending) farmsPromise = null;
+      throw error;
+    });
+  farmsPromise = pending;
+  return pending;
+}
+
+onSessionEnd(forgetFarms);
+
+function saved<T>(work: Promise<T>): Promise<T> {
+  return work.then((value) => {
+    forgetFarms();
+    return value;
+  });
 }
 
 /**
@@ -40,7 +94,7 @@ export function listFarms(): Promise<Farm[]> {
  * @returns Finca creada con rol administrador.
  */
 export function createFarm(name: string): Promise<Farm> {
-  return postJson<Farm>(FARMS_PATH, { name }, readToken());
+  return saved(postJson<Farm>(FARMS_PATH, { name }, readToken()));
 }
 
 /**
@@ -59,7 +113,7 @@ export function getFarm(farmId: number): Promise<Farm> {
  * @returns Finca actualizada.
  */
 export function updateFarm(farmId: number, name: string): Promise<Farm> {
-  return putJson<Farm>(`${FARMS_PATH}${farmId}/`, { name }, readToken());
+  return saved(putJson<Farm>(`${FARMS_PATH}${farmId}/`, { name }, readToken()));
 }
 
 /**
@@ -67,7 +121,7 @@ export function updateFarm(farmId: number, name: string): Promise<Farm> {
  * @param farmId - Identificador de la finca.
  */
 export function deleteFarm(farmId: number): Promise<void> {
-  return deleteJson(`${FARMS_PATH}${farmId}/`, readToken());
+  return saved(deleteJson(`${FARMS_PATH}${farmId}/`, readToken()));
 }
 
 /**
@@ -75,7 +129,7 @@ export function deleteFarm(farmId: number): Promise<void> {
  * @param farmId - Identificador de la finca.
  */
 export async function reactivateFarm(farmId: number): Promise<void> {
-  await postJson<unknown>(`${FARMS_PATH}${farmId}/reactivate/`, {}, readToken());
+  await saved(postJson<unknown>(`${FARMS_PATH}${farmId}/reactivate/`, {}, readToken()));
 }
 
 /**
@@ -153,10 +207,12 @@ export function changeMemberRole(
   membershipId: number,
   role: ChangeMemberRoleRequest["role"],
 ): Promise<FarmMember> {
-  return patchJson<FarmMember>(
-    `${FARMS_PATH}${farmId}/members/${membershipId}/`,
-    { role },
-    readToken(),
+  return saved(
+    patchJson<FarmMember>(
+      `${FARMS_PATH}${farmId}/members/${membershipId}/`,
+      { role },
+      readToken(),
+    ),
   );
 }
 
@@ -173,10 +229,12 @@ export function revokeMember(
 ): Promise<void> {
   const body: RevokeMemberRequest = {};
   if (reason) body.reason = reason;
-  return deleteJson(
-    `${FARMS_PATH}${farmId}/members/${membershipId}/`,
-    readToken(),
-    body,
+  return saved(
+    deleteJson(
+      `${FARMS_PATH}${farmId}/members/${membershipId}/`,
+      readToken(),
+      body,
+    ),
   );
 }
 
@@ -185,7 +243,7 @@ export function revokeMember(
  * @param farmId - Identificador de la finca.
  */
 export async function leaveFarm(farmId: number): Promise<void> {
-  await postJson<unknown>(`${FARMS_PATH}${farmId}/leave/`, {}, readToken());
+  await saved(postJson<unknown>(`${FARMS_PATH}${farmId}/leave/`, {}, readToken()));
 }
 
 /**
@@ -197,10 +255,12 @@ export function transferAdmin(
   farmId: number,
   membershipId: number,
 ): Promise<TransferAdminResponse> {
-  return postJson<TransferAdminResponse>(
-    `${FARMS_PATH}${farmId}/members/${membershipId}/transfer/`,
-    {},
-    readToken(),
+  return saved(
+    postJson<TransferAdminResponse>(
+      `${FARMS_PATH}${farmId}/members/${membershipId}/transfer/`,
+      {},
+      readToken(),
+    ),
   );
 }
 

@@ -9,6 +9,7 @@
  */
 
 import { setSessionTokenReader } from "../../../services/api/client.ts";
+import { dropSessionMemory } from "../../../services/sessionMemory.ts";
 
 const key = "agrotech.token";
 const issuedKey = "agrotech.token-at";
@@ -33,6 +34,7 @@ export function readToken(): string {
 export function clearToken(): void {
   sessionStorage.removeItem(key);
   sessionStorage.removeItem(issuedKey);
+  dropSessionMemory();
 }
 
 setSessionTokenReader(readToken);

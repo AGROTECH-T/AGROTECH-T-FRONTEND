@@ -11,6 +11,7 @@
 
 import { postJson } from "../../../services/api/client.ts";
 import { readToken } from "../../auth/services/session.ts";
+import { forgetFarms } from "../../farms/services/farmsApi.ts";
 import type {
   InvitationAcceptResult,
   InvitationCodePreview,
@@ -36,5 +37,10 @@ export function previewInvitationCode(code: string): Promise<InvitationCodePrevi
  */
 export function acceptInvitationCode(code: string): Promise<InvitationAcceptResult> {
   const body: InvitationCodeRequest = { code };
-  return postJson<InvitationAcceptResult>(CODE_ACCEPT_ENDPOINT, body, readToken());
+  return postJson<InvitationAcceptResult>(CODE_ACCEPT_ENDPOINT, body, readToken()).then(
+    (result) => {
+      forgetFarms();
+      return result;
+    },
+  );
 }

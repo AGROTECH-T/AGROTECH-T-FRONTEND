@@ -9,6 +9,7 @@
 
 import { postJson } from "../../../services/api/client.ts";
 import { readToken } from "../../auth/services/session.ts";
+import { forgetFarms } from "../../farms/services/farmsApi.ts";
 import type { InvitationAcceptRequest, InvitationAcceptResult } from "../types/index.ts";
 
 export const ACCEPT_ENDPOINT = "/api/v1/invitations/accept/";
@@ -20,5 +21,8 @@ export const ACCEPT_ENDPOINT = "/api/v1/invitations/accept/";
  */
 export function acceptInvitation(token: string): Promise<InvitationAcceptResult> {
   const body: InvitationAcceptRequest = { token };
-  return postJson<InvitationAcceptResult>(ACCEPT_ENDPOINT, body, readToken());
+  return postJson<InvitationAcceptResult>(ACCEPT_ENDPOINT, body, readToken()).then((result) => {
+    forgetFarms();
+    return result;
+  });
 }
