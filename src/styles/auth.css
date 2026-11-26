@@ -106,11 +106,24 @@ body.is-auth {
 .auth-slot--form .form.signup {
   width: min(400px, 100%);
   max-width: 400px;
-  gap: 10px;
+  gap: 6px;
   margin: 0;
-  padding: 18px 24px 16px;
+  padding: 4px 20px 6px;
   align-self: center;
 }
+.form.signup .form-intro { gap: 2px; }
+.form.signup h2 { font-size: 1.35rem; }
+.form.signup .field-row { gap: 12px; }
+.form.signup .field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.form.signup .field label { font-size: 0.88rem; line-height: 1.15; }
+.form.signup .field input { padding: 10px 14px; border-radius: 14px; }
+.form.signup .char-left { margin: 0; font-size: 0.72rem; line-height: 1.1; }
+.form.signup .signup-actions .solid,
+.form.signup .signup-actions .auth-switch { padding: 11px 16px; }
 .form-mark {
   align-self: center;
   display: grid;
