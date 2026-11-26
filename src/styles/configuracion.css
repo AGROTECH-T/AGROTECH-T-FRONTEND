@@ -758,6 +758,34 @@
   align-self: center;
 }
 
+.form-window .config-account .field input.with-icon {
+  padding-left: 42px;
+}
+
+.form-window .config-account .solid {
+  width: 100%;
+}
+
+@media (max-width: 720px) {
+  .form-window:has(.config-account) {
+    padding: 8px;
+    align-items: flex-start;
+  }
+
+  .form-window__card:has(.config-account) {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+  }
+
+  .form-window .config-account.form {
+    padding: 28px 16px 16px;
+  }
+
+  .form-window .config-account .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .form-window .config-form {
   width: 100%;
   margin: 0;

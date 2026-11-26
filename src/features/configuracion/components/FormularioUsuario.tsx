@@ -132,7 +132,7 @@ export function FormularioUsuario({ fincas, catalogo, guardando, error = "", onC
   return (
     <FormWindow title="Crear usuario" onClose={onCancelar}>
       <form
-        className="form signup config-account"
+        className="form config-account"
         noValidate
         onSubmit={(event) => {
           event.preventDefault();
