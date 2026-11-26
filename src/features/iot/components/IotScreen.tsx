@@ -29,7 +29,7 @@ import { formatIotDate, formatIotTime, metricLabel } from "./iotFormat.ts";
 import { IotConfigPanel } from "./IotConfigPanel.tsx";
 import { IotGuide } from "./iotUi.tsx";
 import { IotLatestReadings } from "./IotLatestReadings.tsx";
-import { IotTrend } from "./IotTrend.tsx";
+import { IotEvolution, IotTrend } from "./IotTrend.tsx";
 import "../styles/iot.css";
 
 const views: IotView[] = ["Resumen", "Gateways", "Coordinators", "Sensores", "Historial", "Configurar"];
@@ -427,6 +427,7 @@ export function IotScreen() {
               Cargando sensores…
             </div>
           )}
+          {sensorData ? <IotEvolution sensors={sensorData.results} readings={readings} /> : null}
           <section className="iot-history-block" aria-labelledby="iot-history-title">
             <div className="iot-dash-head">
               <div className="iot-section-title__main">

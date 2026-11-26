@@ -955,6 +955,166 @@
   font-weight: 600;
 }
 
+.iot-evolution {
+  margin: 8px 0 18px;
+  padding: 20px 22px 16px;
+  border: 1px solid #e6eee8;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 0 10px 24px rgba(20, 43, 27, 0.05);
+}
+
+.iot-evolution__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 20px;
+}
+
+.iot-evolution__kicker {
+  margin: 0 0 4px;
+  color: var(--emerald);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.iot-evolution__head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.iot-evolution__head p {
+  margin: 4px 0 0;
+  color: var(--sage);
+  font-size: 0.82rem;
+}
+
+.iot-evolution__pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 460px;
+}
+
+.iot-evolution__pills button {
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  color: var(--sage);
+  background: var(--field);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.iot-evolution__pills button.is-active {
+  color: var(--emerald);
+  background: color-mix(in srgb, var(--emerald) 12%, white);
+}
+
+.iot-evolution__selected {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 8px;
+}
+
+.iot-evolution__selected span {
+  color: var(--sage);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.iot-evolution__selected strong {
+  display: block;
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  text-transform: none;
+}
+
+.iot-evolution__selected .iot-evolution__key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sage);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.iot-evolution__key i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--emerald);
+}
+
+.iot-evolution__plot {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 8px;
+  margin-top: 6px;
+}
+
+.iot-evolution__yaxis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 220px;
+  color: var(--sage);
+  font-size: 0.72rem;
+  text-align: right;
+}
+
+.iot-evolution__chart {
+  display: block;
+  width: 100%;
+  height: 220px;
+}
+
+.iot-evolution__grid {
+  stroke: #e7eee9;
+  stroke-width: 1;
+}
+
+.iot-evolution__line {
+  fill: none;
+  stroke: var(--emerald);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.iot-evolution__dot {
+  fill: var(--card);
+  stroke: var(--emerald);
+  stroke-width: 2;
+}
+
+.iot-evolution__xaxis {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  color: var(--sage);
+  font-size: 0.72rem;
+}
+
 .iot-trend {
   margin: 8px 0 18px;
   padding: 18px;
@@ -1014,6 +1174,15 @@
 @media (max-width: 640px) {
   .iot-sensor-grid {
     grid-template-columns: 1fr;
+  }
+
+  .iot-evolution__head {
+    flex-direction: column;
+  }
+
+  .iot-evolution__pills {
+    justify-content: flex-start;
+    max-width: none;
   }
 }
 
