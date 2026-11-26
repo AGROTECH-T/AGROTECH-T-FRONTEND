@@ -18,13 +18,14 @@ import {
   readingValueText,
   RECENT_ACTIVITY_WINDOW_MS,
   SUMMARY_WINDOW_DAYS,
+  smoothTrendPath,
   trendGeometry,
   trendSeries,
 } from "../services/iotState.ts";
 import { formatIotDate, metricLabel } from "./iotFormat.ts";
 
-const SPARK_W = 200;
-const SPARK_H = 36;
+const SPARK_W = 280;
+const SPARK_H = 64;
 /** Sensores visibles por página en el resumen. */
 export const LATEST_SENSORS_PAGE_SIZE = 20;
 
@@ -36,24 +37,40 @@ type Props = {
 };
 
 /** Small SVG sparkline of the valid effective values present in the sample. */
-function Sparkline({ readings, sensorUid }: { readings: readonly IotReading[]; sensorUid: string }) {
+function Sparkline({
+  readings,
+  sensorUid,
+  tone,
+}: {
+  readings: readonly IotReading[];
+  sensorUid: string;
+  tone: "humidity" | "temp" | "default";
+}) {
   const series = trendSeries(readings, sensorUid);
-  const geometry = series.length > 1 ? trendGeometry(series, SPARK_W, SPARK_H, 4) : null;
+  const geometry = series.length > 1 ? trendGeometry(series, SPARK_W, SPARK_H, 6) : null;
   if (!geometry) return <span className="iot-spark iot-spark--empty">Sin tendencia aún</span>;
+  const line = smoothTrendPath(geometry.points);
   const first = geometry.points[0];
   const last = geometry.points[geometry.points.length - 1];
-  const area = `${geometry.path} L${last.x.toFixed(1)} ${SPARK_H - 1} L${first.x.toFixed(1)} ${SPARK_H - 1} Z`;
+  const area = `${line} L${last.x.toFixed(1)} ${SPARK_H} L${first.x.toFixed(1)} ${SPARK_H} Z`;
+  const gradient = `spark-${tone}-${sensorUid.replace(/[^a-zA-Z0-9]/g, "")}`;
   return (
     <svg
-      className="iot-spark"
+      className={`iot-spark iot-spark--${tone}`}
       viewBox={`0 0 ${SPARK_W} ${SPARK_H}`}
       preserveAspectRatio="none"
       role="img"
       aria-label={`Tendencia de ${series.length} mediciones válidas`}
     >
-      <path className="iot-trend__area" d={area} />
-      <path className="iot-trend__line" d={geometry.path} vectorEffect="non-scaling-stroke" />
-      <circle className="iot-trend__dot" cx={last.x} cy={last.y} r="3.2" />
+      <defs>
+        <linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1">
+          <stop className="iot-spark__fade-start" offset="0%" />
+          <stop className="iot-spark__fade-end" offset="100%" />
+        </linearGradient>
+      </defs>
+      <path className="iot-spark__area" d={area} fill={`url(#${gradient})`} />
+      <path className="iot-spark__line" d={line} vectorEffect="non-scaling-stroke" />
+      <circle className="iot-spark__dot" cx={last.x} cy={last.y} r="3.4" />
     </svg>
   );
 }
@@ -82,9 +99,10 @@ function EmptySensorIcon() {
   return (
     <span className="iot-sensor-card__empty-icon" aria-hidden="true">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <path d="M5 12a7 7 0 0 1 14 0" strokeLinecap="round" />
-        <path d="M8 12a4 4 0 0 1 8 0" strokeLinecap="round" />
-        <circle cx="12" cy="16" r="1.4" fill="currentColor" stroke="none" />
+        <path d="M4 9.5a12 12 0 0 1 16 0" strokeLinecap="round" />
+        <path d="M7.5 13a7 7 0 0 1 9 0" strokeLinecap="round" />
+        <path d="M4 4l16 16" strokeLinecap="round" />
+        <circle cx="12" cy="17" r="1.3" fill="currentColor" stroke="none" />
       </svg>
     </span>
   );
@@ -229,7 +247,7 @@ export function IotLatestReadings({ sensors, readings, refreshedAt }: Props) {
                   </div>
 
                   <div className="iot-sensor-card__chart">
-                    <Sparkline readings={readings} sensorUid={sensor.uid} />
+                    <Sparkline readings={readings} sensorUid={sensor.uid} tone={tone} />
                   </div>
 
                   <dl className="iot-sensor-card__times">

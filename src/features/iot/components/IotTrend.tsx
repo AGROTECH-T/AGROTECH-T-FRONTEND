@@ -1,5 +1,5 @@
 import type { IotReading } from "../services/iotApi.ts";
-import { trendGeometry, trendSeries } from "../services/iotState.ts";
+import { smoothTrendPath, trendGeometry, trendSeries } from "../services/iotState.ts";
 
 const WIDTH = 640;
 const HEIGHT = 170;
@@ -28,8 +28,15 @@ export function IotTrend({ readings, sensorUid, unit }: Props) {
     </div>
     {geometry && series.length > 1 ? <>
       <svg className="iot-trend__chart" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={`Tendencia de ${series.length} mediciones entre ${valueFormatter.format(geometry.min)} y ${valueFormatter.format(geometry.max)}${suffix}`}>
-        <path className="iot-trend__line" d={geometry.path} vectorEffect="non-scaling-stroke" />
-        {geometry.points.map((point, index) => <circle key={index} className="iot-trend__dot" cx={point.x} cy={point.y} r={3} vectorEffect="non-scaling-stroke" />)}
+        <defs>
+          <linearGradient id="iot-trend-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--leaf)" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="var(--leaf)" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path fill="url(#iot-trend-fill)" d={`${smoothTrendPath(geometry.points)} L${geometry.points[geometry.points.length - 1].x.toFixed(1)} ${HEIGHT - 8} L${geometry.points[0].x.toFixed(1)} ${HEIGHT - 8} Z`} />
+        <path className="iot-trend__line" d={smoothTrendPath(geometry.points)} vectorEffect="non-scaling-stroke" />
+        <circle className="iot-trend__dot" cx={geometry.points[geometry.points.length - 1].x} cy={geometry.points[geometry.points.length - 1].y} r="4.5" />
       </svg>
       <div className="iot-trend__legend">
         <span>{timeFormatter.format(series[0].time)}</span>

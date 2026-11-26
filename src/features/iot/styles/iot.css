@@ -258,11 +258,12 @@
 .iot-latest,
 .iot-history-block {
   display: grid;
-  gap: 12px;
-  padding: 12px;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--line) 75%, white);
   border-radius: 22px;
-  background: color-mix(in srgb, var(--tint) 55%, var(--card));
-  box-shadow: var(--inset);
+  background: var(--card);
+  box-shadow: 0 14px 32px rgba(20, 43, 27, 0.08);
 }
 
 .iot-dash-head {
@@ -614,13 +615,14 @@
 .iot-sensor-card {
   position: relative;
   display: grid;
-  gap: 8px;
+  gap: 10px;
   align-content: start;
   min-width: 0;
-  padding: 12px 12px 10px;
-  border-radius: 18px;
+  padding: 16px 16px 12px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, white);
+  border-radius: 20px;
   background: var(--card);
-  box-shadow: var(--raised);
+  box-shadow: 0 10px 24px rgba(20, 43, 27, 0.06);
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -628,8 +630,8 @@
 .iot-sensor-card::before {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 5px;
+  inset: 0 0 auto 0;
+  height: 4px;
   background: var(--leaf);
 }
 
@@ -641,13 +643,12 @@
   background: var(--action);
 }
 
-.iot-sensor-card--recent {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--leaf) 7%, var(--card)) 0%,
-      var(--card) 42%
-    );
+.iot-sensor-card--temp .iot-value {
+  color: var(--action-deep);
+}
+
+.iot-sensor-card--humidity .iot-value {
+  color: var(--leaf);
 }
 
 .iot-sensor-card__head {
@@ -713,14 +714,12 @@
 }
 
 .iot-sensor-card__hero .iot-value {
-  font-size: clamp(1.7rem, 2.4vw, 2.05rem);
+  font-size: clamp(1.85rem, 2.6vw, 2.2rem);
 }
 
 .iot-sensor-card__chart {
-  padding: 4px 6px 2px;
-  border-radius: 12px;
-  background: var(--field);
-  box-shadow: var(--inset);
+  min-height: 64px;
+  margin: 0 -4px;
 }
 
 .iot-sensor-card__empty {
@@ -774,11 +773,10 @@
 .iot-sensor-card__times {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: 8px 12px;
   margin: 0;
-  padding: 6px 8px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--tint) 70%, var(--card));
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
 }
 
 .iot-sensor-card__times dt {
@@ -869,14 +867,13 @@
   gap: 6px;
   width: 100%;
   margin-top: 0;
-  padding: 6px 8px;
-  border-radius: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
   box-sizing: border-box;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--sage);
   background: var(--field);
-  box-shadow: var(--inset);
 }
 
 .iot-activity__dot {
@@ -898,6 +895,11 @@
   animation: iot-pulse 1.8s ease-out infinite;
 }
 
+.iot-activity--stale {
+  color: var(--action-deep);
+  background: color-mix(in srgb, var(--action) 16%, var(--card));
+}
+
 .iot-activity--stale .iot-activity__dot {
   background: var(--action);
 }
@@ -917,7 +919,53 @@
 .iot-spark {
   display: block;
   width: 100%;
-  height: 36px;
+  height: 64px;
+}
+
+.iot-spark__line {
+  fill: none;
+  stroke: var(--leaf);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.iot-spark--temp .iot-spark__line,
+.iot-spark--temp .iot-spark__dot {
+  stroke: var(--action);
+}
+
+.iot-spark--temp .iot-spark__line {
+  stroke: var(--action);
+}
+
+.iot-spark--humidity .iot-spark__line {
+  stroke: var(--leaf);
+}
+
+.iot-spark__fade-start {
+  stop-color: var(--leaf);
+  stop-opacity: 0.32;
+}
+
+.iot-spark__fade-end {
+  stop-color: var(--leaf);
+  stop-opacity: 0;
+}
+
+.iot-spark--temp .iot-spark__fade-start,
+.iot-spark--temp .iot-spark__fade-end {
+  stop-color: var(--action);
+}
+
+.iot-spark--temp .iot-spark__fade-end {
+  stop-opacity: 0;
+}
+
+.iot-spark__dot {
+  fill: var(--card);
+  stroke: var(--leaf);
+  stroke-width: 2;
 }
 
 .iot-spark--empty {
@@ -932,9 +980,10 @@
 .iot-trend {
   margin: 8px 0 18px;
   padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--line) 75%, white);
   border-radius: 22px;
-  background: var(--field);
-  box-shadow: var(--inset);
+  background: var(--card);
+  box-shadow: 0 14px 32px rgba(20, 43, 27, 0.08);
 }
 
 .iot-trend__chart {

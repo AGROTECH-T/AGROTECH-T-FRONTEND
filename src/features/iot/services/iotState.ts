@@ -275,3 +275,23 @@ export function trendGeometry(
     .join(" ");
   return { path, points, min, max };
 }
+
+/** Curva suave entre los puntos ya proyectados. No cambia la geometría lineal. */
+export function smoothTrendPath(points: readonly { x: number; y: number }[]): string {
+  if (points.length === 0) return "";
+  const head = `M${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  if (points.length === 1) return head;
+  let path = head;
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const previous = points[index === 0 ? 0 : index - 1];
+    const current = points[index];
+    const next = points[index + 1];
+    const after = points[index + 2] ?? next;
+    const controlStartX = current.x + (next.x - previous.x) / 6;
+    const controlStartY = current.y + (next.y - previous.y) / 6;
+    const controlEndX = next.x - (after.x - current.x) / 6;
+    const controlEndY = next.y - (after.y - current.y) / 6;
+    path += ` C${controlStartX.toFixed(1)} ${controlStartY.toFixed(1)} ${controlEndX.toFixed(1)} ${controlEndY.toFixed(1)} ${next.x.toFixed(1)} ${next.y.toFixed(1)}`;
+  }
+  return path;
+}
