@@ -16,6 +16,7 @@ import { loginPayload } from "../services/payload.ts";
 import { saveToken } from "../services/session.ts";
 import type { Account } from "../types/index.ts";
 import { PasswordGuide } from "./PasswordGuide.tsx";
+import { PolicyWindow } from "./PolicyWindow.tsx";
 
 type Gaps = Record<string, string>;
 
@@ -38,6 +39,9 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
   const [password, setPassword] = useState("");
   const [gaps, setGaps] = useState<Gaps>({});
   const [pending, setPending] = useState(false);
+  const [terms, setTerms] = useState(false);
+  const [cookies, setCookies] = useState(false);
+  const [policy, setPolicy] = useState<"terminos" | "cookies" | null>(null);
   const notices = useNotices();
 
   const edit = (key: string, kind: AccountKind, setValue: (value: string) => void) => (value: string) => {
@@ -63,6 +67,8 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
       reviewField("correo", next.correo),
       reviewField("contraseña", next.password),
     ].filter(Boolean);
+    if (!terms) failed.push("Acepta los términos y condiciones para crear la cuenta.");
+    if (!cookies) failed.push("Acepta el uso de cookies para crear la cuenta.");
     if (failed.length) {
       notices.push(failed, "warn");
       return;
@@ -113,6 +119,32 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
       </div>
       <TextField id="signup-password" label="Contraseña" icon="lock" type="password" max={ACCOUNT_MAX.password} value={password} autoComplete="new-password" message={gaps.password} onChange={edit("password", "password", setPassword)} />
       {password ? <PasswordGuide value={password} /> : null}
+      <div className="signup-consent">
+        <label>
+          <input
+            type="checkbox"
+            checked={terms}
+            onChange={(event) => setTerms(event.target.checked)}
+          />
+          <span>Acepto los</span>
+        </label>
+        <button type="button" onClick={() => setPolicy("terminos")}>
+          términos y condiciones
+        </button>
+      </div>
+      <div className="signup-consent">
+        <label>
+          <input
+            type="checkbox"
+            checked={cookies}
+            onChange={(event) => setCookies(event.target.checked)}
+          />
+          <span>Acepto el uso de</span>
+        </label>
+        <button type="button" onClick={() => setPolicy("cookies")}>
+          cookies
+        </button>
+      </div>
       <button type="submit" className="solid" disabled={pending}>
         {pending ? "Creando" : "+ Crear cuenta"}
       </button>
@@ -130,6 +162,7 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
         Ingresar con mi cuenta
       </button>
       <NoticeStack items={notices.items} onClose={notices.close} />
+      {policy ? <PolicyWindow part={policy} onClose={() => setPolicy(null)} /> : null}
     </form>
   );
 }

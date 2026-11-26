@@ -173,6 +173,45 @@ p { margin: 0; line-height: 1.45; }
 .form-intro p { color: var(--ink); }
 .field-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
 .signup { justify-content: flex-start; }
+.signup-consent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+.signup-consent label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.signup-consent input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--moss);
+}
+.signup-consent button {
+  border: 0;
+  padding: 0;
+  color: var(--moss);
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.policy-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.policy-text h3 {
+  margin: 8px 0 0;
+  font-size: 1rem;
+}
+.policy-text p { color: var(--ink); }
 .field-box { position: relative; display: block; }
 .field-box svg {
   position: absolute;
