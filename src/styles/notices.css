@@ -19,30 +19,43 @@
 
 .notice-card {
   position: relative;
-  padding: 14px 36px 14px 16px;
-  border: 1px solid var(--line);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 40px 14px 14px;
+  border: 0;
   border-radius: 16px;
-  color: var(--ink);
-  background: var(--field);
-  box-shadow: 0 10px 24px rgba(20, 43, 27, 0.1);
+  color: #f7fff8;
+  background: #0b3a24;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.32);
 }
 
-.notice-card.ok {
-  color: #1d6b38;
-  background: #f7fbf7;
-  border-color: #c9e3cd;
-}
+.notice-card.ok { background: #0b3a24; }
 
 .notice-card.warn {
-  color: #9f1d1d;
-  background: #fdecec;
-  border-color: #f3c4c0;
+  color: #fff6f5;
+  background: #7a1212;
 }
 
+.notice-mark {
+  display: grid;
+  flex: 0 0 28px;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.notice-copy { min-width: 0; }
 .notice-card p { margin: 0; line-height: 1.4; }
-.notice-time { margin-top: 8px; font-size: 0.75rem; font-weight: 600; }
-.notice-card.ok .notice-time { color: #3d7a52; }
-.notice-card.warn .notice-time { color: #9f1d1d; }
+.notice-time { margin-top: 8px; font-size: 0.75rem; font-weight: 700; }
+.notice-card.ok .notice-time,
+.notice-card.warn .notice-time { color: rgba(255, 255, 255, 0.86); }
 .notice-card button {
   position: absolute;
   top: 8px;
@@ -51,7 +64,7 @@
   height: 24px;
   border: 0;
   border-radius: 50%;
-  color: inherit;
+  color: #fff;
   background: transparent;
   font-size: 1.1rem;
   line-height: 1;

@@ -61,10 +61,14 @@ function NoticeCard({ item, onClose }: Readonly<CardProps>) {
     return () => globalThis.clearInterval(timer);
   }, [item.id, onClose, total]);
 
+  const ok = item.tone === "ok";
   return (
-    <article className={item.tone === "ok" ? "notice-card ok" : "notice-card warn"} role={item.tone === "ok" ? "status" : "alert"}>
-      <p>{item.text}</p>
-      <p className="notice-time">Se quita en {left} s</p>
+    <article className={ok ? "notice-card ok" : "notice-card warn"} role={ok ? "status" : "alert"}>
+      <span className="notice-mark" aria-hidden="true">{ok ? "✓" : "✕"}</span>
+      <div className="notice-copy">
+        <p>{item.text}</p>
+        <p className="notice-time">Se quita en {left} s</p>
+      </div>
       <button type="button" aria-label="Cerrar notificación" onClick={() => onClose(item.id)}>×</button>
     </article>
   );
