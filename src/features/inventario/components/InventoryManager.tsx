@@ -6,6 +6,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useEffect, useState, type FormEvent } from "react";
 import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
@@ -157,6 +158,7 @@ export function InventoryManager({
                 setError("");
               }}
             />
+            <CharLeft value={name} max={100} />
             {!editing && error ? <span className="field-miss">{error}</span> : null}
           </label>
           <button type="submit" className="btn-primary inv-save">Guardar</button>
@@ -174,6 +176,7 @@ export function InventoryManager({
                   value={draft}
                   onChange={(event) => { setDraft(event.target.value); setError(""); }}
                 />
+                <CharLeft value={draft} max={100} />
                 {error ? <span className="field-miss">{error}</span> : null}
                 <button type="submit" className="btn-primary">Guardar</button>
                 <button type="button" className="btn-danger" onClick={() => setEditing(null)}>

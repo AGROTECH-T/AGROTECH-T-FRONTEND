@@ -11,7 +11,7 @@ import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { PasswordGuide } from "../../auth/components/PasswordGuide.tsx";
-import { digitsMessage, lettersMessage, mailMessage, passwordMessage, reviewField } from "../../auth/services/fieldRules.ts";
+import { ACCOUNT_MAX, digitsMessage, lettersMessage, mailMessage, passwordMessage, reviewField, typedMessage, type AccountKind } from "../../auth/services/fieldRules.ts";
 import { ROL_NOMBRE, ROLES_ORDEN } from "../services/catalogo.ts";
 import type { CatalogoRoles, FincaAsignable, NuevoUsuario, RolId } from "../types/index.ts";
 
@@ -73,9 +73,9 @@ export function FormularioUsuario({ fincas, catalogo, guardando, error = "", onC
     if (error) notices.push([error], "warn");
   }, [error]);
 
-  function cambiar(campo: keyof Huecos, valor: string) {
+  function cambiar(campo: keyof Huecos, kind: AccountKind, valor: string) {
     setDatos((actual) => ({ ...actual, [campo]: valor }));
-    setHuecos((actual) => ({ ...actual, [campo]: "" }));
+    setHuecos((actual) => ({ ...actual, [campo]: typedMessage(kind, valor) }));
   }
 
   function alternarPermiso(id: string) {
@@ -145,15 +145,15 @@ export function FormularioUsuario({ fincas, catalogo, guardando, error = "", onC
           <p>Los mismos datos de una cuenta, más la finca y el rol.</p>
         </header>
         <div className="field-row">
-          <TextField id="nuevo-nombre" label="Primer nombre" icon="user" placeholder="Ana" value={datos.first_name} autoComplete="given-name" message={huecos.first_name} onChange={(valor) => cambiar("first_name", valor)} />
-          <TextField id="nuevo-apellido" label="Primer apellido" icon="user" placeholder="García" value={datos.last_name} autoComplete="family-name" message={huecos.last_name} onChange={(valor) => cambiar("last_name", valor)} />
+          <TextField id="nuevo-nombre" label="Primer nombre" icon="user" placeholder="Ana" max={ACCOUNT_MAX.name} value={datos.first_name} autoComplete="given-name" message={huecos.first_name} onChange={(valor) => cambiar("first_name", "name", valor)} />
+          <TextField id="nuevo-apellido" label="Primer apellido" icon="user" placeholder="García" max={ACCOUNT_MAX.lastName} value={datos.last_name} autoComplete="family-name" message={huecos.last_name} onChange={(valor) => cambiar("last_name", "lastName", valor)} />
         </div>
-        <TextField id="nuevo-documento" label="N.º de identificación" icon="user" placeholder="1234567890" value={datos.identification} autoComplete="off" message={huecos.identification} onChange={(valor) => cambiar("identification", valor)} />
+        <TextField id="nuevo-documento" label="N.º de identificación" icon="user" placeholder="1234567890" max={ACCOUNT_MAX.identification} value={datos.identification} autoComplete="off" message={huecos.identification} onChange={(valor) => cambiar("identification", "identification", valor)} />
         <div className="field-row">
-          <TextField id="nuevo-celular" label="Celular" icon="phone" placeholder="3001234567" value={datos.phone} autoComplete="tel" message={huecos.phone} onChange={(valor) => cambiar("phone", valor)} />
-          <TextField id="nuevo-correo" label="Correo" icon="mail" type="email" placeholder="ana@correo.com" value={datos.correo} autoComplete="email" message={huecos.correo} onChange={(valor) => cambiar("correo", valor)} />
+          <TextField id="nuevo-celular" label="Celular" icon="phone" placeholder="3001234567" max={ACCOUNT_MAX.phone} value={datos.phone} autoComplete="tel" message={huecos.phone} onChange={(valor) => cambiar("phone", "phone", valor)} />
+          <TextField id="nuevo-correo" label="Correo" icon="mail" type="email" placeholder="ana@correo.com" max={ACCOUNT_MAX.mail} value={datos.correo} autoComplete="email" message={huecos.correo} onChange={(valor) => cambiar("correo", "mail", valor)} />
         </div>
-        <TextField id="nuevo-clave" label="Contraseña" icon="lock" type="password" value={datos.password} autoComplete="new-password" message={huecos.password} onChange={(valor) => cambiar("password", valor)} />
+        <TextField id="nuevo-clave" label="Contraseña" icon="lock" type="password" max={ACCOUNT_MAX.password} value={datos.password} autoComplete="new-password" message={huecos.password} onChange={(valor) => cambiar("password", "password", valor)} />
         {datos.password ? <PasswordGuide value={datos.password} /> : null}
 
         <fieldset className="config-account__extras">

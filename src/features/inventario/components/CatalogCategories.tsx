@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState, type FormEvent } from "react";
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { matchesCatalogQuery } from "../services/catalogSearch.ts";
 import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
@@ -221,6 +222,7 @@ export function CatalogCategories({
                   <label className={gaps.editName ? "is-miss" : ""}>
                     <span>¿Cómo se llama?</span>
                     <input type="text" maxLength={80} value={draft} onChange={(event) => { setDraft(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
+                    <CharLeft value={draft} max={80} />
                     {gaps.editName ? <span className="field-miss">{gaps.editName}</span> : null}
                   </label>
                   <p>Lo que está en verde se quita al tocarlo. Tiene que quedar al menos una.</p>
@@ -302,6 +304,7 @@ export function CatalogCategories({
               onChange={(event) => { setName(event.target.value); setGaps({}); }}
               disabled={pending}
             />
+            <CharLeft value={name} max={80} />
             {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
           </label>
           <p>¿Qué unidades van aquí? Toca bulto, kilo o caja. El verde queda. Se pueden tocar varias.</p>

@@ -5,6 +5,7 @@
  */
 
 import { useState, type FormEvent } from "react";
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { displayQuantity } from "../services/equivalence.ts";
 import { ADJUSTMENT_REASONS } from "../services/adjustmentReasons.ts";
@@ -196,7 +197,8 @@ export function ProductAdjustWindow({
           </label>
           <label className="inv-form__field">
             <span>Observación (opcional)</span>
-            <textarea value={note} onChange={(event) => setNote(event.target.value)} disabled={pending} rows={3} />
+            <textarea value={note} maxLength={200} onChange={(event) => setNote(event.target.value.slice(0, 200))} disabled={pending} rows={3} />
+            <CharLeft value={note} max={200} />
           </label>
           {error ? <p className="inv-form__error" role="alert">{error}</p> : null}
           <div className="inv-form__actions">

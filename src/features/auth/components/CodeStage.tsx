@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { TextField } from "../../../components/ui/TextField.tsx";
+import { ACCOUNT_MAX, typedMessage } from "../services/fieldRules.ts";
 import { CodeBoxes } from "./CodeBoxes.tsx";
 import { PasswordGuide } from "./PasswordGuide.tsx";
 
@@ -37,6 +38,7 @@ function emptyDigits(): string[] {
 export function CodeStage({ pending, onBack, onResend, onCheck, onConfirm }: Readonly<Props>) {
   const [digits, setDigits] = useState<string[]>(emptyDigits);
   const [password, setPassword] = useState("");
+  const [passwordGap, setPasswordGap] = useState("");
   const [phase, setPhase] = useState<Phase>("code");
   const [resendIn, setResendIn] = useState(RESEND);
   const [left, setLeft] = useState(LIFE);
@@ -121,7 +123,7 @@ export function CodeStage({ pending, onBack, onResend, onCheck, onConfirm }: Rea
         ) : null}
         {phase === "password" ? (
           <div className="otp-next">
-            <TextField id="new-password" label="Nueva contraseña" icon="lock" type="password" value={password} autoComplete="new-password" onChange={setPassword} />
+            <TextField id="new-password" label="Nueva contraseña" icon="lock" type="password" max={ACCOUNT_MAX.password} value={password} autoComplete="new-password" message={passwordGap} onChange={(value) => { setPassword(value); setPasswordGap(typedMessage("password", value)); }} />
             {password ? <PasswordGuide value={password} /> : null}
             <button type="submit" className="solid" disabled={pending}>Cambiar contraseña</button>
           </div>

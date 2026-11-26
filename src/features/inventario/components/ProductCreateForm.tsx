@@ -15,6 +15,7 @@ import {
   getProduct,
   uploadProductImage,
 } from "../services/inventoryApi.ts";
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { ConfirmModal } from "./ConfirmModal.tsx";
 import { equivalenceText, isWholeUnit } from "../services/equivalence.ts";
@@ -211,20 +212,24 @@ export function ProductCreateForm({
         <span>Nombre</span>
         <input
           value={draft.name}
+          maxLength={100}
           placeholder="Ej. Concentrado para pollos"
-          onChange={(event) => edit("name")(event.target.value)}
+          onChange={(event) => edit("name")(event.target.value.slice(0, 100))}
           disabled={pending}
         />
+        <CharLeft value={draft.name} max={100} />
         {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
       </label>
       <label className="inv-form__field">
         <span>Código de barras (opcional)</span>
         <input
           value={draft.barcode}
+          maxLength={64}
           placeholder="Único en esta finca, si el empaque lo trae"
-          onChange={(event) => edit("barcode")(event.target.value)}
+          onChange={(event) => edit("barcode")(event.target.value.slice(0, 64))}
           disabled={pending}
         />
+        <CharLeft value={draft.barcode} max={64} />
       </label>
       <label className={gaps.category ? "inv-form__field is-miss" : "inv-form__field"}>
         <span>Categoría</span>

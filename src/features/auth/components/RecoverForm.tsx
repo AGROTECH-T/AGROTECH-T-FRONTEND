@@ -11,7 +11,7 @@ import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { postJson } from "../../../services/api/client.ts";
-import { digitsMessage, passwordMessage, reviewField } from "../services/fieldRules.ts";
+import { ACCOUNT_MAX, digitsMessage, passwordMessage, reviewField, typedMessage } from "../services/fieldRules.ts";
 import { CodeStage } from "./CodeStage.tsx";
 
 type Props = {
@@ -112,7 +112,7 @@ export function RecoverForm({ onDone, onBack }: Readonly<Props>) {
     >
       {onBack ? <BackButton onClick={onBack} /> : null}
       <h2 id="recover-title">Recuperar acceso</h2>
-      <TextField id="recover-id" label="N.º de identificación" icon="user" placeholder="1234567890" value={identification} autoComplete="username" message={gap} onChange={(value) => { setIdentification(value); setGap(""); }} />
+      <TextField id="recover-id" label="N.º de identificación" icon="user" placeholder="1234567890" max={ACCOUNT_MAX.identification} value={identification} autoComplete="username" message={gap} onChange={(value) => { setIdentification(value); setGap(typedMessage("identification", value)); }} />
       <fieldset className="choices">
         <legend>Enviar código por</legend>
         <label><input type="radio" name="method" checked={method === "correo"} onChange={() => setMethod("correo")} /> Correo</label>

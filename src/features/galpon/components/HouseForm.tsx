@@ -7,6 +7,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useState } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import type { House, HouseDraft } from "../types/index.ts";
@@ -126,6 +127,7 @@ export function HouseForm({ house, saving, error = "", onClose, onSave }: Readon
                 maxLength={80}
                 autoFocus
               />
+              <CharLeft value={draft.name} max={80} />
             </Field>
             <Field label="Ubicación" error={gaps.location}>
               <input
@@ -134,6 +136,7 @@ export function HouseForm({ house, saving, error = "", onClose, onSave }: Readon
                 placeholder="Zona alta, opcional"
                 maxLength={120}
               />
+              <CharLeft value={draft.location} max={120} />
             </Field>
           </div>
         </fieldset>

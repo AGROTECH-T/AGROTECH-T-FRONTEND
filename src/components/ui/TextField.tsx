@@ -7,6 +7,7 @@
  */
 
 import { useState, type ChangeEvent } from "react";
+import { CharLeft, clip } from "./CharLeft.tsx";
 import { FieldIcon } from "./FieldIcon.tsx";
 
 type IconName = "user" | "mail" | "phone" | "lock";
@@ -20,6 +21,8 @@ type Props = {
   icon?: IconName;
   placeholder?: string;
   message?: string;
+  /** Tope real del dato. Corta al escribir y muestra cuántos faltan. */
+  max?: number;
   onChange: (value: string) => void;
 };
 
@@ -37,12 +40,20 @@ export function TextField({
   icon,
   placeholder,
   message = "",
+  max,
   onChange,
 }: Readonly<Props>) {
   const [visible, setVisible] = useState(false);
   const secret = type === "password";
   const shown = secret && visible ? "text" : type;
-  const update = (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value);
+  const text = max === undefined ? value : clip(value, max);
+  const described = [message ? `${id}-error` : "", max !== undefined ? `${id}-left` : ""]
+    .filter(Boolean)
+    .join(" ");
+  const update = (event: ChangeEvent<HTMLInputElement>) => {
+    const next = event.target.value;
+    onChange(max === undefined ? next : clip(next, max));
+  };
   const classes = [icon ? "with-icon" : "", secret ? "with-reveal" : ""].filter(Boolean).join(" ");
 
   return (
@@ -54,11 +65,12 @@ export function TextField({
           id={id}
           className={classes || undefined}
           type={shown}
-          value={value}
+          value={text}
+          maxLength={max}
           placeholder={placeholder}
           autoComplete={autoComplete}
           aria-invalid={message ? true : undefined}
-          aria-describedby={message ? `${id}-error` : undefined}
+          aria-describedby={described || undefined}
           onChange={update}
         />
         {secret ? (
@@ -73,6 +85,7 @@ export function TextField({
           </button>
         ) : null}
       </span>
+      {max !== undefined ? <CharLeft id={`${id}-left`} value={text} max={max} /> : null}
       {message ? <p className="field-error" id={`${id}-error`}>{message}</p> : null}
     </div>
   );

@@ -11,6 +11,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { createSubmitGuard } from "../../../components/ui/ConfirmDialog.tsx";
+import { CharLeft, clip } from "../../../components/ui/CharLeft.tsx";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { ConfirmModal } from "../../inventario/components/ConfirmModal.tsx";
 import {
@@ -98,10 +99,11 @@ export function FarmCreateForm({
             autoComplete="off"
             disabled={pending}
             onChange={(event) => {
-              setName(event.target.value);
+              setName(clip(event.target.value, NAME_MAX_LENGTH));
               setGap("");
             }}
           />
+          <CharLeft value={name} max={NAME_MAX_LENGTH} />
           {gap ? <span className="farm-form__gap">{gap}</span> : null}
         </label>
       </div>

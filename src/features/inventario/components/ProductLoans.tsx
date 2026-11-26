@@ -5,6 +5,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useEffect, useState, type FormEvent } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import { displayQuantity } from "../services/equivalence.ts";
@@ -93,6 +94,7 @@ export function LendWindow({
             }}
             disabled={pending}
           />
+          <CharLeft value={documentNumber} max={15} />
           {gaps.document ? <span className="field-miss">{gaps.document}</span> : null}
         </label>
         <label className={gaps.quantity ? "inv-form__field is-miss" : "inv-form__field"}>

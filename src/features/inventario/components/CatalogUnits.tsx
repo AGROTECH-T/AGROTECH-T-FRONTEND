@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState, type FormEvent } from "react";
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { matchesCatalogQuery } from "../services/catalogSearch.ts";
 import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
@@ -248,6 +249,7 @@ export function CatalogUnits({
                 <label className={gaps.editName ? "is-miss" : ""}>
                   <span>¿Qué unidad es?</span>
                   <input type="text" maxLength={80} value={draft} onChange={(event) => { setDraft(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
+                  <CharLeft value={draft} max={80} />
                   {gaps.editName ? <span className="field-miss">{gaps.editName}</span> : null}
                 </label>
                 <p className="easy-hint">
@@ -323,6 +325,7 @@ export function CatalogUnits({
               onChange={(event) => { setLabel(event.target.value); setGaps((current) => ({ ...current, name: "" })); }}
               disabled={pending}
             />
+            <CharLeft value={label} max={80} />
             {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
           </label>
           <label>

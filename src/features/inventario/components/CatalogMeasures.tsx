@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState, type FormEvent } from "react";
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { matchesCatalogQuery } from "../services/catalogSearch.ts";
 import { slicePage } from "../services/paging.ts";
 import { roleLabel } from "../../farms/services/roleLabel.ts";
@@ -213,11 +214,13 @@ export function CatalogMeasures({
                 <label className={gaps.editName ? "is-miss" : ""}>
                   <span>¿Cómo se llama? Ahí va kilo, litro o unidad.</span>
                   <input value={editName} maxLength={60} placeholder="Kilo" onChange={(event) => { setEditName(event.target.value); setGaps((current) => ({ ...current, editName: "" })); }} />
+                  <CharLeft value={editName} max={60} />
                   {gaps.editName ? <span className="field-miss">{gaps.editName}</span> : null}
                 </label>
                 <label className={gaps.editSymbol ? "is-miss" : ""}>
                   <span>¿Qué se escribe al lado del número? Ahí va kg, L o u.</span>
                   <input value={editSymbol} maxLength={10} placeholder="kg" onChange={(event) => { setEditSymbol(event.target.value); setGaps((current) => ({ ...current, editSymbol: "" })); }} />
+                  <CharLeft value={editSymbol} max={10} />
                   {gaps.editSymbol ? <span className="field-miss">{gaps.editSymbol}</span> : null}
                 </label>
                 <div className="easy-chips">
@@ -279,6 +282,7 @@ export function CatalogMeasures({
               onChange={(event) => { setName(event.target.value); setGaps((current) => ({ ...current, name: "" })); }}
               disabled={pending}
             />
+            <CharLeft value={name} max={60} />
             {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
           </label>
           <label className={gaps.symbol ? "is-miss" : ""}>
@@ -290,6 +294,7 @@ export function CatalogMeasures({
               onChange={(event) => { setSymbol(event.target.value); setGaps((current) => ({ ...current, symbol: "" })); }}
               disabled={pending}
             />
+            <CharLeft value={symbol} max={10} />
             {gaps.symbol ? <span className="field-miss">{gaps.symbol}</span> : null}
           </label>
           <div className="easy-chips">

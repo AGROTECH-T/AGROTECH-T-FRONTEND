@@ -11,6 +11,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { BackButton } from "../../../components/ui/BackButton.tsx";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog.tsx";
@@ -292,6 +293,7 @@ export function FarmDetail({
                 disabled={pending}
                 autoComplete="off"
               />
+              <CharLeft value={name} max={100} />
             </label>
           </div>
           {gap ? <span className="farm-form__gap">{gap}</span> : null}

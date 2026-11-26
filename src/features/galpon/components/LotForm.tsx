@@ -7,6 +7,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useState } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import type { House, Lot, LotDraft } from "../types/index.ts";
@@ -214,6 +215,7 @@ export function LotForm({
                 placeholder="L-2026-01"
                 maxLength={40}
               />
+              <CharLeft value={draft.code} max={40} />
             </Field>
             <Field label="Llegada" error={gaps.arrived_at} required>
               <input
@@ -248,6 +250,7 @@ export function LotForm({
                 placeholder="Nombre de quien recibió"
                 maxLength={80}
               />
+              <CharLeft value={draft.receiver_name} max={80} />
             </Field>
           </div>
         </fieldset>
@@ -275,6 +278,7 @@ export function LotForm({
                     placeholder="Quién trajo las aves"
                     maxLength={120}
                   />
+                  <CharLeft value={draft.supplier} max={120} />
                 </Field>
                 <Field label="Documentos">
                   <input
@@ -283,6 +287,7 @@ export function LotForm({
                     placeholder="Factura o guía"
                     maxLength={200}
                   />
+                  <CharLeft value={draft.documents} max={200} />
                 </Field>
                 <NumberField
                   label="Edad inicial (días)"
@@ -306,6 +311,7 @@ export function LotForm({
                     placeholder="Iniciador"
                     maxLength={80}
                   />
+                  <CharLeft value={draft.feed_type} max={80} />
                 </Field>
               </div>
             </fieldset>

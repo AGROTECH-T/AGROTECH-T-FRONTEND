@@ -11,7 +11,7 @@ import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx"
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { postJson } from "../../../services/api/client.ts";
 import { fetchAccount, login } from "../services/account.ts";
-import { digitsMessage, lettersMessage, mailMessage, passwordMessage, reviewField } from "../services/fieldRules.ts";
+import { ACCOUNT_MAX, digitsMessage, lettersMessage, mailMessage, passwordMessage, reviewField, typedMessage, type AccountKind } from "../services/fieldRules.ts";
 import { loginPayload } from "../services/payload.ts";
 import { saveToken } from "../services/session.ts";
 import type { Account } from "../types/index.ts";
@@ -40,9 +40,9 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
   const [pending, setPending] = useState(false);
   const notices = useNotices();
 
-  const edit = (key: string, setValue: (value: string) => void) => (value: string) => {
+  const edit = (key: string, kind: AccountKind, setValue: (value: string) => void) => (value: string) => {
     setValue(value);
-    setGaps((current) => ({ ...current, [key]: "" }));
+    setGaps((current) => ({ ...current, [key]: typedMessage(kind, value) }));
   };
 
   const register = async () => {
@@ -103,15 +103,15 @@ export function SignUpForm({ onSignIn, onSuccess }: Readonly<Props>) {
         <p>Unos datos y ya puedes entrar a tu finca.</p>
       </header>
       <div className="field-row">
-        <TextField id="first-name" label="Primer nombre" icon="user" placeholder="Ana" value={firstName} autoComplete="given-name" message={gaps.firstName} onChange={edit("firstName", setFirstName)} />
-        <TextField id="last-name" label="Primer apellido" icon="user" placeholder="García" value={lastName} autoComplete="family-name" message={gaps.lastName} onChange={edit("lastName", setLastName)} />
+        <TextField id="first-name" label="Primer nombre" icon="user" placeholder="Ana" max={ACCOUNT_MAX.name} value={firstName} autoComplete="given-name" message={gaps.firstName} onChange={edit("firstName", "name", setFirstName)} />
+        <TextField id="last-name" label="Primer apellido" icon="user" placeholder="García" max={ACCOUNT_MAX.lastName} value={lastName} autoComplete="family-name" message={gaps.lastName} onChange={edit("lastName", "lastName", setLastName)} />
       </div>
-      <TextField id="signup-id" label="N.º de identificación" icon="user" placeholder="1234567890" value={identification} autoComplete="off" message={gaps.identification} onChange={edit("identification", setIdentification)} />
+      <TextField id="signup-id" label="N.º de identificación" icon="user" placeholder="1234567890" max={ACCOUNT_MAX.identification} value={identification} autoComplete="off" message={gaps.identification} onChange={edit("identification", "identification", setIdentification)} />
       <div className="field-row">
-        <TextField id="phone" label="Celular" icon="phone" placeholder="3001234567" value={phone} autoComplete="tel" message={gaps.phone} onChange={edit("phone", setPhone)} />
-        <TextField id="correo" label="Correo" icon="mail" type="email" placeholder="ana@correo.com" value={correo} autoComplete="email" message={gaps.correo} onChange={edit("correo", setCorreo)} />
+        <TextField id="phone" label="Celular" icon="phone" placeholder="3001234567" max={ACCOUNT_MAX.phone} value={phone} autoComplete="tel" message={gaps.phone} onChange={edit("phone", "phone", setPhone)} />
+        <TextField id="correo" label="Correo" icon="mail" type="email" placeholder="ana@correo.com" max={ACCOUNT_MAX.mail} value={correo} autoComplete="email" message={gaps.correo} onChange={edit("correo", "mail", setCorreo)} />
       </div>
-      <TextField id="signup-password" label="Contraseña" icon="lock" type="password" value={password} autoComplete="new-password" message={gaps.password} onChange={edit("password", setPassword)} />
+      <TextField id="signup-password" label="Contraseña" icon="lock" type="password" max={ACCOUNT_MAX.password} value={password} autoComplete="new-password" message={gaps.password} onChange={edit("password", "password", setPassword)} />
       {password ? <PasswordGuide value={password} /> : null}
       <button type="submit" className="solid" disabled={pending}>
         {pending ? "Creando" : "+ Crear cuenta"}

@@ -11,6 +11,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import "../../../styles/invitation-code.css";
@@ -94,6 +95,7 @@ export function InvitationCodeView(props: Readonly<ViewProps>) {
               disabled={busy}
               onChange={(event) => props.onCodeChange(event.target.value)}
             />
+            <CharLeft value={code} max={CODE_MAX_LENGTH} />
           </label>
         </div>
       ) : null}

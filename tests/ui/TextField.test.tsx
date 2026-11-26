@@ -87,4 +87,24 @@ describe("TextField", () => {
 
     expect(onChange).toHaveBeenCalledWith("Ana");
   });
+
+  it("corta al máximo y muestra cuántos faltan", () => {
+    const onChange = vi.fn();
+    render(
+      <TextField
+        id="nombres"
+        label="Primer nombre"
+        value="Ana"
+        max={5}
+        autoComplete="given-name"
+        onChange={onChange}
+      />,
+    );
+
+    expect(screen.getByText("2 restantes")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Primer nombre"), {
+      target: { value: "Anabel" },
+    });
+    expect(onChange).toHaveBeenCalledWith("Anabe");
+  });
 });

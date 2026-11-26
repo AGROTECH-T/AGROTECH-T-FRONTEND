@@ -8,6 +8,34 @@
 
 import { passwordRules } from "./passwordRules.ts";
 
+export const ACCOUNT_MAX = {
+  name: 40,
+  lastName: 40,
+  identification: 15,
+  phone: 15,
+  mail: 254,
+  password: 72,
+  loginPassword: 72,
+} as const;
+
+export type AccountKind = keyof typeof ACCOUNT_MAX;
+
+/**
+ * Aviso del campo mientras se escribe.
+ * @param kind - Qué dato es.
+ * @param value - Texto actual.
+ * @returns El aviso, o vacío si ya cumple.
+ */
+export function typedMessage(kind: AccountKind, value: string): string {
+  if (kind === "name") return lettersMessage(value, "Ana");
+  if (kind === "lastName") return lettersMessage(value, "García");
+  if (kind === "identification") return digitsMessage(value, "1234567890", 5, 15);
+  if (kind === "phone") return digitsMessage(value, "3001234567", 7, 15);
+  if (kind === "mail") return mailMessage(value);
+  if (kind === "loginPassword") return loginPasswordMessage(value);
+  return passwordMessage(value);
+}
+
 const LETTERS = /^\p{L}+(?: \p{L}+)*$/u;
 const MAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD = "8 caracteres, una mayúscula, una minúscula, un número y un signo.";

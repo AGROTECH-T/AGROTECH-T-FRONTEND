@@ -11,7 +11,7 @@ import { FieldIcon } from "../../../components/ui/FieldIcon.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { fetchAccount, login } from "../services/account.ts";
-import { digitsMessage, loginPasswordMessage, reviewField } from "../services/fieldRules.ts";
+import { ACCOUNT_MAX, digitsMessage, loginPasswordMessage, reviewField, typedMessage } from "../services/fieldRules.ts";
 import { loginPayload } from "../services/payload.ts";
 import { saveToken } from "../services/session.ts";
 import type { Account } from "../types/index.ts";
@@ -39,9 +39,10 @@ export function SignInForm({ notice, onForgot, onSignUp, onSuccess }: Readonly<P
     if (notice) notices.push([notice], "ok");
   }, [notice]);
 
-  const edit = (key: string, setValue: (value: string) => void) => (value: string) => {
+  const edit = (key: "identification" | "password", setValue: (value: string) => void) => (value: string) => {
     setValue(value);
-    setGaps((current) => ({ ...current, [key]: "" }));
+    const kind = key === "identification" ? "identification" : "loginPassword";
+    setGaps((current) => ({ ...current, [key]: typedMessage(kind, value) }));
   };
 
   const enter = async () => {
@@ -89,8 +90,8 @@ export function SignInForm({ notice, onForgot, onSignUp, onSuccess }: Readonly<P
         <h2 id="signin-title">Ingresar</h2>
         <p>Qué bueno verte de nuevo.</p>
       </header>
-      <TextField id="login-id" label="N.º de identificación" icon="user" placeholder="1234567890" value={identification} autoComplete="username" message={gaps.identification} onChange={edit("identification", setIdentification)} />
-      <TextField id="login-password" label="Contraseña" icon="lock" type="password" value={password} autoComplete="current-password" message={gaps.password} onChange={edit("password", setPassword)} />
+      <TextField id="login-id" label="N.º de identificación" icon="user" placeholder="1234567890" max={ACCOUNT_MAX.identification} value={identification} autoComplete="username" message={gaps.identification} onChange={edit("identification", setIdentification)} />
+      <TextField id="login-password" label="Contraseña" icon="lock" type="password" max={ACCOUNT_MAX.loginPassword} value={password} autoComplete="current-password" message={gaps.password} onChange={edit("password", setPassword)} />
       <button type="button" className="text-link" onClick={onForgot}>Olvidé mi contraseña</button>
       <button type="submit" className="solid" disabled={pending}>{pending ? "Ingresando" : "Entrar a mi finca →"}</button>
       <button type="button" className="auth-switch" onClick={onSignUp}>+ Crear cuenta</button>

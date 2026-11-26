@@ -7,6 +7,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useState } from "react";
 import { FormWindow } from "../../../components/ui/FormWindow.tsx";
 import type { LotEvent } from "../types/index.ts";
@@ -252,6 +253,7 @@ export function EventForm({
                 placeholder="Nombre de quien anota"
                 maxLength={80}
               />
+              <CharLeft value={draft.responsible} max={80} />
             </Field>
             {pideValor ? (
               <NumberField
@@ -340,6 +342,7 @@ export function EventForm({
                   placeholder="Nombre del producto"
                   maxLength={80}
                 />
+                <CharLeft value={draft.product} max={80} />
               </Field>
               <Field label="Quién lo indicó" error={gaps.prescriptor}>
                 <input
@@ -348,6 +351,7 @@ export function EventForm({
                   placeholder="Nombre del veterinario"
                   maxLength={80}
                 />
+                <CharLeft value={draft.prescriptor} max={80} />
               </Field>
             </div>
           </fieldset>

@@ -5,6 +5,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useEffect, useState, type FormEvent } from "react";
 import { createBaseUnit, createCategory, createCustomUnit, getInventoryCatalog } from "../services/inventoryApi.ts";
 import type { InventoryCatalog } from "../types/index.ts";
@@ -140,6 +141,7 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
                 onChange={(event) => { setMeasureName(event.target.value); setGaps((current) => ({ ...current, measureName: "" })); }}
                 disabled={pending}
               />
+              <CharLeft value={measureName} max={60} />
               <input
                 value={symbol}
                 maxLength={10}
@@ -147,6 +149,7 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
                 onChange={(event) => { setSymbol(event.target.value); setGaps((current) => ({ ...current, symbol: "" })); }}
                 disabled={pending}
               />
+              <CharLeft value={symbol} max={10} />
               <button type="button" className={decimals ? "easy-chip" : "easy-chip is-on"} onClick={() => setDecimals(false)}>
                 Número entero
               </button>
@@ -169,6 +172,7 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
             onChange={(event) => { setCountName(event.target.value); setGaps((current) => ({ ...current, countName: "" })); }}
             disabled={pending}
           />
+          <CharLeft value={countName} max={80} />
         </div>
       </div>
       {gaps.countName ? <p className="field-miss">{gaps.countName}</p> : null}
@@ -197,13 +201,16 @@ export function CatalogChain({ farmId, onNotice, onSaved }: Readonly<Props>) {
             ))}
           </select>
           {group === "nuevo" ? (
-            <input
-              value={groupName}
-              maxLength={80}
-              placeholder="Semilla, abono o herramienta"
-              onChange={(event) => { setGroupName(event.target.value); setGaps((current) => ({ ...current, groupName: "" })); }}
-              disabled={pending}
-            />
+            <>
+              <input
+                value={groupName}
+                maxLength={80}
+                placeholder="Semilla, abono o herramienta"
+                onChange={(event) => { setGroupName(event.target.value); setGaps((current) => ({ ...current, groupName: "" })); }}
+                disabled={pending}
+              />
+              <CharLeft value={groupName} max={80} />
+            </>
           ) : null}
         </div>
       </div>

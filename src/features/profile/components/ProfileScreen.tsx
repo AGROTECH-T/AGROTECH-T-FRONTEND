@@ -13,10 +13,13 @@ import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx"
 import { TextField } from "../../../components/ui/TextField.tsx";
 import { updateAccount } from "../../auth/services/account.ts";
 import {
+  ACCOUNT_MAX,
   digitsMessage,
   lettersMessage,
   mailMessage,
   reviewField,
+  typedMessage,
+  type AccountKind,
 } from "../../auth/services/fieldRules.ts";
 import { readToken } from "../../auth/services/session.ts";
 import type { Account, ProfileUpdate } from "../../auth/types/index.ts";
@@ -72,9 +75,9 @@ export function ProfileScreen({ account, onAccountChange }: Readonly<Props>) {
   const active = account.is_active;
   const statusClass = active ? "profile-status is-on" : "profile-status is-off";
 
-  const edit = (key: keyof ProfileUpdate) => (value: string) => {
+  const edit = (key: keyof ProfileUpdate, kind: AccountKind) => (value: string) => {
     setForm((current) => ({ ...current, [key]: value }));
-    setGaps((current) => ({ ...current, [key]: "" }));
+    setGaps((current) => ({ ...current, [key]: typedMessage(kind, value) }));
   };
 
   const start = () => {
@@ -151,41 +154,45 @@ export function ProfileScreen({ account, onAccountChange }: Readonly<Props>) {
             </header>
             <div className="profile-form__grid">
               <TextField
-              id="perfil-nombres"
-              label="Primer nombre"
+                id="perfil-nombres"
+                label="Primer nombre"
                 icon="user"
+                max={ACCOUNT_MAX.name}
                 value={form.first_name}
                 autoComplete="given-name"
                 message={gaps.first_name}
-                onChange={edit("first_name")}
+                onChange={edit("first_name", "name")}
               />
               <TextField
-              id="perfil-apellidos"
-              label="Primer apellido"
+                id="perfil-apellidos"
+                label="Primer apellido"
                 icon="user"
+                max={ACCOUNT_MAX.lastName}
                 value={form.last_name}
                 autoComplete="family-name"
                 message={gaps.last_name}
-                onChange={edit("last_name")}
+                onChange={edit("last_name", "lastName")}
               />
               <TextField
                 id="perfil-correo"
                 label="Correo"
                 type="email"
                 icon="mail"
+                max={ACCOUNT_MAX.mail}
                 value={form.correo}
                 autoComplete="email"
                 message={gaps.correo}
-                onChange={edit("correo")}
+                onChange={edit("correo", "mail")}
               />
               <TextField
                 id="perfil-celular"
                 label="Celular"
                 icon="phone"
+                max={ACCOUNT_MAX.phone}
                 value={form.phone}
                 autoComplete="tel"
                 message={gaps.phone}
-                onChange={edit("phone")}
+                onChange={edit("phone", "phone")}
               />
               <div className="field profile-form__locked">
                 <label htmlFor="perfil-documento">Documento</label>

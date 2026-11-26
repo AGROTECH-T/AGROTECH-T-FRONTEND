@@ -13,11 +13,14 @@ import { TextField } from "../../../components/ui/TextField.tsx";
 import { ConfirmModal } from "../../inventario/components/ConfirmModal.tsx";
 import { PasswordGuide } from "../../auth/components/PasswordGuide.tsx";
 import {
+  ACCOUNT_MAX,
   digitsMessage,
   lettersMessage,
   mailMessage,
   passwordMessage,
   reviewField,
+  typedMessage,
+  type AccountKind,
 } from "../../auth/services/fieldRules.ts";
 import {
   ADMIN_PAGE_SIZE,
@@ -80,9 +83,9 @@ export function SuperadminPanel() {
     };
   }, []);
 
-  function cambiar(campo: keyof NuevoAdministrador, valor: string) {
+  function cambiar(campo: keyof NuevoAdministrador, kind: AccountKind, valor: string) {
     setDatos((actual) => ({ ...actual, [campo]: valor }));
-    setHuecos((actual) => ({ ...actual, [campo]: "" }));
+    setHuecos((actual) => ({ ...actual, [campo]: typedMessage(kind, valor) }));
   }
 
   async function promover(cuenta: CuentaPlataforma) {
@@ -192,15 +195,15 @@ export function SuperadminPanel() {
               <p>Queda con todos los permisos para crear fincas y trabajadores.</p>
             </header>
             <div className="field-row">
-              <TextField id="admin-nombre" label="Primer nombre" icon="user" placeholder="Ana" value={datos.first_name} autoComplete="given-name" message={huecos.first_name} onChange={(valor) => cambiar("first_name", valor)} />
-              <TextField id="admin-apellido" label="Primer apellido" icon="user" placeholder="García" value={datos.last_name} autoComplete="family-name" message={huecos.last_name} onChange={(valor) => cambiar("last_name", valor)} />
+              <TextField id="admin-nombre" label="Primer nombre" icon="user" placeholder="Ana" max={ACCOUNT_MAX.name} value={datos.first_name} autoComplete="given-name" message={huecos.first_name} onChange={(valor) => cambiar("first_name", "name", valor)} />
+              <TextField id="admin-apellido" label="Primer apellido" icon="user" placeholder="García" max={ACCOUNT_MAX.lastName} value={datos.last_name} autoComplete="family-name" message={huecos.last_name} onChange={(valor) => cambiar("last_name", "lastName", valor)} />
             </div>
-            <TextField id="admin-documento" label="N.º de identificación" icon="user" placeholder="1234567890" value={datos.identification} autoComplete="off" message={huecos.identification} onChange={(valor) => cambiar("identification", valor)} />
+            <TextField id="admin-documento" label="N.º de identificación" icon="user" placeholder="1234567890" max={ACCOUNT_MAX.identification} value={datos.identification} autoComplete="off" message={huecos.identification} onChange={(valor) => cambiar("identification", "identification", valor)} />
             <div className="field-row">
-              <TextField id="admin-celular" label="Celular" icon="phone" placeholder="3001234567" value={datos.phone} autoComplete="tel" message={huecos.phone} onChange={(valor) => cambiar("phone", valor)} />
-              <TextField id="admin-correo" label="Correo" icon="mail" type="email" placeholder="ana@correo.com" value={datos.correo} autoComplete="email" message={huecos.correo} onChange={(valor) => cambiar("correo", valor)} />
+              <TextField id="admin-celular" label="Celular" icon="phone" placeholder="3001234567" max={ACCOUNT_MAX.phone} value={datos.phone} autoComplete="tel" message={huecos.phone} onChange={(valor) => cambiar("phone", "phone", valor)} />
+              <TextField id="admin-correo" label="Correo" icon="mail" type="email" placeholder="ana@correo.com" max={ACCOUNT_MAX.mail} value={datos.correo} autoComplete="email" message={huecos.correo} onChange={(valor) => cambiar("correo", "mail", valor)} />
             </div>
-            <TextField id="admin-clave" label="Contraseña" icon="lock" type="password" value={datos.password} autoComplete="new-password" message={huecos.password} onChange={(valor) => cambiar("password", valor)} />
+            <TextField id="admin-clave" label="Contraseña" icon="lock" type="password" max={ACCOUNT_MAX.password} value={datos.password} autoComplete="new-password" message={huecos.password} onChange={(valor) => cambiar("password", "password", valor)} />
             {datos.password ? <PasswordGuide value={datos.password} /> : null}
             <button type="submit" className="btn-primary" disabled={guardando}>
               Guardar administrador

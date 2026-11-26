@@ -12,6 +12,7 @@
  * @author Cristian Deysdayr Jimenez
  */
 
+import { CharLeft } from "../../../components/ui/CharLeft.tsx";
 import { useEffect, useReducer, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { ConfirmDialog } from "../../../components/ui/ConfirmDialog.tsx";
 import { fetchRolesPermisos } from "../../configuracion/services/rolesPermisos.ts";
@@ -520,6 +521,7 @@ export function FarmInvitations({
                 setFieldErrors((current) => ({ ...current, email: undefined }));
               }}
             />
+            <CharLeft value={email} max={254} />
             {fieldErrors.email ? (
               <span className="farm-form__gap">{fieldErrors.email}</span>
             ) : null}
