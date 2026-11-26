@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { FarmInvitations } from "../../farms/components/FarmInvitations.tsx";
-import { listFarms } from "../../farms/services/farmsApi.ts";
+import { farmsNow, listFarms } from "../../farms/services/farmsApi.ts";
 import { canManageInvitations } from "../../farms/services/invitationAdmin.ts";
 import type { Farm } from "../../farms/types/index.ts";
 
@@ -18,9 +18,11 @@ import type { Farm } from "../../farms/types/index.ts";
  * @returns Panel de invitaciones de Configuración.
  */
 export function InvitacionesPanel() {
-  const [farms, setFarms] = useState<Farm[]>([]);
-  const [farmId, setFarmId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+  const known = farmsNow();
+  const managedNow = known?.filter((farm) => canManageInvitations(farm)) ?? [];
+  const [farms, setFarms] = useState<Farm[]>(() => known ?? []);
+  const [farmId, setFarmId] = useState<number | null>(managedNow[0]?.id ?? null);
+  const [loading, setLoading] = useState(known == null);
   const [error, setError] = useState("");
   const notices = useNotices();
 
@@ -28,7 +30,7 @@ export function InvitacionesPanel() {
   const selected = managed.find((farm) => farm.id === farmId) ?? null;
 
   const loadFarms = useCallback(async () => {
-    setLoading(true);
+    if (farmsNow() == null) setLoading(true);
     setError("");
     try {
       const items = await listFarms();

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { ApiError } from "../../../services/api/client.ts";
-import { listFarms } from "../../farms/services/farmsApi.ts";
+import { farmsNow, listFarms } from "../../farms/services/farmsApi.ts";
 import type { Farm } from "../../farms/types/index.ts";
 import {
   IotRequestGuard,
   listAllIot,
   listIot,
+  sensorsNow,
   type IotCoordinator,
   type IotDevice,
   type IotPage,
@@ -15,6 +16,7 @@ import {
 } from "../services/iotApi.ts";
 import {
   adjustedOriginalText,
+  cachedIotView,
   initialIotQuery,
   iotQueryReducer,
   iotRequestPlan,
@@ -90,17 +92,21 @@ function ReadingsTable({ readings }: { readings: readonly IotReading[] }) {
 }
 
 export function IotScreen() {
-  const [farms, setFarms] = useState<Farm[]>([]);
-  const [farmId, setFarmId] = useState<number | null>(null);
-  const [farmLoading, setFarmLoading] = useState(true);
+  const knownFarms = farmsNow();
+  const startFarm = knownFarms?.[0]?.id ?? null;
+  const seeded = startFarm != null ? cachedIotView(startFarm, initialIotQuery) : null;
+  const seededSensors = startFarm != null ? sensorsNow(startFarm) : null;
+  const [farms, setFarms] = useState<Farm[]>(() => knownFarms ?? []);
+  const [farmId, setFarmId] = useState<number | null>(startFarm);
+  const [farmLoading, setFarmLoading] = useState(knownFarms == null);
   const [farmError, setFarmError] = useState("");
   const [query, dispatch] = useReducer(iotQueryReducer, initialIotQuery);
-  const [data, setData] = useState<Partial<Record<IotResource, IotPage>>>({});
+  const [data, setData] = useState<Partial<Record<IotResource, IotPage>>>(() => seeded ?? {});
   const [refreshedAt, setRefreshedAt] = useState<number | null>(null);
-  const [sensorData, setSensorData] = useState<IotPage<IotSensor> | null>(null);
-  const [sensorLoading, setSensorLoading] = useState(false);
+  const [sensorData, setSensorData] = useState<IotPage<IotSensor> | null>(seededSensors);
+  const [sensorLoading, setSensorLoading] = useState(startFarm != null && seededSensors == null);
   const [sensorError, setSensorError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(startFarm != null && seeded == null);
   const [showReadings, setShowReadings] = useState(false);
   const [error, setError] = useState("");
   const requestGuard = useRef(new IotRequestGuard());
@@ -111,7 +117,7 @@ export function IotScreen() {
 
   const loadFarms = useCallback(async () => {
     const request = farmListGuard.current.begin();
-    setFarmLoading(true);
+    if (farmsNow() == null) setFarmLoading(true);
     setFarmError("");
     try {
       const available = await listFarms();
@@ -175,9 +181,15 @@ export function IotScreen() {
 
   useEffect(() => {
     const request = sensorGuard.current.begin();
-    setSensorData(null);
     setSensorError("");
-    setSensorLoading(farmId !== null && !farmLoading);
+    const knownSensors = farmId != null ? sensorsNow(farmId) : null;
+    if (knownSensors) {
+      setSensorData(knownSensors);
+      setSensorLoading(false);
+    } else {
+      setSensorData(null);
+      setSensorLoading(farmId !== null && !farmLoading);
+    }
     if (farmId === null || farmLoading) return;
 
     const selectedId = farmId;
@@ -205,7 +217,9 @@ export function IotScreen() {
     const selectedId = farmId;
     if (selectedId === null) return;
     const request = requestGuard.current.begin();
-    setLoading(true);
+    const ready = cachedIotView(selectedId, target);
+    if (ready) setData((current) => ({ ...current, ...ready }));
+    else setLoading(true);
     setError("");
 
     try {
@@ -242,10 +256,13 @@ export function IotScreen() {
   // Reacts to query changes (including page) by loading; it must not write the query.
   useEffect(() => {
     requestGuard.current.invalidate();
-    setData({});
     setError("");
-    if (farmId !== null && !farmLoading) void load(query);
-    else setLoading(false);
+    if (farmId !== null && !farmLoading) {
+      const ready = cachedIotView(farmId, query);
+      if (ready) setData((current) => ({ ...current, ...ready }));
+      else setData({});
+      void load(query);
+    } else setLoading(false);
   }, [farmId, farmLoading, load, query]);
 
   const readings = (data.readings?.results ?? []) as IotReading[];

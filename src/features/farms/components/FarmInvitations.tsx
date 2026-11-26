@@ -58,6 +58,7 @@ import {
   cancelInvitation,
   changeInvitationRole,
   createInvitation,
+  invitationsNow,
   listInvitations,
   resendInvitation,
 } from "../services/invitationsApi.ts";
@@ -141,10 +142,11 @@ export function FarmInvitations({
   initialEditingRoleId,
   initialFailedDelivery = [],
 }: Readonly<Props>) {
+  const seededInvitations = initialInvitations ?? invitationsNow(farmId);
   const [invitations, setInvitations] = useState<FarmInvitation[] | null>(
-    initialInvitations ?? null,
+    seededInvitations ?? null,
   );
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(seededInvitations == null && initialInvitations === undefined);
   const [listError, setListError] = useState("");
   const [email, setEmail] = useState(initialEmail);
   const [role, setRole] = useState<FarmRole | null>(initialRole);
@@ -181,7 +183,7 @@ export function FarmInvitations({
 
   async function load() {
     const requestId = ++requestSeq.current;
-    setLoading(true);
+    if (invitationsNow(farmId) == null && initialInvitations === undefined) setLoading(true);
     setListError("");
     try {
       const result = await api.listInvitations(farmId);

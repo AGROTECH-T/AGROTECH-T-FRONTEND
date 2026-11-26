@@ -14,9 +14,11 @@ import {
   cambiarEstado,
   cambiarRol,
   crearUsuario,
+  asignacionNow,
   fetchAsignacion,
   fetchPersona,
   fetchRolesPermisos,
+  rolesNow,
   quitarPermiso,
 } from "../services/rolesPermisos.ts";
 import type { CatalogoRoles, FincaAsignable, NuevoUsuario, RolId, UsuarioAsignado } from "../types/index.ts";
@@ -30,10 +32,12 @@ type Vista = "lista" | "detalle" | "crear";
  * @returns Roles y permisos.
  */
 export function AsignacionRoles() {
-  const [usuarios, setUsuarios] = useState<UsuarioAsignado[]>([]);
-  const [fincas, setFincas] = useState<FincaAsignable[]>([]);
-  const [catalogo, setCatalogo] = useState<CatalogoRoles | null>(null);
-  const [puedo, setPuedo] = useState(true);
+  const knownPeople = asignacionNow();
+  const knownRoles = rolesNow();
+  const [usuarios, setUsuarios] = useState<UsuarioAsignado[]>(() => knownPeople?.usuarios ?? []);
+  const [fincas, setFincas] = useState<FincaAsignable[]>(() => knownPeople?.fincas ?? []);
+  const [catalogo, setCatalogo] = useState<CatalogoRoles | null>(knownRoles);
+  const [puedo, setPuedo] = useState(knownPeople?.puedo_asignar ?? true);
   const [vista, setVista] = useState<Vista>("lista");
   const [persona, setPersona] = useState<UsuarioAsignado | null>(null);
   const [busqueda, setBusqueda] = useState("");
@@ -41,7 +45,7 @@ export function AsignacionRoles() {
   const [filtroPermiso, setFiltroPermiso] = useState("");
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
-  const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(knownPeople == null || knownRoles == null);
   const notices = useNotices();
 
   useEffect(() => {

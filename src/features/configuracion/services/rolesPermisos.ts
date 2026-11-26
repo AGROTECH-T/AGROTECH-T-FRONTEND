@@ -8,6 +8,7 @@
 
 import { readToken } from "../../auth/services/session.ts";
 import { deleteJson, getJson, postJson, putJson } from "../../../services/api/client.ts";
+import { onSessionEnd } from "../../../services/sessionMemory.ts";
 import type {
   AsignacionRoles,
   CatalogoRoles,
@@ -17,13 +18,59 @@ import type {
 } from "../types/index.ts";
 
 const BASE = "/api/v1/configuracion";
+const FRESH_MS = 20_000;
+
+let rolesEntry: { promise: Promise<CatalogoRoles>; snap?: CatalogoRoles } | null = null;
+let peopleEntry: { at: number; promise: Promise<AsignacionRoles>; snap?: AsignacionRoles } | null = null;
+
+/** Personas ya cargadas para Configuración. */
+export function asignacionNow(): AsignacionRoles | null {
+  return peopleEntry?.snap ?? null;
+}
+
+/** Catálogo de roles ya cargado. */
+export function rolesNow(): CatalogoRoles | null {
+  return rolesEntry?.snap ?? null;
+}
+
+/** Obliga a volver a pedir personas y roles. */
+export function forgetAsignacion(): void {
+  peopleEntry = null;
+  rolesEntry = null;
+}
+
+/** Pide personas y roles antes de abrir Configuración. */
+export function preloadConfig(): void {
+  void fetchAsignacion();
+  void fetchRolesPermisos();
+}
+
+onSessionEnd(forgetAsignacion);
+
+function savedPeople<T>(work: Promise<T>): Promise<T> {
+  return work.then((value) => {
+    peopleEntry = null;
+    return value;
+  });
+}
 
 /**
  * Obtiene los roles, la matriz y los permisos que se pueden asignar.
  * @returns Catálogo completo listo para la pantalla.
  */
 export function fetchRolesPermisos(): Promise<CatalogoRoles> {
-  return getJson<CatalogoRoles>(`${BASE}/roles-permisos/`, readToken());
+  if (rolesEntry) return rolesEntry.promise;
+  const promise = getJson<CatalogoRoles>(`${BASE}/roles-permisos/`, readToken())
+    .then((data) => {
+      if (rolesEntry?.promise === promise) rolesEntry.snap = data;
+      return data;
+    })
+    .catch((error: unknown) => {
+      if (rolesEntry?.promise === promise) rolesEntry = null;
+      throw error;
+    });
+  rolesEntry = { promise };
+  return promise;
 }
 
 /**
@@ -33,7 +80,20 @@ export function fetchRolesPermisos(): Promise<CatalogoRoles> {
  */
 export function fetchAsignacion(search = ""): Promise<AsignacionRoles> {
   const query = search ? `?search=${encodeURIComponent(search)}` : "";
-  return getJson<AsignacionRoles>(`${BASE}/usuarios/${query}`, readToken());
+  if (search) return getJson<AsignacionRoles>(`${BASE}/usuarios/${query}`, readToken());
+  if (peopleEntry && Date.now() - peopleEntry.at < FRESH_MS) return peopleEntry.promise;
+  const at = Date.now();
+  const promise = getJson<AsignacionRoles>(`${BASE}/usuarios/`, readToken())
+    .then((data) => {
+      if (peopleEntry?.promise === promise) peopleEntry.snap = data;
+      return data;
+    })
+    .catch((error: unknown) => {
+      if (peopleEntry?.promise === promise) peopleEntry = null;
+      throw error;
+    });
+  peopleEntry = { at, promise };
+  return promise;
 }
 
 /**
@@ -51,7 +111,7 @@ export function fetchPersona(userId: number): Promise<UsuarioAsignado> {
  * @returns Ficha creada.
  */
 export function crearUsuario(datos: NuevoUsuario): Promise<UsuarioAsignado> {
-  return postJson<UsuarioAsignado>(`${BASE}/usuarios/`, datos, readToken());
+  return savedPeople(postJson<UsuarioAsignado>(`${BASE}/usuarios/`, datos, readToken()));
 }
 
 /**
@@ -62,10 +122,12 @@ export function crearUsuario(datos: NuevoUsuario): Promise<UsuarioAsignado> {
  * @returns Ficha actualizada.
  */
 export function cambiarRol(userId: number, farmId: number, role: RolId): Promise<UsuarioAsignado> {
-  return putJson<UsuarioAsignado>(
-    `${BASE}/usuarios/${userId}/rol/`,
-    { farm_id: farmId, role },
-    readToken(),
+  return savedPeople(
+    putJson<UsuarioAsignado>(
+      `${BASE}/usuarios/${userId}/rol/`,
+      { farm_id: farmId, role },
+      readToken(),
+    ),
   );
 }
 
@@ -81,10 +143,12 @@ export function agregarPermiso(
   farmId: number,
   permission: string,
 ): Promise<UsuarioAsignado> {
-  return postJson<UsuarioAsignado>(
-    `${BASE}/usuarios/${userId}/permisos/`,
-    { farm_id: farmId, permission },
-    readToken(),
+  return savedPeople(
+    postJson<UsuarioAsignado>(
+      `${BASE}/usuarios/${userId}/permisos/`,
+      { farm_id: farmId, permission },
+      readToken(),
+    ),
   );
 }
 
@@ -101,8 +165,10 @@ export function quitarPermiso(
   permission: string,
 ): Promise<UsuarioAsignado> {
   const query = `?farm_id=${farmId}&permission=${encodeURIComponent(permission)}`;
-  return deleteJson(`${BASE}/usuarios/${userId}/permisos/${query}`, readToken()).then(() =>
-    fetchPersona(userId),
+  return savedPeople(
+    deleteJson(`${BASE}/usuarios/${userId}/permisos/${query}`, readToken()).then(() =>
+      fetchPersona(userId),
+    ),
   );
 }
 
@@ -113,9 +179,11 @@ export function quitarPermiso(
  * @returns Ficha actualizada.
  */
 export function cambiarEstado(userId: number, activo: boolean): Promise<UsuarioAsignado> {
-  return putJson<UsuarioAsignado>(
-    `${BASE}/usuarios/${userId}/estado/`,
-    { activo },
-    readToken(),
+  return savedPeople(
+    putJson<UsuarioAsignado>(
+      `${BASE}/usuarios/${userId}/estado/`,
+      { activo },
+      readToken(),
+    ),
   );
 }

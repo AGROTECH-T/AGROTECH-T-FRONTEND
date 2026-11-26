@@ -1,4 +1,5 @@
 import { getJson } from "../../../services/api/client.ts";
+import { onSessionEnd } from "../../../services/sessionMemory.ts";
 import { readToken } from "../../auth/services/session.ts";
 
 export type IotDevice = {
@@ -161,14 +162,78 @@ export function farmIsAccessible(farmId: number, farms: readonly { id: number }[
 export function iotPath(farmId: number, resource: IotResource): string {
   return `/api/v1/iot/farms/${farmId}/${resource}/`;
 }
+const IOT_FRESH_MS = 20_000;
+
+type IotEntry<T> = {
+  at: number;
+  promise: Promise<IotPage<T>>;
+  snap?: IotPage<T>;
+};
+
+const iotPages = new Map<string, IotEntry<IotRecord>>();
+const sensorLists = new Map<number, IotEntry<IotSensor>>();
+
+function iotKey(farmId: number, resource: IotResource, params: URLSearchParams): string {
+  return `${farmId}:${resource}:${params.toString()}`;
+}
+
+function isFresh(at: number): boolean {
+  return Date.now() - at < IOT_FRESH_MS;
+}
+
+/** Página ya traída, para pintar la pantalla sin esperar otra vez. */
+export function iotPageNow<T>(
+  farmId: number,
+  resource: IotResource,
+  params: URLSearchParams,
+): IotPage<T> | null {
+  return (iotPages.get(iotKey(farmId, resource, params))?.snap as IotPage<T> | undefined) ?? null;
+}
+
+/** Sensores ya reunidos de esa finca. */
+export function sensorsNow(farmId: number): IotPage<IotSensor> | null {
+  return sensorLists.get(farmId)?.snap ?? null;
+}
+
+/** Suelta las lecturas y dispositivos recordados. */
+export function forgetIot(farmId?: number): void {
+  if (farmId == null) {
+    iotPages.clear();
+    sensorLists.clear();
+    return;
+  }
+  const prefix = `${farmId}:`;
+  for (const key of iotPages.keys()) {
+    if (key.startsWith(prefix)) iotPages.delete(key);
+  }
+  sensorLists.delete(farmId);
+}
+
+onSessionEnd(() => forgetIot());
+
 export function listIot<T>(farmId: number, resource: IotResource, params: URLSearchParams): Promise<IotPage<T>> {
+  const key = iotKey(farmId, resource, params);
+  const current = iotPages.get(key);
+  if (current && isFresh(current.at)) return current.promise as Promise<IotPage<T>>;
   const query = params.size ? `?${params.toString()}` : "";
-  return getJson<IotPage<T>>(`${iotPath(farmId, resource)}${query}`, readToken());
+  const at = Date.now();
+  const promise = getJson<IotPage<T>>(`${iotPath(farmId, resource)}${query}`, readToken())
+    .then((page) => {
+      const entry = iotPages.get(key);
+      if (entry?.promise === promise) entry.snap = page as IotPage<IotRecord>;
+      return page;
+    })
+    .catch((error: unknown) => {
+      if (iotPages.get(key)?.promise === promise) iotPages.delete(key);
+      throw error;
+    });
+  iotPages.set(key, { at, promise: promise as Promise<IotPage<IotRecord>> });
+  return promise;
 }
 export const pageParams = (page = 1, pageSize = 20) => new URLSearchParams({ page: String(page), page_size: String(pageSize) });
 
 /** Reads every page for selectors that must offer all records, such as sensors. */
-export async function listAllIot<T>(farmId: number, resource: IotResource): Promise<IotPage<T>> {
+async function collectIot<T>(farmId: number, resource: IotResource): Promise<IotPage<T>> {
   let page = 1;
   let response = await listIot<T>(farmId, resource, pageParams(page, 100));
   const results = [...response.results];
@@ -178,4 +243,23 @@ export async function listAllIot<T>(farmId: number, resource: IotResource): Prom
     results.push(...response.results);
   }
   return { count: response.count, next: null, previous: null, results };
+}
+
+export async function listAllIot<T>(farmId: number, resource: IotResource): Promise<IotPage<T>> {
+  if (resource !== "sensors") return collectIot(farmId, resource);
+  const current = sensorLists.get(farmId);
+  if (current && isFresh(current.at)) return current.promise as Promise<IotPage<T>>;
+  const at = Date.now();
+  const promise = collectIot<IotSensor>(farmId, "sensors")
+    .then((page) => {
+      const entry = sensorLists.get(farmId);
+      if (entry?.promise === promise) entry.snap = page;
+      return page;
+    })
+    .catch((error: unknown) => {
+      if (sensorLists.get(farmId)?.promise === promise) sensorLists.delete(farmId);
+      throw error;
+    });
+  sensorLists.set(farmId, { at, promise });
+  return promise as Promise<IotPage<T>>;
 }

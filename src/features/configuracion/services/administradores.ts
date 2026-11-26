@@ -8,6 +8,7 @@
 
 import { readToken } from "../../auth/services/session.ts";
 import { getJson, postJson } from "../../../services/api/client.ts";
+import { onSessionEnd } from "../../../services/sessionMemory.ts";
 
 export type CuentaPlataforma = {
   id: number;
@@ -34,6 +35,26 @@ export type NuevoAdministrador = {
 
 const BASE = "/api/v1/configuracion/administradores/";
 
+let adminsEntry: { promise: Promise<ListaAdministradores>; snap?: ListaAdministradores } | null = null;
+
+/** Listas ya traídas del nombramiento. */
+export function administradoresNow(): ListaAdministradores | null {
+  return adminsEntry?.snap ?? null;
+}
+
+function forgetAdministradores(): void {
+  adminsEntry = null;
+}
+
+function savedAdmins<T>(work: Promise<T>): Promise<T> {
+  return work.then((value) => {
+    forgetAdministradores();
+    return value;
+  });
+}
+
+onSessionEnd(forgetAdministradores);
+
 /** Filas por página en pendientes y administradores. */
 export const ADMIN_PAGE_SIZE = 5;
 
@@ -42,7 +63,18 @@ export const ADMIN_PAGE_SIZE = 5;
  * @returns Listas separadas.
  */
 export function fetchAdministradores(): Promise<ListaAdministradores> {
-  return getJson<ListaAdministradores>(BASE, readToken());
+  if (adminsEntry) return adminsEntry.promise;
+  const promise = getJson<ListaAdministradores>(BASE, readToken())
+    .then((data) => {
+      if (adminsEntry?.promise === promise) adminsEntry.snap = data;
+      return data;
+    })
+    .catch((error: unknown) => {
+      if (adminsEntry?.promise === promise) adminsEntry = null;
+      throw error;
+    });
+  adminsEntry = { promise };
+  return promise;
 }
 
 /**
@@ -51,7 +83,7 @@ export function fetchAdministradores(): Promise<ListaAdministradores> {
  * @returns Ficha del administrador creado.
  */
 export function crearAdministrador(datos: NuevoAdministrador): Promise<CuentaPlataforma> {
-  return postJson<CuentaPlataforma>(BASE, datos, readToken());
+  return savedAdmins(postJson<CuentaPlataforma>(BASE, datos, readToken()));
 }
 
 /**
@@ -60,7 +92,7 @@ export function crearAdministrador(datos: NuevoAdministrador): Promise<CuentaPla
  * @returns Ficha actualizada.
  */
 export function promoverAdministrador(userId: number): Promise<CuentaPlataforma> {
-  return postJson<CuentaPlataforma>(`${BASE}${userId}/promover/`, {}, readToken());
+  return savedAdmins(postJson<CuentaPlataforma>(`${BASE}${userId}/promover/`, {}, readToken()));
 }
 
 /**
@@ -69,7 +101,7 @@ export function promoverAdministrador(userId: number): Promise<CuentaPlataforma>
  * @returns Ficha actualizada.
  */
 export function quitarAdministrador(userId: number): Promise<CuentaPlataforma> {
-  return postJson<CuentaPlataforma>(`${BASE}${userId}/quitar/`, {}, readToken());
+  return savedAdmins(postJson<CuentaPlataforma>(`${BASE}${userId}/quitar/`, {}, readToken()));
 }
 
 /**

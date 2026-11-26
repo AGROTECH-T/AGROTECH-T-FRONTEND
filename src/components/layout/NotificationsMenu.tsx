@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { listAlerts, type Alert } from "../../features/alertas/index.ts";
+import { alertsNow } from "../../features/alertas/services/alertsApi.ts";
 import type { AppSection } from "./navTypes.ts";
 
 type Props = {
@@ -22,12 +23,13 @@ type Props = {
  * @returns Botón de campana y su panel.
  */
 export function NotificationsMenu({ open, onToggle, onNavigate }: Readonly<Props>) {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
+  const knownAlerts = alertsNow();
+  const [alerts, setAlerts] = useState<Alert[]>(() => knownAlerts?.results ?? []);
+  const [loading, setLoading] = useState(knownAlerts == null);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    setLoading(true);
+    if (alertsNow() == null) setLoading(true);
     setError("");
     try {
       const data = await listAlerts();

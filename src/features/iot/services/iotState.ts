@@ -1,5 +1,5 @@
-import type { IotDecimal, IotReading, IotResource, IotSensor } from "./iotApi.ts";
-import { farmIsAccessible, pageParams, readingDateParams } from "./iotApi.ts";
+import type { IotDecimal, IotPage, IotReading, IotRecord, IotResource, IotSensor } from "./iotApi.ts";
+import { farmIsAccessible, iotPageNow, listAllIot, listIot, pageParams, readingDateParams } from "./iotApi.ts";
 
 export type IotView =
   | "Resumen"
@@ -112,6 +112,28 @@ export function summaryFromDate(now = new Date()): string {
  * Requests needed to render a view. The page passed in is always the page
  * requested, so navigating to page 2 produces `page=2` (sensors load apart).
  */
+/** Lo que ya está en memoria para esa vista, o null si falta una página. */
+export function cachedIotView(
+  farmId: number,
+  query: IotQuery,
+): Partial<Record<IotResource, IotPage<IotRecord>>> | null {
+  const plan = iotRequestPlan(query.view, query.page, query);
+  const ready: Partial<Record<IotResource, IotPage<IotRecord>>> = {};
+  for (const item of plan) {
+    const page = iotPageNow<IotRecord>(farmId, item.resource, item.params);
+    if (!page) return null;
+    ready[item.resource] = page;
+  }
+  return ready;
+}
+
+/** Pide el resumen y los sensores antes de abrir la pantalla. */
+export function preloadIot(farmId: number): void {
+  void listAllIot(farmId, "sensors");
+  const plan = iotRequestPlan("Resumen", 1, initialIotQuery);
+  for (const item of plan) void listIot(farmId, item.resource, item.params);
+}
+
 export function iotRequestPlan(
   view: IotView,
   page: number,

@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from "react";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
-import { fetchAsignacion } from "../services/rolesPermisos.ts";
+import { asignacionNow, fetchAsignacion } from "../services/rolesPermisos.ts";
 import type { FincaAsignable } from "../types/index.ts";
 import { FincasEstadoPanel } from "./FincasEstadoPanel.tsx";
 
@@ -17,9 +17,10 @@ import { FincasEstadoPanel } from "./FincasEstadoPanel.tsx";
  * @returns Panel de estado de fincas o aviso si no administra ninguna.
  */
 export function ReactivarFincasPanel() {
-  const [fincas, setFincas] = useState<FincaAsignable[]>([]);
-  const [puedo, setPuedo] = useState(true);
-  const [cargando, setCargando] = useState(true);
+  const known = asignacionNow();
+  const [fincas, setFincas] = useState<FincaAsignable[]>(() => known?.fincas ?? []);
+  const [puedo, setPuedo] = useState(known?.puedo_asignar ?? true);
+  const [cargando, setCargando] = useState(known == null);
   const [error, setError] = useState("");
   const notices = useNotices();
 

@@ -10,10 +10,44 @@
  */
 
 import { deleteJson, getJson, patchJson, postJson } from "../../../services/api/client.ts";
+import { onSessionEnd } from "../../../services/sessionMemory.ts";
 import { readToken } from "../../auth/services/session.ts";
 import type { FarmInvitation, FarmRole, InvitationCreateRequest } from "../types/index.ts";
 
 const invitationsPath = (farmId: number) => `/api/v1/farms/${farmId}/invitations/`;
+
+const invitationSnaps = new Map<number, FarmInvitation[]>();
+const invitationLoads = new Map<number, Promise<FarmInvitation[]>>();
+
+/** Invitaciones ya traídas de esa finca. */
+export function invitationsNow(farmId: number): FarmInvitation[] | null {
+  return invitationSnaps.get(farmId) ?? null;
+}
+
+/** Olvida el listado para volver a pedirlo. */
+export function forgetInvitations(farmId?: number): void {
+  if (farmId == null) {
+    invitationSnaps.clear();
+    invitationLoads.clear();
+    return;
+  }
+  invitationSnaps.delete(farmId);
+  invitationLoads.delete(farmId);
+}
+
+/** Empieza el listado antes de abrir Configuración. */
+export function preloadInvitations(farmId: number): void {
+  void listInvitations(farmId);
+}
+
+onSessionEnd(() => forgetInvitations());
+
+function rememberInvitations<T>(farmId: number, work: Promise<T>): Promise<T> {
+  return work.then((value) => {
+    forgetInvitations(farmId);
+    return value;
+  });
+}
 
 /**
  * Lista las invitaciones de la finca (el backend expira antes las vencidas).
@@ -21,7 +55,18 @@ const invitationsPath = (farmId: number) => `/api/v1/farms/${farmId}/invitations
  * @returns Invitaciones, de la más reciente a la más antigua.
  */
 export function listInvitations(farmId: number): Promise<FarmInvitation[]> {
-  return getJson<FarmInvitation[]>(invitationsPath(farmId), readToken());
+  const pending = invitationLoads.get(farmId);
+  if (pending) return pending;
+  const work = getJson<FarmInvitation[]>(invitationsPath(farmId), readToken())
+    .then((items) => {
+      invitationSnaps.set(farmId, items);
+      return items;
+    })
+    .finally(() => {
+      if (invitationLoads.get(farmId) === work) invitationLoads.delete(farmId);
+    });
+  invitationLoads.set(farmId, work);
+  return work;
 }
 
 /**
@@ -37,7 +82,7 @@ export function createInvitation(
   request: InvitationCreateRequest,
 ): Promise<FarmInvitation> {
   const body: InvitationCreateRequest = { email: request.email, role: request.role };
-  return postJson<FarmInvitation>(invitationsPath(farmId), body, readToken());
+  return rememberInvitations(farmId, postJson<FarmInvitation>(invitationsPath(farmId), body, readToken()));
 }
 
 const invitationPath = (farmId: number, invitationId: number) =>
@@ -53,10 +98,9 @@ const invitationPath = (farmId: number, invitationId: number) =>
  * @returns Invitación actualizada.
  */
 export function resendInvitation(farmId: number, invitationId: number): Promise<FarmInvitation> {
-  return postJson<FarmInvitation>(
-    `${invitationPath(farmId, invitationId)}resend/`,
-    {},
-    readToken(),
+  return rememberInvitations(
+    farmId,
+    postJson<FarmInvitation>(`${invitationPath(farmId, invitationId)}resend/`, {}, readToken()),
   );
 }
 
@@ -74,7 +118,10 @@ export function changeInvitationRole(
   invitationId: number,
   role: FarmRole,
 ): Promise<FarmInvitation> {
-  return patchJson<FarmInvitation>(invitationPath(farmId, invitationId), { role }, readToken());
+  return rememberInvitations(
+    farmId,
+    patchJson<FarmInvitation>(invitationPath(farmId, invitationId), { role }, readToken()),
+  );
 }
 
 /**
@@ -83,5 +130,5 @@ export function changeInvitationRole(
  * @param invitationId - Identificador de la invitación.
  */
 export function cancelInvitation(farmId: number, invitationId: number): Promise<void> {
-  return deleteJson(invitationPath(farmId, invitationId), readToken());
+  return rememberInvitations(farmId, deleteJson(invitationPath(farmId, invitationId), readToken()));
 }

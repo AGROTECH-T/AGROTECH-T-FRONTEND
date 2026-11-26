@@ -25,6 +25,7 @@ import {
 import {
   ADMIN_PAGE_SIZE,
   crearAdministrador,
+  administradoresNow,
   fetchAdministradores,
   filtrarCuentas,
   paginaCuentas,
@@ -53,12 +54,15 @@ type Confirmacion =
  * @returns Panel de nombramiento.
  */
 export function SuperadminPanel() {
-  const [pendientes, setPendientes] = useState<CuentaPlataforma[]>([]);
-  const [administradores, setAdministradores] = useState<CuentaPlataforma[]>([]);
+  const knownAdmins = administradoresNow();
+  const [pendientes, setPendientes] = useState<CuentaPlataforma[]>(() => knownAdmins?.pendientes ?? []);
+  const [administradores, setAdministradores] = useState<CuentaPlataforma[]>(
+    () => knownAdmins?.administradores ?? [],
+  );
   const [crear, setCrear] = useState(false);
   const [datos, setDatos] = useState<NuevoAdministrador>(VACIO);
   const [huecos, setHuecos] = useState(VACIO);
-  const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(knownAdmins == null);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [confirmacion, setConfirmacion] = useState<Confirmacion>(null);

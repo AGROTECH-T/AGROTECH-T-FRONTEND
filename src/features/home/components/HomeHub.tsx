@@ -11,6 +11,7 @@ import type { AppSection } from "../../../components/layout/index.ts";
 import galponIcon from "../../../assets/icons/galpon.png";
 import inventarioIcon from "../../../assets/icons/inventario.png";
 import { listAlerts } from "../../alertas/index.ts";
+import { alertsNow } from "../../alertas/services/alertsApi.ts";
 import type { Alert } from "../../alertas/types/index.ts";
 import type { Account } from "../../auth/types/index.ts";
 import { homeGreeting, homeTitle } from "../services/homeWelcome.ts";
@@ -79,8 +80,9 @@ function ShortcutIcon({ name }: { name: Shortcut["icon"] }) {
  * @param props - Cuenta y navegación del shell.
  */
 export function HomeHub({ account, onNavigate, onOpenGalpon }: Readonly<Props>) {
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
+  const knownAlerts = alertsNow();
+  const [alerts, setAlerts] = useState<Alert[]>(() => knownAlerts?.results ?? []);
+  const [loading, setLoading] = useState(knownAlerts == null);
   const [error, setError] = useState("");
 
   const modules = account.modulos ?? ["home"];
@@ -91,7 +93,7 @@ export function HomeHub({ account, onNavigate, onOpenGalpon }: Readonly<Props>) 
   const overview = useMemo(() => splitHomeAlerts(alerts), [alerts]);
 
   const load = useCallback(async () => {
-    setLoading(true);
+    if (alertsNow() == null) setLoading(true);
     setError("");
     try {
       const data = await listAlerts();

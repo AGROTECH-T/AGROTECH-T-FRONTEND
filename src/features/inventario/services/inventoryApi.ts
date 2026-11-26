@@ -192,6 +192,7 @@ function forgetProducts(farmId?: number): void {
 function savedStock<T>(farmId: number, work: Promise<T>): Promise<T> {
   return work.then((value) => {
     forgetProducts(farmId);
+    void import("../../alertas/services/alertsApi.ts").then(({ forgetAlerts }) => forgetAlerts());
     return value;
   });
 }

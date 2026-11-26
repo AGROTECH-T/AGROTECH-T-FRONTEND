@@ -63,6 +63,7 @@ function dropGalpon(farmId: number): void {
 function dropAfter<T>(farmId: number, work: Promise<T>): Promise<T> {
   return work.then((value) => {
     dropGalpon(farmId);
+    void import("../../alertas/services/alertsApi.ts").then(({ forgetAlerts }) => forgetAlerts());
     return value;
   });
 }

@@ -54,6 +54,26 @@ function warmFarms(generation: number, items: Farm[]): void {
     if (generation !== warmGeneration) return;
     for (const farm of active) preloadProducts(farm.id);
   });
+  void import("../../iot/services/iotState.ts").then(({ preloadIot }) => {
+    if (generation !== warmGeneration) return;
+    for (const farm of active) preloadIot(farm.id);
+  });
+  void import("../../alertas/services/alertsApi.ts").then(({ listAlerts }) => {
+    if (generation !== warmGeneration) return;
+    void listAlerts();
+  });
+  void import("../../configuracion/services/rolesPermisos.ts").then(({ preloadConfig }) => {
+    if (generation !== warmGeneration) return;
+    preloadConfig();
+  });
+  void import("./invitationsApi.ts").then(({ preloadInvitations }) => {
+    if (generation !== warmGeneration) return;
+    for (const farm of active) {
+      if (farm.capabilities?.can_manage_invitations || farm.role === "administrador") {
+        preloadInvitations(farm.id);
+      }
+    }
+  });
 }
 
 /**
@@ -84,6 +104,11 @@ onSessionEnd(forgetFarms);
 function saved<T>(work: Promise<T>): Promise<T> {
   return work.then((value) => {
     forgetFarms();
+    void import("../../configuracion/services/rolesPermisos.ts").then(({ forgetAsignacion }) =>
+      forgetAsignacion(),
+    );
+    void import("../../alertas/services/alertsApi.ts").then(({ forgetAlerts }) => forgetAlerts());
+    void import("./invitationsApi.ts").then(({ forgetInvitations }) => forgetInvitations());
     return value;
   });
 }

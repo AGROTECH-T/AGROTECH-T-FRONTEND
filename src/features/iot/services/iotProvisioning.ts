@@ -9,9 +9,16 @@
 import { getJson, postJson } from "../../../services/api/client.ts";
 import { readToken } from "../../auth/services/session.ts";
 import type { IotCoordinator, IotDevice, IotPage, IotSensor } from "./iotApi.ts";
-import { listAllIot } from "./iotApi.ts";
+import { forgetIot, listAllIot } from "./iotApi.ts";
 
 const base = (farmId: number) => `/api/v1/iot/farms/${farmId}`;
+
+function noted<T>(farmId: number, work: Promise<T>): Promise<T> {
+  return work.then((value) => {
+    forgetIot(farmId);
+    return value;
+  });
+}
 
 export type DeviceDraft = {
   name: string;
@@ -76,14 +83,14 @@ export const IOT_METRICS = [
 ] as const;
 
 export function createGateway(farmId: number, draft: DeviceDraft): Promise<GatewayIssued> {
-  return postJson(`${base(farmId)}/gateways/`, draft, readToken());
+  return noted(farmId, postJson(`${base(farmId)}/gateways/`, draft, readToken()));
 }
 
 export function createCoordinator(
   farmId: number,
   draft: DeviceDraft,
 ): Promise<CoordinatorIssued> {
-  return postJson(`${base(farmId)}/coordinators/`, draft, readToken());
+  return noted(farmId, postJson(`${base(farmId)}/coordinators/`, draft, readToken()));
 }
 
 export function authorizeGateway(
@@ -91,10 +98,13 @@ export function authorizeGateway(
   coordinatorUid: string,
   gatewayUid: string,
 ): Promise<GatewayAuthorization> {
-  return postJson(
-    `${base(farmId)}/coordinators/${encodeURIComponent(coordinatorUid)}/gateways/`,
-    { gateway_uid: gatewayUid },
-    readToken(),
+  return noted(
+    farmId,
+    postJson(
+      `${base(farmId)}/coordinators/${encodeURIComponent(coordinatorUid)}/gateways/`,
+      { gateway_uid: gatewayUid },
+      readToken(),
+    ),
   );
 }
 
@@ -102,11 +112,11 @@ export function createSensorSource(
   farmId: number,
   draft: SensorSourceDraft,
 ): Promise<SensorSource> {
-  return postJson(`${base(farmId)}/sensor-sources/`, draft, readToken());
+  return noted(farmId, postJson(`${base(farmId)}/sensor-sources/`, draft, readToken()));
 }
 
 export function createSensor(farmId: number, draft: SensorDraft): Promise<IotSensor> {
-  return postJson(`${base(farmId)}/sensors/`, draft, readToken());
+  return noted(farmId, postJson(`${base(farmId)}/sensors/`, draft, readToken()));
 }
 
 export function listSensorSources(
@@ -131,10 +141,13 @@ export function listFarmSensors(farmId: number): Promise<IotPage<IotSensor>> {
 }
 
 export function deactivateGateway(farmId: number, uid: string, reason = ""): Promise<IotDevice> {
-  return postJson(
-    `${base(farmId)}/gateways/${encodeURIComponent(uid)}/deactivate/`,
-    { reason },
-    readToken(),
+  return noted(
+    farmId,
+    postJson(
+      `${base(farmId)}/gateways/${encodeURIComponent(uid)}/deactivate/`,
+      { reason },
+      readToken(),
+    ),
   );
 }
 
@@ -143,18 +156,24 @@ export function deactivateCoordinator(
   uid: string,
   reason = "",
 ): Promise<IotCoordinator> {
-  return postJson(
-    `${base(farmId)}/coordinators/${encodeURIComponent(uid)}/deactivate/`,
-    { reason },
-    readToken(),
+  return noted(
+    farmId,
+    postJson(
+      `${base(farmId)}/coordinators/${encodeURIComponent(uid)}/deactivate/`,
+      { reason },
+      readToken(),
+    ),
   );
 }
 
 export function deactivateSensor(farmId: number, uid: string, reason = ""): Promise<IotSensor> {
-  return postJson(
-    `${base(farmId)}/sensors/${encodeURIComponent(uid)}/deactivate/`,
-    { reason },
-    readToken(),
+  return noted(
+    farmId,
+    postJson(
+      `${base(farmId)}/sensors/${encodeURIComponent(uid)}/deactivate/`,
+      { reason },
+      readToken(),
+    ),
   );
 }
 
@@ -163,10 +182,13 @@ export function deactivateSensorSource(
   sourceUid: string,
   reason = "",
 ): Promise<SensorSource> {
-  return postJson(
-    `${base(farmId)}/sensor-sources/${encodeURIComponent(sourceUid)}/deactivate/`,
-    { reason },
-    readToken(),
+  return noted(
+    farmId,
+    postJson(
+      `${base(farmId)}/sensor-sources/${encodeURIComponent(sourceUid)}/deactivate/`,
+      { reason },
+      readToken(),
+    ),
   );
 }
 
@@ -191,9 +213,12 @@ export function revokeAuthorization(
   gatewayUid: string,
   reason = "",
 ): Promise<GatewayAuthorization> {
-  return postJson(
-    `${base(farmId)}/coordinators/${encodeURIComponent(coordinatorUid)}/gateways/${encodeURIComponent(gatewayUid)}/revoke/`,
-    { reason },
-    readToken(),
+  return noted(
+    farmId,
+    postJson(
+      `${base(farmId)}/coordinators/${encodeURIComponent(coordinatorUid)}/gateways/${encodeURIComponent(gatewayUid)}/revoke/`,
+      { reason },
+      readToken(),
+    ),
   );
 }
