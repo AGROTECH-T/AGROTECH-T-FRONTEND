@@ -79,7 +79,8 @@ export function LendWindow({
         </p>
         <label className={gaps.name ? "inv-form__field is-miss" : "inv-form__field"}>
           <span>Nombre completo</span>
-          <input value={name} onChange={(event) => { setName(event.target.value); setGaps((current) => ({ ...current, name: undefined })); }} disabled={pending} />
+          <input value={name} maxLength={50} onChange={(event) => { setName(event.target.value.slice(0, 50)); setGaps((current) => ({ ...current, name: undefined })); }} disabled={pending} />
+          <CharLeft value={name} max={50} />
           {gaps.name ? <span className="field-miss">{gaps.name}</span> : null}
         </label>
         <label className={gaps.document ? "inv-form__field is-miss" : "inv-form__field"}>
