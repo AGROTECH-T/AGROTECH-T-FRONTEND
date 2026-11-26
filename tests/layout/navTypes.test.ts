@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import { NAV_ITEMS, visibleNavItems } from "../../src/components/layout/navTypes.ts";
 
 describe("menú del shell", () => {
-  it("expone Inicio, Fincas, Inventario, Galpón, IoT y Configuración en ese orden", () => {
+  it("expone Inicio, Fincas, Inventario, Galpón, Sensores y Configuración en ese orden", () => {
     expect(NAV_ITEMS.map((item) => item.id)).toEqual([
       "home",
       "fincas",
@@ -24,7 +24,7 @@ describe("menú del shell", () => {
       "Fincas",
       "Inventario",
       "Galpón",
-      "IoT",
+      "Sensores",
       "Configuración",
     ]);
   });

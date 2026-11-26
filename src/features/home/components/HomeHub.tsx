@@ -39,7 +39,7 @@ const SHORTCUTS: Shortcut[] = [
   },
   {
     id: "iot",
-    title: "IoT",
+    title: "Sensores",
     hint: "Sensores y lecturas de campo",
     icon: "iot",
   },

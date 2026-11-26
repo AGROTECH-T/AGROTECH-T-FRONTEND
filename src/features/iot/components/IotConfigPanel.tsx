@@ -62,7 +62,7 @@ type Pending =
 
 function errorText(cause: unknown): string {
   if (cause instanceof ApiError) {
-    if (cause.isForbidden) return "No tienes permiso para configurar IoT en esta finca.";
+    if (cause.isForbidden) return "No tienes permiso para configurar Sensores en esta finca.";
     if (cause.isUnauthorized) return "Tu sesión terminó. Vuelve a iniciar sesión.";
     return cause.message;
   }
@@ -295,13 +295,13 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
     return (
       <div className="iot-message">
         <strong>Solo consulta</strong>
-        <p>Puedes ver dispositivos y lecturas, pero no configurar IoT en esta finca.</p>
+        <p>Puedes ver dispositivos y lecturas, pero no configurar Sensores en esta finca.</p>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="iot-message" role="status">Cargando configuración IoT…</div>;
+    return <div className="iot-message" role="status">Cargando configuración de Sensores…</div>;
   }
 
   const sourceOptions = sources.filter(
@@ -312,7 +312,7 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
   return (
     <div className="iot-config">
       <IotGuide
-        title="Cómo configurar el IoT de esta finca"
+        title="Cómo configurar Sensores en esta finca"
         lead="Sigue el orden. Cada finca registra solo sus equipos."
         steps={[
           "Registra el gateway (ESP32 con Wi‑Fi/MQTT) y guarda la contraseña que aparece una sola vez.",

@@ -299,7 +299,7 @@ export function IotScreen() {
         return (
           <div className="iot-message" role="status">
             <strong>Sin permiso de configuración</strong>
-            <p>Solo quien gestiona IoT en esta finca puede registrar dispositivos.</p>
+            <p>Solo quien gestiona Sensores en esta finca puede registrar dispositivos.</p>
           </div>
         );
       }
@@ -334,13 +334,13 @@ export function IotScreen() {
     if (!canReadIot) {
       return (
         <div className="iot-message" role="status">
-          <strong>Sin permiso de lectura IoT</strong>
+          <strong>Sin permiso de lectura de Sensores</strong>
           <p>Tu rol en esta finca no incluye ver dispositivos ni lecturas.</p>
         </div>
       );
     }
-    if (error) return <div className="iot-message iot-error" role="alert"><strong>No se pudo cargar IoT</strong><p>{error}</p><button type="button" className="btn-secondary" onClick={() => void load(query)} disabled={loading}>Reintentar</button></div>;
-    if (loading && !hasData) return <div className="iot-message" role="status">Cargando información IoT…</div>;
+    if (error) return <div className="iot-message iot-error" role="alert"><strong>No se pudo cargar Sensores</strong><p>{error}</p><button type="button" className="btn-secondary" onClick={() => void load(query)} disabled={loading}>Reintentar</button></div>;
+    if (loading && !hasData) return <div className="iot-message" role="status">Cargando información de Sensores…</div>;
     if (view === "Resumen") {
       const kpi = [
         {
@@ -368,7 +368,7 @@ export function IotScreen() {
       return (
         <div className="iot-dashboard">
           <IotGuide
-            title="Qué ves en IoT"
+            title="Qué ves en Sensores"
             lead="Este módulo muestra lo que llega del campo a tu finca."
             steps={
               canManageIot
@@ -380,13 +380,13 @@ export function IotScreen() {
                 : [
                     "Aquí ves gateways, sensores y lecturas de esta finca.",
                     "Cuando el hardware publica por MQTT, aparecen mediciones y tendencias.",
-                    "La configuración de dispositivos la hace quien administra IoT en la finca.",
+                    "La configuración de dispositivos la hace quien administra Sensores en la finca.",
                   ]
             }
             example={
               canManageIot
                 ? "Si aún no hay sensores, abre la pestaña Configurar y sigue la guía paso a paso."
-                : "Si no ves datos, pide a un administrador de la finca que configure IoT."
+                : "Si no ves datos, pide a un administrador de la finca que configure Sensores."
             }
           />
           <div className="iot-metrics" role="group" aria-label="Indicadores de la finca">
@@ -464,7 +464,7 @@ export function IotScreen() {
     <header className="panel__header iot-header">
       <div>
         <p className="panel__kicker">Monitoreo de campo</p>
-        <h1 id="iot-title" className="panel__title">Internet de las cosas</h1>
+        <h1 id="iot-title" className="panel__title">Sensores</h1>
         <p className="panel__lead">Dispositivos, sensores y lecturas recibidas.</p>
       </div>
       <div className="iot-refresh-box">
@@ -480,7 +480,7 @@ export function IotScreen() {
       {selectedFarm ? <span className="iot-selected-farm"><span>Finca seleccionada</span><strong>{selectedFarm.name}</strong></span> : null}
     </div>
     {farmId !== null ? <>
-      <nav className="iot-tabs" aria-label="Secciones IoT">{visibleViews.map((item) => <button key={item} type="button" className={view === item ? "is-active" : ""} aria-current={view === item ? "page" : undefined} onClick={() => dispatch({ type: "view", view: item })}>{viewLabel[item]}</button>)}</nav>
+      <nav className="iot-tabs" aria-label="Secciones de Sensores">{visibleViews.map((item) => <button key={item} type="button" className={view === item ? "is-active" : ""} aria-current={view === item ? "page" : undefined} onClick={() => dispatch({ type: "view", view: item })}>{viewLabel[item]}</button>)}</nav>
       {view === "Historial" ? <div className="iot-filters">
         <label>Sensor<select value={sensorUid} disabled={sensorLoading || loading} onChange={(event) => dispatch({ type: "sensor", sensorUid: event.target.value })}><option value="">Todos</option>{(sensorData?.results ?? []).map((sensor) => <option key={sensor.uid} value={sensor.uid}>{sensor.uid} · {metricLabel(sensor.metric)} · canal {sensor.channel}</option>)}</select>{sensorLoading ? <small role="status">Cargando sensores…</small> : sensorError ? <small role="alert">{sensorError}</small> : sensorData?.count === 0 ? <small role="status">Esta finca no tiene sensores.</small> : null}</label>
         <label>Desde<input type="date" value={query.from} disabled={loading} onChange={(event) => dispatch({ type: "from", value: event.target.value })} /></label>

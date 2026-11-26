@@ -49,7 +49,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     icon: "bird",
     children: [{ id: "galpones", label: "Lotes" }],
   },
-  { id: "iot", label: "IoT", icon: "iot" },
+  { id: "iot", label: "Sensores", icon: "iot" },
   { id: "configuracion", label: "Configuración", icon: "gear" },
 ];
 
