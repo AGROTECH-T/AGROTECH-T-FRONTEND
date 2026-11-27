@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { FieldIcon } from "../../../components/ui/FieldIcon.tsx";
 import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { TextField } from "../../../components/ui/TextField.tsx";
+import { isApiError } from "../../../services/api/client.ts";
 import { fetchAccount, login } from "../services/account.ts";
 import { ACCOUNT_MAX, digitsMessage, loginPasswordMessage, reviewField, typedMessage } from "../services/fieldRules.ts";
 import { loginPayload } from "../services/payload.ts";
@@ -32,6 +33,7 @@ export function SignInForm({ notice, onForgot, onSignUp, onSuccess }: Readonly<P
   const [identification, setIdentification] = useState("");
   const [password, setPassword] = useState("");
   const [gaps, setGaps] = useState<Record<string, string>>({});
+  const [rejected, setRejected] = useState(false);
   const [pending, setPending] = useState(false);
   const notices = useNotices();
 
@@ -41,6 +43,7 @@ export function SignInForm({ notice, onForgot, onSignUp, onSuccess }: Readonly<P
 
   const edit = (key: "identification" | "password", setValue: (value: string) => void) => (value: string) => {
     setValue(value);
+    setRejected(false);
     const kind = key === "identification" ? "identification" : "loginPassword";
     setGaps((current) => ({ ...current, [key]: typedMessage(kind, value) }));
   };
@@ -59,6 +62,7 @@ export function SignInForm({ notice, onForgot, onSignUp, onSuccess }: Readonly<P
       notices.push(failed, "warn");
       return;
     }
+    setRejected(false);
     setPending(true);
     try {
       const body = loginPayload(identification, password);
@@ -66,8 +70,9 @@ export function SignInForm({ notice, onForgot, onSignUp, onSuccess }: Readonly<P
       saveToken(session.token);
       sessionStorage.setItem("agrotech-t.flash", "inicio de sesión exitosa");
       onSuccess(await fetchAccount(session.token));
-    } catch {
+    } catch (cause) {
       notices.push(["no es posible entrar"], "warn");
+      if (isApiError(cause, 401)) setRejected(true);
     } finally {
       setPending(false);
     }
@@ -90,6 +95,7 @@ export function SignInForm({ notice, onForgot, onSignUp, onSuccess }: Readonly<P
         <h2 id="signin-title">Ingresar</h2>
         <p>Qué bueno verte de nuevo.</p>
       </header>
+      {rejected ? <p className="signin-reject" role="alert">usuario o contraseña incorrecto</p> : null}
       <TextField id="login-id" label="N.º de identificación" icon="user" placeholder="1234567890" max={ACCOUNT_MAX.identification} value={identification} autoComplete="username" message={gaps.identification} onChange={edit("identification", setIdentification)} />
       <TextField id="login-password" label="Contraseña" icon="lock" type="password" max={ACCOUNT_MAX.loginPassword} value={password} autoComplete="current-password" message={gaps.password} onChange={edit("password", setPassword)} />
       <button type="button" className="text-link" onClick={onForgot}>Olvidé mi contraseña</button>

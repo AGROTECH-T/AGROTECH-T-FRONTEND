@@ -78,6 +78,14 @@ body.is-auth {
 .auth-card.is-signup .auth-slot--form { transform: translateX(-100%); }
 .auth-card.is-signup .auth-slot--welcome { transform: translateX(100%); }
 
+.signin-reject {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 .form {
   position: relative;
   z-index: 1;
