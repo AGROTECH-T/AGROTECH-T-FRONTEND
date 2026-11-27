@@ -44,31 +44,28 @@ type CardProps = {
  */
 function NoticeCard({ item, onClose }: Readonly<CardProps>) {
   const total = item.tone === "ok" ? 5 : 7;
-  const [left, setLeft] = useState(total);
 
   useEffect(() => {
-    const started = Date.now();
-    let closed = false;
-    const timer = globalThis.setInterval(() => {
-      const remain = total - Math.floor((Date.now() - started) / 1000);
-      setLeft(Math.max(remain, 0));
-      if (remain <= 0 && !closed) {
-        closed = true;
-        globalThis.clearInterval(timer);
-        onClose(item.id);
-      }
-    }, 250);
-    return () => globalThis.clearInterval(timer);
+    const timer = globalThis.setTimeout(() => onClose(item.id), total * 1000);
+    return () => globalThis.clearTimeout(timer);
   }, [item.id, onClose, total]);
 
   const ok = item.tone === "ok";
   return (
     <article className={ok ? "notice-card ok" : "notice-card warn"} role={ok ? "status" : "alert"}>
-      <span className="notice-mark" aria-hidden="true">{ok ? "✓" : "✕"}</span>
-      <div className="notice-copy">
-        <p>{item.text}</p>
-        <p className="notice-time">Se quita en {left} s</p>
-      </div>
+      <span className="notice-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path
+            d={ok ? "M6.5 12.5 10.2 16.2 17.5 8.2" : "M8 8l8 8M16 8l-8 8"}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+      <p>{item.text}</p>
       <button type="button" aria-label="Cerrar notificación" onClick={() => onClose(item.id)}>×</button>
     </article>
   );
