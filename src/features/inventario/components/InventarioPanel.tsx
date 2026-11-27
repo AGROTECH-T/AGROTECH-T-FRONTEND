@@ -478,6 +478,7 @@ export function InventarioPanel({
           setSelected(product);
           replaceProduct(product);
         }}
+        onNotice={tell}
       />
     ) : null}
     {selected && farmId != null && detailMode.intent === "ajuste" ? (

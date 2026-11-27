@@ -301,6 +301,7 @@ export function FarmsScreen({
           inWindow
           onCancel={() => setCreating(false)}
           onCreated={(farm) => {
+            notices.push(["Finca creada."], "ok");
             setFarms((current) => [...current, farm].sort((a, b) => a.id - b.id));
             keepSelection.current = true;
             if (view === undefined || !onView) setCreating(false);

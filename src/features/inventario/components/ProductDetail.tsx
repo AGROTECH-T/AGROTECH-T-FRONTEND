@@ -124,6 +124,7 @@ export function ProductDetail({
             setCurrent(fresh);
             onChanged(fresh);
           }}
+          onPhotoNotice={onNotice}
           onSaved={(fresh) => {
             setCurrent(fresh);
             onChanged(fresh);
@@ -146,6 +147,7 @@ export function ProductDetail({
               setCurrent(fresh);
               onChanged(fresh);
               setNotice("Movimiento registrado.");
+              onNotice?.("ajuste guardado");
             }}
           />
         </>
@@ -194,6 +196,7 @@ function ProductEditor({
   product,
   onSaved,
   onPhoto,
+  onPhotoNotice,
   onDirty,
   onCancel,
 }: Readonly<{
@@ -201,6 +204,7 @@ function ProductEditor({
   product: Product;
   onSaved: (product: Product) => void;
   onPhoto: (product: Product) => void;
+  onPhotoNotice?: (message: string) => void;
   onDirty?: (dirty: boolean) => void;
   onCancel?: () => void;
 }>) {
@@ -223,6 +227,7 @@ function ProductEditor({
     setPhotoError("");
     try {
       onPhoto(await uploadProductImage(farmId, product.id, await shrinkPhoto(file)));
+      onPhotoNotice?.("foto del producto actualizada");
     } catch (cause) {
       setPhotoError(cause instanceof Error ? cause.message : "No se pudo guardar la foto");
     } finally {
@@ -235,6 +240,7 @@ function ProductEditor({
     setPhotoError("");
     try {
       onPhoto(await removeProductImage(farmId, product.id));
+      onPhotoNotice?.("foto del producto eliminada");
     } catch (cause) {
       setPhotoError(cause instanceof Error ? cause.message : "No se pudo eliminar la foto");
     } finally {
@@ -500,7 +506,10 @@ export function ProductUpdateWindow({
             setAskDelete(false);
             setDeleteError("");
             void deleteProduct(farmId, product.id)
-              .then(() => onRemoved(product.id))
+              .then(() => {
+                onNotice?.("producto eliminado");
+                onRemoved(product.id);
+              })
               .catch((cause) => {
                 setDeleteError(cause instanceof Error ? cause.message : "No se pudo eliminar");
               });

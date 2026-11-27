@@ -28,12 +28,14 @@ export function ProductViewWindow({
   canWrite,
   onBack,
   onChanged,
+  onNotice,
 }: Readonly<{
   farmId: number;
   product: Product;
   canWrite: boolean;
   onBack: () => void;
   onChanged: (product: Product) => void;
+  onNotice?: (message: string) => void;
 }>) {
   const [movements, setMovements] = useState<Movement[]>([]);
   const photo = useProductPhoto(farmId, product);
@@ -58,6 +60,7 @@ export function ProductViewWindow({
     try {
       const small = await shrinkPhoto(file);
       onChanged(await uploadProductImage(farmId, product.id, small));
+      onNotice?.("foto del producto actualizada");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "No se pudo guardar la foto");
     } finally {
@@ -71,6 +74,7 @@ export function ProductViewWindow({
     setOpenPhoto(false);
     try {
       onChanged(await removeProductImage(farmId, product.id));
+      onNotice?.("foto del producto eliminada");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "No se pudo eliminar la foto");
     } finally {

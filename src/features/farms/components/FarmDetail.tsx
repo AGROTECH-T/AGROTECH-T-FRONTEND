@@ -220,6 +220,7 @@ export function FarmDetail({
     try {
       const updated = await updateFarm(farm.id, name.trim());
       onUpdated(updated);
+      onNotice?.("Finca actualizada.", "ok");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "No se pudo actualizar");
     } finally {

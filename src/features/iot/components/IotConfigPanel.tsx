@@ -7,6 +7,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { NoticeStack, useNotices } from "../../../components/ui/NoticeStack.tsx";
 import { ConfirmModal } from "../../inventario/components/ConfirmModal.tsx";
 import { ApiError } from "../../../services/api/client.ts";
 import type { IotCoordinator, IotDevice, IotSensor } from "../services/iotApi.ts";
@@ -133,6 +134,11 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
+  const floating = useNotices();
+  const announce = (tone: Notice["tone"], text: string) => {
+    setNotice({ tone, text });
+    floating.push([text], tone);
+  };
   const [pending, setPending] = useState<Pending | null>(null);
   const [gatewaySecret, setGatewaySecret] = useState<GatewayIssued | null>(null);
   const [coordinatorSecret, setCoordinatorSecret] = useState<CoordinatorIssued | null>(null);
@@ -183,7 +189,7 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
         setAuths([]);
       }
     } catch (cause) {
-      setNotice({ tone: "warn", text: errorText(cause) });
+      announce("warn", errorText(cause));
     } finally {
       setLoading(false);
     }
@@ -222,7 +228,7 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
           setGatewaySecret(issued);
           setGwName("");
           setGwLocation("");
-          setNotice({ tone: "ok", text: `Gateway ${issued.uid} registrado. Guarda la contraseña ahora.` });
+          announce("ok", `Gateway ${issued.uid} registrado. Guarda la contraseña ahora.`);
           break;
         }
         case "create-coordinator": {
@@ -233,12 +239,12 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
           setCoordinatorSecret(issued);
           setCoName("");
           setCoLocation("");
-          setNotice({ tone: "ok", text: `Coordinador ${issued.uid} registrado. Guarda la clave ahora.` });
+          announce("ok", `Coordinador ${issued.uid} registrado. Guarda la clave ahora.`);
           break;
         }
         case "authorize":
           await authorizeGateway(farmId, action.coordinatorUid, action.gatewayUid);
-          setNotice({ tone: "ok", text: "Par coordinador–gateway autorizado." });
+          announce("ok", "Par coordinador–gateway autorizado.");
           break;
         case "create-source": {
           const created = await createSensorSource(farmId, {
@@ -249,7 +255,7 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
           });
           setSourceName("");
           setSourceModel("");
-          setNotice({ tone: "ok", text: `Fuente "${created.name}" creada.` });
+          announce("ok", `Fuente "${created.name}" creada.`);
           break;
         }
         case "create-sensor": {
@@ -259,33 +265,33 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
             channel: action.channel,
             metric: action.metric,
           });
-          setNotice({ tone: "ok", text: `Sensor ${created.uid} registrado.` });
+          announce("ok", `Sensor ${created.uid} registrado.`);
           break;
         }
         case "deactivate-gateway":
           await deactivateGateway(farmId, action.uid);
-          setNotice({ tone: "ok", text: "Gateway dado de baja." });
+          announce("ok", "Gateway dado de baja.");
           break;
         case "deactivate-coordinator":
           await deactivateCoordinator(farmId, action.uid);
-          setNotice({ tone: "ok", text: "Coordinador dado de baja." });
+          announce("ok", "Coordinador dado de baja.");
           break;
         case "deactivate-source":
           await deactivateSensorSource(farmId, action.uid);
-          setNotice({ tone: "ok", text: "Fuente dada de baja." });
+          announce("ok", "Fuente dada de baja.");
           break;
         case "deactivate-sensor":
           await deactivateSensor(farmId, action.uid);
-          setNotice({ tone: "ok", text: "Sensor dado de baja." });
+          announce("ok", "Sensor dado de baja.");
           break;
         case "revoke-auth":
           await revokeAuthorization(farmId, action.coordinatorUid, action.gatewayUid);
-          setNotice({ tone: "ok", text: "Autorización revocada." });
+          announce("ok", "Autorización revocada.");
           break;
       }
       await afterChange();
     } catch (cause) {
-      setNotice({ tone: "warn", text: errorText(cause) });
+      announce("warn", errorText(cause));
     } finally {
       setBusy(false);
     }
@@ -311,6 +317,7 @@ export function IotConfigPanel({ farmId, canManage, onChanged }: Readonly<Props>
 
   return (
     <div className="iot-config">
+      <NoticeStack items={floating.items} onClose={floating.close} />
       <IotGuide
         title="Cómo configurar Sensores en esta finca"
         lead="Sigue el orden. Cada finca registra solo sus equipos."
