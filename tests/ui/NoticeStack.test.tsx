@@ -15,16 +15,28 @@ afterEach(cleanup);
 
 describe("NoticeStack", () => {
   it("marca el éxito con un check", () => {
-    const item: Notice = { id: 1, tone: "ok", text: "Perfil actualizado." };
+    const item: Notice = {
+      id: 1,
+      tone: "ok",
+      title: "Perfil actualizado",
+      detail: "Sus datos se guardaron correctamente.",
+    };
     render(<NoticeStack items={[item]} onClose={vi.fn()} />);
-    expect(screen.getByText("✓")).toBeTruthy();
-    expect(screen.getByRole("status").textContent).toContain("Perfil actualizado.");
+    expect(screen.getByRole("status").querySelector("svg")).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toContain("Perfil actualizado");
+    expect(screen.getByRole("status").textContent).toContain("Sus datos se guardaron correctamente.");
+    expect(screen.getByRole("status").querySelector(".notice-meter")).toBeTruthy();
   });
 
   it("marca el error con una X", () => {
-    const item: Notice = { id: 2, tone: "warn", text: "No se pudo guardar" };
+    const item: Notice = {
+      id: 2,
+      tone: "warn",
+      title: "No se pudo completar",
+      detail: "No se pudo guardar",
+    };
     render(<NoticeStack items={[item]} onClose={vi.fn()} />);
-    expect(screen.getByText("✕")).toBeTruthy();
+    expect(screen.getByRole("alert").querySelector("svg")).toBeTruthy();
     expect(screen.getByRole("alert").textContent).toContain("No se pudo guardar");
   });
 });

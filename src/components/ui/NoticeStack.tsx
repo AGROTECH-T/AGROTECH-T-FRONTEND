@@ -8,11 +8,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { noticeLines } from "./noticeCopy.ts";
 
 export type Notice = {
   id: number;
   tone: "ok" | "warn";
-  text: string;
+  title: string;
+  detail: string;
 };
 
 /**
@@ -23,7 +25,7 @@ export function useNotices() {
   const [items, setItems] = useState<Notice[]>([]);
   const serial = useRef(0);
   const push = useCallback((texts: string[], tone: Notice["tone"]) => {
-    const next = texts.filter(Boolean).map((text) => ({ id: ++serial.current, tone, text }));
+    const next = texts.filter(Boolean).map((text) => ({ id: ++serial.current, tone, ...noticeLines(text, tone) }));
     setItems((current) => [...next, ...current].slice(0, 6));
   }, []);
   const close = useCallback((id: number) => {
@@ -43,7 +45,7 @@ type CardProps = {
  * @returns Tarjeta de aviso.
  */
 function NoticeCard({ item, onClose }: Readonly<CardProps>) {
-  const total = item.tone === "ok" ? 5 : 7;
+  const total = item.tone === "ok" ? 3 : 7;
 
   useEffect(() => {
     const timer = globalThis.setTimeout(() => onClose(item.id), total * 1000);
@@ -56,17 +58,23 @@ function NoticeCard({ item, onClose }: Readonly<CardProps>) {
       <span className="notice-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24">
           <path
-            d={ok ? "M6.5 12.5 10.2 16.2 17.5 8.2" : "M8 8l8 8M16 8l-8 8"}
+            d={ok ? "M5.5 12.4 10 16.8 18.5 7.6" : "M7.5 7.5l9 9M16.5 7.5l-9 9"}
             fill="none"
             stroke="currentColor"
-            strokeWidth="2.2"
+            strokeWidth="2.4"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
       </span>
-      <p>{item.text}</p>
+      <div className="notice-copy">
+        <p className="notice-title">{item.title}</p>
+        <p className="notice-detail">{item.detail}</p>
+      </div>
       <button type="button" aria-label="Cerrar notificación" onClick={() => onClose(item.id)}>×</button>
+      <span className="notice-meter" aria-hidden="true">
+        <span style={{ animationDuration: `${total}s` }} />
+      </span>
     </article>
   );
 }
