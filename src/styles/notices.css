@@ -73,6 +73,7 @@
 .notice-detail {
   margin: 0;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .notice-title {
@@ -126,15 +127,45 @@
 
 .notice-card button {
   align-self: center;
-  width: 0.8em;
-  height: 0.8em;
+  justify-self: end;
+  width: 1.6rem;
+  height: 1.6rem;
   margin: 0;
   padding: 0;
   border: 0;
   border-radius: 0.3125rem;
   color: #ccc;
   background: transparent;
-  font-size: 2em;
-  line-height: 0.8em;
+  font-size: 1.6rem;
+  line-height: 1.6rem;
   cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .notices {
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: max(0.75rem, env(safe-area-inset-right));
+    left: max(0.75rem, env(safe-area-inset-left));
+    width: auto;
+    font-size: 0.95rem;
+  }
+
+  .notice-card {
+    padding: 1.15em 0.85em 1.25em;
+  }
+
+  .notice-mark {
+    width: 2.1em;
+    height: 2.1em;
+    margin-right: 0.35em;
+  }
+
+  .notice-mark svg {
+    width: 1.4em;
+    height: 1.4em;
+  }
+
+  .notice-copy {
+    margin: 0.35em 0.65em;
+  }
 }
